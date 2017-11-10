@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "winner_relay", "winner_relay\winner_relay.vcxproj", "{2F0B57BB-695E-4BA3-933D-997BD1FD6EED}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "trade_server", "trade_server\trade_server.vcxproj", "{2BD48F05-0D26-475D-BD92-7AB78744910A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2F0B57BB-695E-4BA3-933D-997BD1FD6EED}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2F0B57BB-695E-4BA3-933D-997BD1FD6EED}.Debug|Win32.Build.0 = Debug|Win32
+		{2F0B57BB-695E-4BA3-933D-997BD1FD6EED}.Release|Win32.ActiveCfg = Release|Win32
+		{2F0B57BB-695E-4BA3-933D-997BD1FD6EED}.Release|Win32.Build.0 = Release|Win32
+		{2BD48F05-0D26-475D-BD92-7AB78744910A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2BD48F05-0D26-475D-BD92-7AB78744910A}.Debug|Win32.Build.0 = Debug|Win32
+		{2BD48F05-0D26-475D-BD92-7AB78744910A}.Release|Win32.ActiveCfg = Release|Win32
+		{2BD48F05-0D26-475D-BD92-7AB78744910A}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
