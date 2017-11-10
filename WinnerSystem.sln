@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "winner_relay", "winner_rela
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "trade_server", "trade_server\trade_server.vcxproj", "{2BD48F05-0D26-475D-BD92-7AB78744910A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WINNERLib", "WINNERLib\WINNERLib.vcxproj", "{751706A8-D3EB-464A-A707-96403481063B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -19,6 +21,10 @@ Global
 		{2BD48F05-0D26-475D-BD92-7AB78744910A}.Debug|Win32.Build.0 = Debug|Win32
 		{2BD48F05-0D26-475D-BD92-7AB78744910A}.Release|Win32.ActiveCfg = Release|Win32
 		{2BD48F05-0D26-475D-BD92-7AB78744910A}.Release|Win32.Build.0 = Release|Win32
+		{751706A8-D3EB-464A-A707-96403481063B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{751706A8-D3EB-464A-A707-96403481063B}.Debug|Win32.Build.0 = Debug|Win32
+		{751706A8-D3EB-464A-A707-96403481063B}.Release|Win32.ActiveCfg = Release|Win32
+		{751706A8-D3EB-464A-A707-96403481063B}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

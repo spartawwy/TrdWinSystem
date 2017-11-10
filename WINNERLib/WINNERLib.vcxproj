@@ -11,24 +11,23 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{2BD48F05-0D26-475D-BD92-7AB78744910A}</ProjectGuid>
+    <ProjectGuid>{751706A8-D3EB-464A-A707-96403481063B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>trade_server</RootNamespace>
-    <ProjectName>trade_server</ProjectName>
+    <RootNamespace>WINNERLib</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v110</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v110</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -41,11 +40,9 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)Build\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)Build\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -54,15 +51,16 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32_WINNT=0x0601;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Z:\include\</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>z:\include;$(SolutionDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>z:\lib\win32;$(OutDir);</AdditionalLibraryDirectories>
-      <AdditionalDependencies>TLib_d.lib;TLibTool_d.lib;SQLite_d.lib;WINNERLIB_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)_d$(TargetExt)</OutputFile>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -72,30 +70,32 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32_WINNT=0x0601;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Z:\include\</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>z:\include;$(SolutionDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>z:\lib\win32;$(OutDir);</AdditionalLibraryDirectories>
-      <AdditionalDependencies>TLib.lib;TLibTool.lib;SQLite.lib;WINNERLIB.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="sys_common.h" />
-    <ClInclude Include="targetver.h" />
-    <ClInclude Include="trade_server_app.h" />
+    <ClInclude Include="winner_error.h" />
+    <ClInclude Include="winner_message_classid.h" />
+    <ClInclude Include="winner_message_system.h" />
+    <ClInclude Include="winner_user_msg.pb.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="sys_common.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="trade_server_app.cpp" />
+    <ClCompile Include="winner_error.cpp" />
+    <ClCompile Include="winner_message_system.cpp" />
+    <ClCompile Include="winner_user_msg.pb.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="winner_user_msg.proto" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

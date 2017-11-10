@@ -1,0 +1,36 @@
+//-----------------------------
+// user related messages
+//-----------------------------
+
+import "TLib/core/tsystem_time.proto";
+import "TLib/core/tsystem_return_code.proto";
+// use message_lite
+option optimize_for = LITE_RUNTIME;
+
+
+//--------------
+// user request
+//--------------
+
+// request type
+enum RequestType
+{
+	LOGIN  = 0;
+	LOGOUT = 1;
+}
+
+// login info 
+message UserRequest
+{
+	required uint32      request_id    = 1;
+	required RequestType request_type  = 2;
+	required uint32      user_id       = 3;
+	required string      password      = 4;
+}
+
+message UserRequestAck
+{
+	optional uint32      user_id  = 1;
+	optional RequestAck  req_ack  = 2;
+	optional RequestType req_type = 3;
+}

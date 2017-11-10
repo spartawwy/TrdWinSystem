@@ -13,6 +13,9 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="moudle">
+      <UniqueIdentifier>{7b906475-741a-4ed3-94f9-cc243a576bc9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -24,9 +27,39 @@
     <ClInclude Include="targetver.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="forward_module.h">
+      <Filter>moudle</Filter>
+    </ClInclude>
+    <ClInclude Include="heartbeat_module.h">
+      <Filter>moudle</Filter>
+    </ClInclude>
+    <ClInclude Include="log_msg_module.h">
+      <Filter>moudle</Filter>
+    </ClInclude>
+    <ClInclude Include="master_selection_module.h">
+      <Filter>moudle</Filter>
+    </ClInclude>
+    <ClInclude Include="winner_relay_app.h">
+      <Filter>Src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="forward_module.cpp">
+      <Filter>moudle</Filter>
+    </ClCompile>
+    <ClCompile Include="heartbeat_module.cpp">
+      <Filter>moudle</Filter>
+    </ClCompile>
+    <ClCompile Include="log_msg_module.cpp">
+      <Filter>moudle</Filter>
+    </ClCompile>
+    <ClCompile Include="master_selection_module.cpp">
+      <Filter>moudle</Filter>
+    </ClCompile>
+    <ClCompile Include="winner_relay_app.cpp">
       <Filter>Src</Filter>
     </ClCompile>
   </ItemGroup>
