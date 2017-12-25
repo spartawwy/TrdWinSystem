@@ -54,13 +54,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;PROJECT_TAG_="WZF";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Z:\include\;$(SolutionDir);</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Z:\include\; ..\;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>Z:\lib\win32;$(OutDir);</AdditionalLibraryDirectories>
-      <AdditionalDependencies>TLib_d.lib;TLibTool_d.lib;SQLite_d.lib;WINNERLib_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>Z:\lib\win32;$(OutDir)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>WINNERLib_d.lib;TLib_d.lib;TLibTool_d.lib;SQLite_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
