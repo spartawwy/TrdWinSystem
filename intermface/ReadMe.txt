@@ -1,30 +1,101 @@
-﻿========================================================================
-    控制台应用程序：intermface 项目概述
-========================================================================
-
-应用程序向导已为您创建了此 intermface 应用程序。
-
-本文件概要介绍组成 intermface 应用程序的每个文件的内容。
-
-
-intermface.vcxproj
-    这是使用应用程序向导生成的 VC++ 项目的主项目文件，其中包含生成该文件的 Visual C++ 的版本信息，以及有关使用应用程序向导选择的平台、配置和项目功能的信息。
-
-intermface.vcxproj.filters
-    这是使用“应用程序向导”生成的 VC++ 项目筛选器文件。它包含有关项目文件与筛选器之间的关联信息。在 IDE 中，通过这种关联，在特定节点下以分组形式显示具有相似扩展名的文件。例如，“.cpp”文件与“源文件”筛选器关联。
-
-intermface.cpp
-    这是主应用程序源文件。
-
-/////////////////////////////////////////////////////////////////////////////
-其他标准文件:
-
-StdAfx.h, StdAfx.cpp
-    这些文件用于生成名为 intermface.pch 的预编译头 (PCH) 文件和名为 StdAfx.obj 的预编译类型文件。
-
-/////////////////////////////////////////////////////////////////////////////
-其他注释:
-
-应用程序向导使用“TODO:”注释来指示应添加或自定义的源代码部分。
-
-/////////////////////////////////////////////////////////////////////////////
+﻿struct table  
+{  
+    string name;  
+    string createSQL;  
+};  
+  
+//获取表信息  
+void GetTables(vector<table>& vecTable)  
+{  
+    char *szError= new char[256];  
+    sqlite3_stmt *stmt = NULL;  
+    sqlite3_prepare((sqlite3*)m_pDb,"select name,sql from sqlite_master where type='table'  order by name",-1,&stmt,0);   
+    vector<string> vecTables;  
+    if(stmt)   
+    {  
+        while(sqlite3_step(stmt) == SQLITE_ROW)   
+        {         
+            table tb;  
+            tb.name =(char *)sqlite3_column_text(stmt,0);  
+            tb.createSQL = (char *)sqlite3_column_text(stmt,1);  
+            vecTable.push_back(tb);  
+        }  
+        sqlite3_finalize(stmt);  
+        stmt = NULL;  
+    }  
+}  
+  
+//获取列名  
+bool GetColName(vector<string>& vecColName, string strTableName)  
+{  
+    sqlite3_stmt *stmt = NULL;  
+    char sql[200];  
+    sprintf(sql, "SELECT * FROM %s limit 0,1", strTableName.c_str());  
+    char **pRes=NULL;  
+    int nRow=0, nCol=0;  
+    char *pErr=NULL;  
+  
+    //第一行是列名称  
+    sqlite3_get_table((sqlite3*)m_pDb, sql, &pRes, &nRow, &nCol, &pErr);      
+    for (int i=0; i<nRow; i++)  
+    {  
+        for (int j=0; j<nCol; j++)  
+        {  
+            char *pv = *(pRes+nCol*i+j);  
+            vecColName.push_back(pv);  
+        }  
+        break;  
+    }  
+  
+    if (pErr!=NULL)  
+    {  
+        sqlite3_free(pErr);  
+    }  
+    sqlite3_free_table(pRes);  
+    return true;  
+}  
+  
+  
+//获取列类型  
+bool GetColType(vector<int>& vecType, string strTableName)  
+{  
+    sqlite3_stmt *stmt = NULL;  
+    char sql[200];  
+    sprintf(sql, "SELECT * FROM %s limit 0,1", strTableName.c_str());  
+    sqlite3_prepare((sqlite3*)m_pDb, sql,-1,&stmt,0);     
+    if(stmt)   
+    {  
+        while(sqlite3_step(stmt) == SQLITE_ROW)   
+        {     
+            int nCount = sqlite3_column_count(stmt);  
+            for (int i=0; i<nCount; i++)  
+            {  
+                int nValue = sqlite3_column_int(stmt,0);  
+                int nType = sqlite3_column_type(stmt, i);  
+                vecType.push_back(nType);  
+                switch (nType)  
+                {  
+                case 1:  
+                    //SQLITE_INTEGER  
+                    break;  
+                case 2:  
+                    //SQLITE_FLOAT  
+                    break;  
+                case 3:  
+                    //SQLITE_TEXT  
+                    break;  
+                case 4:  
+                    //SQLITE_BLOB  
+                    break;  
+                case 5:  
+                    //SQLITE_NULL  
+                    break;  
+                }  
+            }  
+            break;  
+        }  
+        sqlite3_finalize(stmt);  
+        stmt = NULL;  
+    }  
+    return true;  
+}  
