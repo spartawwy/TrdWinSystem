@@ -1,5 +1,4 @@
-// TradeServer.cpp : 定义控制台应用程序的入口点。
-//
+#include <iostream>
 
 #include <TLib/core/tsystem_core_common.h>
 #include <TLib/core/tsystem_core_paths.h>
@@ -18,7 +17,15 @@ public:
     {
         TSystem::utility::ProjectTag("WZF");
 
-        TradeServerApp  app;
+		std::string usage("trade_server.exe <trade_server resource name>");
+		if( argc < 2 )
+		{
+			std::cout << usage << std::endl;
+			return 1;
+		}
+
+        TradeServerApp  app(argv[1], "0.1");
+		app.Initiate();
 
         PrintAppInfo(app);
 

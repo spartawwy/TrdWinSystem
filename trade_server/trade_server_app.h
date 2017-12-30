@@ -8,7 +8,7 @@ using namespace TSystem;
 class TradeServerApp : public ServerAppBase
 {
 public:
-    TradeServerApp();
+    TradeServerApp(const std::string &name, const std::string &version);
     ~TradeServerApp(){}
 
     virtual void HandleNodeHandShake(communication::Connection* p, const Message& msg) override {};

@@ -1,8 +1,9 @@
 
 #include "trade_server_app.h"
  
+#include "WINNERLib/winner_message_system.h"
 
-TradeServerApp::TradeServerApp() : ServerAppBase("server", "trade_server", "0.1")
+TradeServerApp::TradeServerApp(const std::string &name, const std::string &version) : ServerAppBase("trade_server", name, version)
 {
 
 }
@@ -10,7 +11,7 @@ TradeServerApp::TradeServerApp() : ServerAppBase("server", "trade_server", "0.1"
 void TradeServerApp::Initiate()
 {
     option_load_class_id(false);
-    //LoadClassID(msg_system_);
+    WINNERSystem::LoadClassID(msg_system_);
     //option_load_config(true);
     ServerAppBase::Initiate();
 

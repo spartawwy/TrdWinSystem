@@ -32,5 +32,19 @@ public:
 
 private:
 
+	virtual void HandleNodeHandShake(TSystem::communication::Connection* p, const TSystem::Message& msg) override;
+	virtual void HandleNodeDisconnect(std::shared_ptr<TSystem::communication::Connection>& pconn, const TSystem::TError& te) override;
+
+	// the default handlers
+	TSystem::MessageHandlerGroup                           msg_handlers_;
+
+	// the connection
+	std::shared_ptr<TSystem::communication::Connection>    pconn_;
+
+	// the async operation
+	TSystem::AsyncOperationManager                         async_ops_;
+
+	WZFClientSocket							               wze_client_socket_;
+	bool												   monitor_flag_;
 }; 
 #endif // INTTERMFACE_SDF3DKDFS_H_

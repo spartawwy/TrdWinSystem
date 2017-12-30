@@ -12,6 +12,8 @@
 //#include "WZELib/wze_query_msg.pb.h"
 //#include "WZELib/wze_transfer_msg.pb.h"
 
+#include "WinnerLib/winner_user_msg.pb.h"
+
 namespace TSystem
 {
 	namespace communication
@@ -55,35 +57,36 @@ public:
 	}
 
 	// send user request <LOGIN or LOGOUT>
-	void SendUserRequest(unsigned int request_id, RequestType type, unsigned int user_id, const std::string& password);
+	//void SendUserRequest(unsigned int request_id, RequestType type, unsigned int user_id, const std::string& password);
 
 	// send quote request
-	void SendPrivateQuoteRequest(unsigned int user_id, const SymbolVariable& symbol_var
-		, unsigned int quantity, const std::string& buy_sell, const std::string& open_close, const std::string* remark=nullptr);
-	void CancelPrivateQuoteRequest(unsigned int user_id, const SymbolVariable& symbol_var, const std::string& qr_id);
+	//void SendPrivateQuoteRequest(unsigned int user_id);
+	//void CancelPrivateQuoteRequest(unsigned int user_id);
+
+
 
 	// send quote response
-	void SendPrivateQuoteResponse(TPrivateQuoteResponseField& field);
-	void CancelPrivateQuoteResponse(unsigned int user_id, const SymbolVariable& symbol_var, const std::string& quote_id);
+	//void SendPrivateQuoteResponse(TPrivateQuoteResponseField& field);
+	//void CancelPrivateQuoteResponse(unsigned int user_id, const SymbolVariable& symbol_var, const std::string& quote_id);
 
 	// send quote book
-	void SubmitPrivateQuoteBook(TPrivateQuoteResponseField& field);
+	//void SubmitPrivateQuoteBook(TPrivateQuoteResponseField& field);
 
 	// send query request
-	void SendQueryRequest(unsigned int user_id, QueryType query_type, const SymbolVariable* symbol_var=nullptr
-		, const QueryRequest::QueryStatusType* p_status=nullptr);
+	//void SendQueryRequest(unsigned int user_id, QueryType query_type, const SymbolVariable* symbol_var=nullptr
+	//	, const QueryRequest::QueryStatusType* p_status=nullptr);
 
 	// send query response
-	void SendQueryServerResponse(unsigned int user_id, const std::string& qr_id);
+	//void SendQueryServerResponse(unsigned int user_id, const std::string& qr_id);
 
 	// send transfer
-	void SubmitTransfer(unsigned int user_id, const SymbolVariable& symbol_var, const std::string& user_trsf_ref, const std::string& trsf_type
-		, const RationalNumber& quantity, const std::string& account_category, const std::string* remark=nullptr);
-	void ConfirmTransfer(unsigned int user_id, const SymbolVariable& symbol_var, const std::string& exch_trsf_ref, const std::string& trsf_type
-		, const RationalNumber& quantity, const std::string& account_category);
+	//void SubmitTransfer(unsigned int user_id, const SymbolVariable& symbol_var, const std::string& user_trsf_ref, const std::string& trsf_type
+	//	, const RationalNumber& quantity, const std::string& account_category, const std::string* remark=nullptr);
+	//void ConfirmTransfer(unsigned int user_id, const SymbolVariable& symbol_var, const std::string& exch_trsf_ref, const std::string& trsf_type
+	//	, const RationalNumber& quantity, const std::string& account_category);
 
-	// send quote trial
-	void SendPrivateQuoteTrial(unsigned int user_id, const SymbolVariable& symbol_var, unsigned int quantity, const RationalNumber& price, const std::string& buy_sell, const std::string& open_close);
+	//// send quote trial
+	//void SendPrivateQuoteTrial(unsigned int user_id, const SymbolVariable& symbol_var, unsigned int quantity, const RationalNumber& price, const std::string& buy_sell, const std::string& open_close);
 
 private:
 
