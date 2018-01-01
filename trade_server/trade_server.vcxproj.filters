@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="trade_server_app.cpp" />
+    <ClCompile Include="sys_common.cpp">
+      <Filter>header</Filter>
+    </ClCompile>
+    <ClCompile Include="stock_ticker.cpp">
+      <Filter>moudle</Filter>
+    </ClCompile>
+    <ClCompile Include="strategy_task.cpp">
+      <Filter>moudle</Filter>
+    </ClCompile>
+    <ClCompile Include="mutex_wrapper.cpp">
+      <Filter>moudle</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="trade_server_app.h" />
+    <ClInclude Include="sys_common.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="stock_ticker.h">
+      <Filter>moudle</Filter>
+    </ClInclude>
+    <ClInclude Include="TdxHqApi.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="strategy_task.h">
+      <Filter>moudle</Filter>
+    </ClInclude>
+    <ClInclude Include="mutex_wrapper.h">
+      <Filter>moudle</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="moudle">
+      <UniqueIdentifier>{e13f56a6-2f68-4068-917b-35e695730f16}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="header">
+      <UniqueIdentifier>{a49eb56f-e208-4823-be7f-033a443dba88}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

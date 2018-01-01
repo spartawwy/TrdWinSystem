@@ -88,11 +88,18 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="mutex_wrapper.h" />
+    <ClInclude Include="stock_ticker.h" />
+    <ClInclude Include="strategy_task.h" />
     <ClInclude Include="sys_common.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TdxHqApi.h" />
     <ClInclude Include="trade_server_app.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="mutex_wrapper.cpp" />
+    <ClCompile Include="stock_ticker.cpp" />
+    <ClCompile Include="strategy_task.cpp" />
     <ClCompile Include="sys_common.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="trade_server_app.cpp" />

@@ -3,6 +3,9 @@
 
 #include <TLib/tool/tsystem_server_appbase.h>
 
+#include "stock_ticker.h"
+
+
 using namespace TSystem;
 
 class TradeServerApp : public ServerAppBase
@@ -21,6 +24,18 @@ public:
 
     void Initiate();
 
+private:
+
+	TaskStrand  tick_strand_;
+	//TaskStrand  index_tick_strand_;
+
+	bool exit_flag_;
+
+	bool ticker_enable_flag_;
+
+	std::shared_ptr<StockTicker>  stock_ticker_;
+	//std::shared_ptr<IndexTicker>  index_ticker_;
+	int stock_ticker_life_count_;
 };
 
 #endif // TRADE_SERVER_APP_H_SDF32SDFSD_
