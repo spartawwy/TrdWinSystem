@@ -23,6 +23,9 @@ void TradeServerApp::Initiate()
     //option_load_config(true);
     ServerAppBase::Initiate();
 
+    stock_ticker_ = std::make_shared<StockTicker>(this->local_logger());
+    stock_ticker_->Init();
+
 	//-----------ticker main loop----------
 	task_pool().PostTask([this]()
 	{

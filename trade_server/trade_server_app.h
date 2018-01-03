@@ -14,7 +14,9 @@ public:
     TradeServerApp(const std::string &name, const std::string &version);
     ~TradeServerApp(){}
 
-    virtual void HandleNodeHandShake(communication::Connection* p, const Message& msg) override {};
+    virtual void HandleNodeHandShake(communication::Connection* p, const Message& msg) override 
+    {
+    };
 	virtual void HandleNodeDisconnect(std::shared_ptr<communication::Connection>& pconn
 			, const TError& te) override {};
 
