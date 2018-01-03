@@ -209,22 +209,130 @@ void StockTicker::Procedure()
     Buffer Result(cst_result_len);
     Buffer ErrInfo(cst_error_len);
 
-    char* stock_codes[cst_max_stock_code_count];
-    memset(stock_codes, 0, sizeof(char*)*cst_max_stock_code_count);
+    //char* stock_codes[cst_max_stock_code_count];
+    //memset(stock_codes, 0, sizeof(char*)*cst_max_stock_code_count);
       
     byte markets[cst_max_stock_code_count];
 
     short stock_count = 0;
      
     //auto  cur_time = QTime::currentTime();
+#if 0
     //--------------------------- 
     stock_count = GetRegisteredCodes(registered_tasks_, stock_codes, markets);
     if( stock_count < 1 )
         return;
+#else
+	Buffer stocks[cst_max_stock_code_count];
+	stock_count = 100;
+	char *stock_codes[] = {"600000",
+		"600001",
+		"600002",
+		"600003",
+		"600004",
+		"600005",
+		"600006",
+		"600007",
+		"600008",
+		"600009",
+		"600010",
+		"600011",
+		"600012",
+		"600015",
+		"600016",
+		"600017",
+		"600018",
+		"600019",
+		"600020",
+		"600021",
+		"600022",
+		"600023",
+		"600026",
+		"600027",
+		"600028",
+		"600029",
+		"600030",
+		"600031",
+		"600033",
+		"600035",
+		"600036",
+		"600037",
+		"600038",
+		"600039",
+		"600048",
+		"600050",
+		"600051",
+		"600052",
+		"600053",
+		"600054",
+		"600055",
+		"600056",
+		"600057",
+		"600058",
+		"600059",
+		"600060",
+		"600061",
+		"600062",
+		"600063",
+		"600064",
+		"600065",
+		"600066",
+		"600067",
+		"600068",
+		"600069",
+		"600070",
+		"600071",
+		"600072",
+		"600073",
+		"600074",
+		"600075",
+		"600076",
+		"600077",
+		"600078",
+		"600079",
+		"600080",
+		"600081",
+		"600082",
+		"600083",
+		"600084",
+		"600085",
+		"600086",
+		"600087",
+		"600088",
+		"600089",
+		"600090",
+		"600091",
+		"600092",
+		"600093",
+		"600094",
+		"600095",
+		"600096",
+		"600097",
+		"600098",
+		"600099",
+		"600100",
+		"600101",
+		"600102",
+		"600103",
+		"600104",
+		"600105",
+		"600106",
+		"600107",
+		"600108",
+		"600109",
+		"600110",
+		"600111",
+		"600112",
+		"600113",
+		"600114" };
+
+#endif
 
     if( !GetQuotes(stock_codes, stock_count, Result) )
         return;
- 
+	std::cout << Result.c_data() << std::endl;
+
+
     /*auto tp_now = std::chrono::system_clock::now();
     time_t t_t = std::chrono::system_clock::to_time_t(tp_now); */
     //--------------------------Docode result -------------

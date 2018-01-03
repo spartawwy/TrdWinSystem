@@ -29,6 +29,7 @@ public:
 private:
 
 	TaskStrand  tick_strand_;
+	TaskStrand  tick_strand_1_;
 	//TaskStrand  index_tick_strand_;
 
 	bool exit_flag_;

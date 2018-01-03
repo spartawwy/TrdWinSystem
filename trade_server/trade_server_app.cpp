@@ -9,6 +9,7 @@ static const int cst_normal_timer_interval = 2000;
 
 TradeServerApp::TradeServerApp(const std::string &name, const std::string &version) : ServerAppBase("trade_server", name, version)
 	, tick_strand_(task_pool())
+	, tick_strand_1_(task_pool())
 	, exit_flag_(false)
 	, ticker_enable_flag_(true)
 	, stock_ticker_life_count_(0)
@@ -37,6 +38,11 @@ void TradeServerApp::Initiate()
 				continue;
 
 			tick_strand_.PostTask([this]()
+			{
+				this->stock_ticker_->Procedure();
+				this->stock_ticker_life_count_ = 0;
+			});
+			tick_strand_1_.PostTask([this]()
 			{
 				this->stock_ticker_->Procedure();
 				this->stock_ticker_life_count_ = 0;
