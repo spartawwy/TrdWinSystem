@@ -24,6 +24,8 @@
 #define EQSEC_MAX_STOP_PRICE 999.00
 #define EQSEC_MIN_CLEAR_PRICE 0.0
 
+#define MAX_STOCKS  400
+
 #if 0
 std::vector<std::string> split(const std::string& line, const std::string& seperator = " ", 
 							   const std::string& quotation = "\"");
@@ -352,6 +354,8 @@ std::chrono::system_clock::time_point Int2TimePoint(int val);
 //bool compare(T_BrokerInfo &lh, T_BrokerInfo &rh);
 
 bool Equal(double lh, double rh);
+
+int GetBaseStocks(char* stocks[MAX_STOCKS], int max_size);
 
 #endif
 

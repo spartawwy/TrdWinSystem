@@ -88,6 +88,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="db_moudle.h" />
     <ClInclude Include="mutex_wrapper.h" />
     <ClInclude Include="stock_ticker.h" />
     <ClInclude Include="strategy_task.h" />
@@ -97,6 +98,7 @@
     <ClInclude Include="trade_server_app.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="db_moudle.cpp" />
     <ClCompile Include="mutex_wrapper.cpp" />
     <ClCompile Include="stock_ticker.cpp" />
     <ClCompile Include="strategy_task.cpp" />

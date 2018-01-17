@@ -16,6 +16,8 @@
 #include <windows.h>
 #include "TdxHqApi.h"
 
+#include "sys_common.h"
+
  //»ñÈ¡apiº¯Êý
 TdxHq_ConnectDelegate TdxHq_Connect = nullptr;
 TdxHq_DisconnectDelegate TdxHq_Disconnect = nullptr;
@@ -206,7 +208,23 @@ void StockTicker::DecodeStkQuoteResult(Buffer &Result, std::list<T_codeQuoteDate
 
 void StockTicker::Procedure()
 {  
-    Buffer Result(cst_result_len);
+	const int re_count = 5;
+	Buffer Result_0(cst_result_len);
+	Buffer Result_1(cst_result_len);
+	Buffer Result_2(cst_result_len);
+	Buffer Result_3(cst_result_len);
+	Buffer Result_4(cst_result_len);
+
+	Buffer * result_array[re_count];
+	result_array[0] = &Result_0;
+	result_array[1] = &Result_1;
+	result_array[2] = &Result_2;
+	result_array[3] = &Result_3;
+	result_array[4] = &Result_4;
+	/*for (int i = 0; i < re_count; ++i )
+	{
+
+	}*/
     Buffer ErrInfo(cst_error_len);
 
     //char* stock_codes[cst_max_stock_code_count];
@@ -224,121 +242,29 @@ void StockTicker::Procedure()
         return;
 #else
 	Buffer stocks[cst_max_stock_code_count];
-	stock_count = 100;
-	char *stock_codes[] = {"600000",
-		"600001",
-		"600002",
-		"600003",
-		"600004",
-		"600005",
-		"600006",
-		"600007",
-		"600008",
-		"600009",
-		"600010",
-		"600011",
-		"600012",
-		"600015",
-		"600016",
-		"600017",
-		"600018",
-		"600019",
-		"600020",
-		"600021",
-		"600022",
-		"600023",
-		"600026",
-		"600027",
-		"600028",
-		"600029",
-		"600030",
-		"600031",
-		"600033",
-		"600035",
-		"600036",
-		"600037",
-		"600038",
-		"600039",
-		"600048",
-		"600050",
-		"600051",
-		"600052",
-		"600053",
-		"600054",
-		"600055",
-		"600056",
-		"600057",
-		"600058",
-		"600059",
-		"600060",
-		"600061",
-		"600062",
-		"600063",
-		"600064",
-		"600065",
-		"600066",
-		"600067",
-		"600068",
-		"600069",
-		"600070",
-		"600071",
-		"600072",
-		"600073",
-		"600074",
-		"600075",
-		"600076",
-		"600077",
-		"600078",
-		"600079",
-		"600080",
-		"600081",
-		"600082",
-		"600083",
-		"600084",
-		"600085",
-		"600086",
-		"600087",
-		"600088",
-		"600089",
-		"600090",
-		"600091",
-		"600092",
-		"600093",
-		"600094",
-		"600095",
-		"600096",
-		"600097",
-		"600098",
-		"600099",
-		"600100",
-		"600101",
-		"600102",
-		"600103",
-		"600104",
-		"600105",
-		"600106",
-		"600107",
-		"600108",
-		"600109",
-		"600110",
-		"600111",
-		"600112",
-		"600113",
-		"600114" };
+	
+	char * stock_array[MAX_STOCKS];
+	int stk_count = GetBaseStocks(stock_array, MAX_STOCKS);
 
 #endif
+	for (int i = 0; i < re_count; ++i )
+	{ 
+		stock_count = 80;
+		if( !GetQuotes(&stock_array[i * stock_count], stock_count, *result_array[i]) )
+			return;
+		// std::cout << result_array[i]->c_data()[0] << result_array[i]->c_data()[1] << result_array[i]->c_data()[2] \
+		<< result_array[i]->c_data()[3] << result_array[i]->c_data()[4] << result_array[i]->c_data()[5] << std::endl;
+		std::cout << result_array[i]->c_data() << std::endl;
+		std::cout << "StockTicker::Procedure GetQuotes for " << i << " OK ret " << stock_count << " stocks " << std::endl;
 
-    if( !GetQuotes(stock_codes, stock_count, Result) )
-        return;
-	std::cout << Result.c_data() << std::endl;
+		DecodeStkQuoteResult(*result_array[i], nullptr, std::bind(&StockTicker::TellAllRelTasks, this, std::placeholders::_1, std::placeholders::_2));
 
-
+	}
     /*auto tp_now = std::chrono::system_clock::now();
     time_t t_t = std::chrono::system_clock::to_time_t(tp_now); */
     //--------------------------Docode result -------------
 
-    DecodeStkQuoteResult(Result, nullptr, std::bind(&StockTicker::TellAllRelTasks, this, std::placeholders::_1, std::placeholders::_2));
-        
+     
 }
  
 void StockTicker::TellAllRelTasks(const std::list<unsigned int>& id_list, std::shared_ptr<QuotesData> &data)

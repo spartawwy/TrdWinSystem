@@ -15,6 +15,9 @@
     <ClCompile Include="mutex_wrapper.cpp">
       <Filter>moudle</Filter>
     </ClCompile>
+    <ClCompile Include="db_moudle.cpp">
+      <Filter>moudle</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h" />
@@ -32,6 +35,9 @@
       <Filter>moudle</Filter>
     </ClInclude>
     <ClInclude Include="mutex_wrapper.h">
+      <Filter>moudle</Filter>
+    </ClInclude>
+    <ClInclude Include="db_moudle.h">
       <Filter>moudle</Filter>
     </ClInclude>
   </ItemGroup>

@@ -42,11 +42,13 @@ void TradeServerApp::Initiate()
 				this->stock_ticker_->Procedure();
 				this->stock_ticker_life_count_ = 0;
 			});
+#if 0
 			tick_strand_1_.PostTask([this]()
 			{
 				this->stock_ticker_->Procedure();
 				this->stock_ticker_life_count_ = 0;
 			});
+#endif
 #if 0
 			index_tick_strand_.PostTask([this]()
 			{
