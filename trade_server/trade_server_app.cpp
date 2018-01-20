@@ -1,8 +1,9 @@
 #include "trade_server_app.h"
  
-#include "sys_common.h"
-
 #include "WINNERLib/winner_message_system.h"
+
+#include "sys_common.h"
+ 
 
 static const int cst_ticker_update_interval = 2000;  //ms :notice value have to be bigger than 1000
 static const int cst_normal_timer_interval = 2000;
@@ -13,6 +14,10 @@ TradeServerApp::TradeServerApp(const std::string &name, const std::string &versi
 	, exit_flag_(false)
 	, ticker_enable_flag_(true)
 	, stock_ticker_life_count_(0)
+	, db_moudle_(this)
+	, id_brokers_(100)
+	, id_users_(1024)
+	, id_accounts_(1024*2)
 {
 
 }
@@ -23,6 +28,8 @@ void TradeServerApp::Initiate()
     WINNERSystem::LoadClassID(msg_system_);
     //option_load_config(true);
     ServerAppBase::Initiate();
+
+	db_moudle_.Init();
 
     stock_ticker_ = std::make_shared<StockTicker>(this->local_logger());
     stock_ticker_->Init();

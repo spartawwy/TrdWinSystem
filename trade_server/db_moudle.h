@@ -43,14 +43,19 @@ public:
 
 	void Init();
 
+
 private:
 
 	void Open(std::shared_ptr<SQLite::SQLiteConnection>& db_conn);
+	void LoadAllBrokers();
+	void LoadAllUsers();
+	void LoadAllAccounts();
 
 private:
 
+	TradeServerApp *app_;
 	std::shared_ptr<SQLite::SQLiteConnection> db_conn_;
-	int max_accoun_id_;
+	int max_accoun_id_; 
 };
 
 #endif //DBMOULDE_H_DSFWDSF_

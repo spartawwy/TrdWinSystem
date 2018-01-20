@@ -22,7 +22,7 @@ bool TimedMutexWrapper::try_lock_for(unsigned int milli_sec)
     }
   
     auto start = std::chrono::system_clock::now();
-    int delay_autom_val = 50;
+    unsigned int delay_autom_val = 50;
     if( milli_sec  > 10*1000 )
     {
         delay_autom_val = 50;

@@ -4,7 +4,7 @@
 #include <TLib/tool/tsystem_server_appbase.h>
 
 #include "stock_ticker.h"
-
+#include "db_moudle.h"
 
 using namespace TSystem;
 
@@ -39,6 +39,13 @@ private:
 	std::shared_ptr<StockTicker>  stock_ticker_;
 	//std::shared_ptr<IndexTicker>  index_ticker_;
 	int stock_ticker_life_count_;
+
+	DBMoudle  db_moudle_;
+	std::unordered_map<int, std::shared_ptr<T_BrokerInfo> > id_brokers_;
+	std::unordered_map<std::string, std::shared_ptr<T_UserInfo> > id_users_;
+	std::unordered_map<int, std::shared_ptr<T_AccountInfo> > id_accounts_;
+	 
+	friend class DBMoudle;
 };
 
 #endif // TRADE_SERVER_APP_H_SDF32SDFSD_

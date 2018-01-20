@@ -70,7 +70,8 @@ CREATE TABLE BrokerTask_ZHONGYGJ(task_id TEXT
 #include "trade_server_app.h"
 
 DBMoudle::DBMoudle(TradeServerApp *app)
-	:db_conn_(nullptr)
+	: app_(app)
+	, db_conn_(nullptr)
 {
 
 }
@@ -85,11 +86,14 @@ void DBMoudle::Init()
 	// SELECT code, broker_tsk_tb_str FROM stocks ORDER BY code;
 	if( !db_conn_ )
 		Open(db_conn_);
+	LoadAllBrokers();
+	LoadAllUsers();
+	LoadAllAccounts();
 
 	if( !utility::ExistTable("stocks", *db_conn_) )
 		ThrowTException( CoreErrorCategory::ErrorCode::BAD_CONTENT
-		, "DBMoudle::Init"
-		, "can't find table accountInfo");
+			, "DBMoudle::Init"
+			, "can't find table stocks");
 
 	 
 	std::list<T_CodeBrokerTables> stocks_broker_table_list;
@@ -122,4 +126,50 @@ void DBMoudle::Open(std::shared_ptr<SQLite::SQLiteConnection>& db_conn)
 		, "DBMoudle::Open"
 		, "can't open database: " + db_file);
 
+}
+
+void DBMoudle::LoadAllBrokers()
+{
+	if( !db_conn_ )
+		Open(db_conn_);
+	//-----------load all brokers-----------------
+	if( !utility::ExistTable("BrokerInfo", *db_conn_) )
+		ThrowTException( CoreErrorCategory::ErrorCode::BAD_CONTENT
+		, "DBMoudle::Init"
+		, "can't find table BrokerInfo");
+	std::string sql = "SELECT id, ip, port, type, remark, com_ver FROM BrokerInfo ORDER BY type ";
+
+	db_conn_->ExecuteSQL(sql.c_str(),[this](int num_cols, char** vals, char** names)->int
+	{
+		auto p_broker_info = std::make_shared<T_BrokerInfo>();
+		try
+		{
+			p_broker_info->id = boost::lexical_cast<int>(*vals); 
+			p_broker_info->port = boost::lexical_cast<int>(*(vals + 2)); 
+			p_broker_info->type = boost::lexical_cast<int>(*(vals + 3)); 
+		}catch(boost::exception &)
+		{
+			std::cout << "DBMoudle::LoadAllBrokers lexical_cast exception" << std::endl;
+			app_->local_logger().LogLocal("DBMoudle::LoadAllBrokers lexical_cast exception");
+			return 0;
+		}
+		p_broker_info->ip = *(vals + 1);
+		p_broker_info->remark  = *(vals + 4); 
+		p_broker_info->com_ver  = *(vals + 5); 
+		 
+		//auto p_broker_info = std::make_shared<T_BrokerInfo>(id, ip, port, type, remark, com_ver); // cpp12 not support
+
+		this->app_->id_brokers_.emplace(std::make_pair(p_broker_info->id, std::move(p_broker_info)));
+		return 0;
+	});
+}
+
+void DBMoudle::LoadAllUsers()
+{
+	// todo:
+}
+
+void DBMoudle::LoadAllAccounts()
+{
+	// todo:
 }

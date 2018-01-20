@@ -165,7 +165,7 @@ void StockTicker::DecodeStkQuoteResult(Buffer &Result, std::list<T_codeQuoteDate
      
     auto result_array = TSystem::utility::split(res_str, "\t");
     
-    for( int n = 1; n < result_array.size() / 44; ++n )
+    for( unsigned n = 1; n < result_array.size() / 44; ++n )
     {
         auto stock_code = result_array.at(1 + n * 44);
 
@@ -230,7 +230,7 @@ void StockTicker::Procedure()
     //char* stock_codes[cst_max_stock_code_count];
     //memset(stock_codes, 0, sizeof(char*)*cst_max_stock_code_count);
       
-    byte markets[cst_max_stock_code_count];
+    //byte markets[cst_max_stock_code_count];
 
     short stock_count = 0;
      
@@ -252,8 +252,8 @@ void StockTicker::Procedure()
 		stock_count = 80;
 		if( !GetQuotes(&stock_array[i * stock_count], stock_count, *result_array[i]) )
 			return;
-		// std::cout << result_array[i]->c_data()[0] << result_array[i]->c_data()[1] << result_array[i]->c_data()[2] \
-		<< result_array[i]->c_data()[3] << result_array[i]->c_data()[4] << result_array[i]->c_data()[5] << std::endl;
+		// std::cout << result_array[i]->c_data()[0] << result_array[i]->c_data()[1] << result_array[i]->c_data()[2]  
+		// << result_array[i]->c_data()[3] << result_array[i]->c_data()[4] << result_array[i]->c_data()[5] << std::endl;
 		std::cout << result_array[i]->c_data() << std::endl;
 		std::cout << "StockTicker::Procedure GetQuotes for " << i << " OK ret " << stock_count << " stocks " << std::endl;
 

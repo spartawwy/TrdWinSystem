@@ -162,27 +162,40 @@ struct T_AccountData
 	char rzrq_tag[64];  //ÈÚ×ÊÈÚÈ¯ ±êÊ¶
 };
 
-struct T_UserInformation
-{
+struct T_BrokerInfo
+{ 
 	int id;
+	std::string ip;
+	int port;
+	int type;
+	std::string remark;
+	std::string com_ver;
+	T_BrokerInfo() : id(0), ip(), port(0), type(0), remark(), com_ver(){}
+	/*T_BrokerInfo(int i_d, const std::string& i_p, int para_port, int tp, const std::string& para_remake
+	, const std::string& para_com_ver)
+	: id(i_d), ip(i_p), port(para_port), type(tp), remark(para_remake), com_ver(para_com_ver){}*/
+};
+
+struct T_UserInfo
+{ // PRIMARY KEY(id, account_id)
+	std::string id;
 	int level;
 	std::string name;
 	std::string nick_name;
 	std::string password;
 	int account_id;
-	std::string account_no;
 	std::string remark;
-	T_UserInformation() : id(0), level(0), account_id(0){}
+	T_UserInfo() : id(0), level(0), account_id(0){}
 
-	T_UserInformation &operator = (const T_UserInformation&lh)
+	T_UserInfo &operator = (const T_UserInfo&lh)
 	{
 		id = lh.id; level = lh.level; name = lh.name; nick_name = lh.nick_name;
-		password = lh.password; account_id = lh.account_id; account_no = lh.account_no; remark = lh.remark;  
+		password = lh.password; account_id = lh.account_id; remark = lh.remark;  
 		return *this;
 	}
 };
 
-struct T_AccountInformation
+struct T_AccountInfo
 {
 	int id;
 	std::string account_no;
@@ -192,7 +205,7 @@ struct T_AccountInformation
 	int broker_id; 
 	std::string department_id; 
 	std::string remark;
-	T_AccountInformation() : id(-1), broker_id(-1) {}
+	T_AccountInfo() : id(-1), broker_id(-1) {}
 };
 
 struct T_PositionData
