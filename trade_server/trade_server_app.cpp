@@ -18,8 +18,10 @@ TradeServerApp::TradeServerApp(const std::string &name, const std::string &versi
 	, id_brokers_(100)
 	, id_users_(1024)
 	, id_accounts_(1024*2)
-{
-
+	, code_table_container_beg_0_(std::make_shared<T_CodeMapTableList>(1000)) 
+	, code_table_container_beg_3_(std::make_shared<T_CodeMapTableList>(1000)) 
+	, code_table_container_beg_6_(std::make_shared<T_CodeMapTableList>(1800))  
+{ 
 }
 
 void TradeServerApp::Initiate()
@@ -30,6 +32,9 @@ void TradeServerApp::Initiate()
     ServerAppBase::Initiate();
 
 	db_moudle_.Init();
+
+	// todo: create tick_strand_list4stocks_x_ base on code_table_container_beg_x_
+	// todo: each tick_strand use a task pool to invoker Procedure
 
     stock_ticker_ = std::make_shared<StockTicker>(this->local_logger());
     stock_ticker_->Init();

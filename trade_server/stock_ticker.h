@@ -58,6 +58,9 @@ public:
 
 protected:
       
+	static bool SetUpHqApi();
+	static bool has_hq_api_setup_;
+
     TTaskIdMapStrategyTask  registered_tasks_;
      
     TCodeMapTasks  codes_taskids_;

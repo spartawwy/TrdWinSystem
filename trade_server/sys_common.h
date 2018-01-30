@@ -358,6 +358,8 @@ struct T_TaskInformation
 
 };
 
+typedef std::unordered_map<std::string, std::shared_ptr<std::vector<std::string> > > T_CodeMapTableList;
+
 void Delay(unsigned short mseconds);
 
 TypeMarket GetStockMarketType(const std::string &stock_code);

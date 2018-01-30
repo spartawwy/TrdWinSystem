@@ -19,25 +19,26 @@
 #include "sys_common.h"
 
  //获取api函数
-TdxHq_ConnectDelegate TdxHq_Connect = nullptr;
-TdxHq_DisconnectDelegate TdxHq_Disconnect = nullptr;
-TdxHq_GetSecurityBarsDelegate TdxHq_GetSecurityBars = nullptr;
-TdxHq_GetIndexBarsDelegate TdxHq_GetIndexBars = nullptr;
-TdxHq_GetMinuteTimeDataDelegate TdxHq_GetMinuteTimeData = nullptr;
-TdxHq_GetHistoryMinuteTimeDataDelegate TdxHq_GetHistoryMinuteTimeData = nullptr;
-TdxHq_GetTransactionDataDelegate TdxHq_GetTransactionData = nullptr;
-TdxHq_GetHistoryTransactionDataDelegate TdxHq_GetHistoryTransactionData = nullptr;
-TdxHq_GetSecurityQuotesDelegate TdxHq_GetSecurityQuotes = nullptr;
-TdxHq_GetCompanyInfoCategoryDelegate TdxHq_GetCompanyInfoCategory = nullptr;
-TdxHq_GetCompanyInfoContentDelegate TdxHq_GetCompanyInfoContent = nullptr;
-TdxHq_GetXDXRInfoDelegate TdxHq_GetXDXRInfo = nullptr;
-TdxHq_GetFinanceInfoDelegate TdxHq_GetFinanceInfo = nullptr;
+static TdxHq_ConnectDelegate TdxHq_Connect = nullptr;
+static TdxHq_DisconnectDelegate TdxHq_Disconnect = nullptr;
+static TdxHq_GetSecurityBarsDelegate TdxHq_GetSecurityBars = nullptr;
+static TdxHq_GetIndexBarsDelegate TdxHq_GetIndexBars = nullptr;
+static TdxHq_GetMinuteTimeDataDelegate TdxHq_GetMinuteTimeData = nullptr;
+static TdxHq_GetHistoryMinuteTimeDataDelegate TdxHq_GetHistoryMinuteTimeData = nullptr;
+static TdxHq_GetTransactionDataDelegate TdxHq_GetTransactionData = nullptr;
+static TdxHq_GetHistoryTransactionDataDelegate TdxHq_GetHistoryTransactionData = nullptr;
+static TdxHq_GetSecurityQuotesDelegate TdxHq_GetSecurityQuotes = nullptr;
+static TdxHq_GetCompanyInfoCategoryDelegate TdxHq_GetCompanyInfoCategory = nullptr;
+static TdxHq_GetCompanyInfoContentDelegate TdxHq_GetCompanyInfoContent = nullptr;
+static TdxHq_GetXDXRInfoDelegate TdxHq_GetXDXRInfo = nullptr;
+static TdxHq_GetFinanceInfoDelegate TdxHq_GetFinanceInfo = nullptr;
 
 using namespace TSystem;
 
 static char cst_hq_server[] = "122.224.66.108";
 static int  cst_hq_port = 7709;
 
+bool StockTicker::has_hq_api_setup_ = false;
 
 static bool is_codes_in(char* stock_codes[cst_max_stock_code_count], const char *str);
 static int GetRegisteredCodes(TTaskIdMapStrategyTask  &registered_tasks, char* stock_codes[cst_max_stock_code_count], byte markets[cst_max_stock_code_count]);
@@ -59,31 +60,45 @@ StockTicker::~StockTicker()
         TdxHq_Disconnect();
 }
 
+bool StockTicker::SetUpHqApi()
+{
+	// ndchk: may be a ticker object need a dependence tdxapi moudle
+	if( !has_hq_api_setup_ )
+	{
+		has_hq_api_setup_ = true
+		HMODULE TdxApiHMODULE = LoadLibrary("TdxHqApi20991230.dll");
+		if( TdxApiHMODULE == nullptr )
+		{
+			has_hq_api_setup_ = false;
+			std::cout << "LoadLibrary(TdxHqApi20991230.dll fail" << std::endl;
+			//throw excepton;
+			return false;
+		}
+		
+		//获取api函数
+		TdxHq_Connect = (TdxHq_ConnectDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_Connect");
+		TdxHq_Disconnect = (TdxHq_DisconnectDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_Disconnect");
+		TdxHq_GetSecurityBars = (TdxHq_GetSecurityBarsDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_GetSecurityBars");
+		TdxHq_GetIndexBars = (TdxHq_GetIndexBarsDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_GetIndexBars");
+		TdxHq_GetMinuteTimeData = (TdxHq_GetMinuteTimeDataDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_GetMinuteTimeData");
+		TdxHq_GetHistoryMinuteTimeData = (TdxHq_GetHistoryMinuteTimeDataDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_GetHistoryMinuteTimeData");
+		TdxHq_GetTransactionData = (TdxHq_GetTransactionDataDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_GetTransactionData");
+		TdxHq_GetHistoryTransactionData = (TdxHq_GetHistoryTransactionDataDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_GetHistoryTransactionData");
+		TdxHq_GetSecurityQuotes = (TdxHq_GetSecurityQuotesDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_GetSecurityQuotes");
+		TdxHq_GetCompanyInfoCategory = (TdxHq_GetCompanyInfoCategoryDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_GetCompanyInfoCategory");
+		TdxHq_GetCompanyInfoContent = (TdxHq_GetCompanyInfoContentDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_GetCompanyInfoContent");
+		TdxHq_GetXDXRInfo = (TdxHq_GetXDXRInfoDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_GetXDXRInfo");
+		TdxHq_GetFinanceInfo = (TdxHq_GetFinanceInfoDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_GetFinanceInfo");
+		
+	}
+	return true;
+}
+
 bool StockTicker::Init()
 {
     //载入dll, dll要复制到debug和release目录下,必须采用多字节字符集编程设置,用户编程时需自己控制浮点数显示的小数位数与精度
-    HMODULE TdxApiHMODULE = LoadLibrary("TdxHqApi20991230.dll");
-    if( TdxApiHMODULE == nullptr )
-    {
-		std::cout << "LoadLibrary(TdxHqApi20991230.dll fail" << std::endl;
-        //throw excepton;
-        return false;
-    }
-    //获取api函数
-    TdxHq_Connect = (TdxHq_ConnectDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_Connect");
-    TdxHq_Disconnect = (TdxHq_DisconnectDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_Disconnect");
-    TdxHq_GetSecurityBars = (TdxHq_GetSecurityBarsDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_GetSecurityBars");
-    TdxHq_GetIndexBars = (TdxHq_GetIndexBarsDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_GetIndexBars");
-    TdxHq_GetMinuteTimeData = (TdxHq_GetMinuteTimeDataDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_GetMinuteTimeData");
-    TdxHq_GetHistoryMinuteTimeData = (TdxHq_GetHistoryMinuteTimeDataDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_GetHistoryMinuteTimeData");
-    TdxHq_GetTransactionData = (TdxHq_GetTransactionDataDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_GetTransactionData");
-    TdxHq_GetHistoryTransactionData = (TdxHq_GetHistoryTransactionDataDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_GetHistoryTransactionData");
-    TdxHq_GetSecurityQuotes = (TdxHq_GetSecurityQuotesDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_GetSecurityQuotes");
-    TdxHq_GetCompanyInfoCategory = (TdxHq_GetCompanyInfoCategoryDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_GetCompanyInfoCategory");
-    TdxHq_GetCompanyInfoContent = (TdxHq_GetCompanyInfoContentDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_GetCompanyInfoContent");
-    TdxHq_GetXDXRInfo = (TdxHq_GetXDXRInfoDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_GetXDXRInfo");
-    TdxHq_GetFinanceInfo = (TdxHq_GetFinanceInfoDelegate)GetProcAddress(TdxApiHMODULE, "TdxHq_GetFinanceInfo");
-
+    if( !SetUpHqApi() )
+		return false;
     Buffer Result(cst_result_len);
     Buffer ErrInfo(cst_error_len);
     

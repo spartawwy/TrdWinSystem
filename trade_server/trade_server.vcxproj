@@ -88,6 +88,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="accounter.h" />
     <ClInclude Include="db_moudle.h" />
     <ClInclude Include="mutex_wrapper.h" />
     <ClInclude Include="stock_ticker.h" />

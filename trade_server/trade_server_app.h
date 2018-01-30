@@ -8,6 +8,9 @@
 
 using namespace TSystem;
 
+typedef std::tuple<std::shared_ptr<TaskStrand>, int> T_TupleStrandStockNum;
+
+class Accounter;
 class TradeServerApp : public ServerAppBase
 {
 public:
@@ -30,7 +33,10 @@ private:
 
 	TaskStrand  tick_strand_;
 	TaskStrand  tick_strand_1_;
-	//TaskStrand  index_tick_strand_;
+
+	std::list<T_TupleStrandStockNum> tick_strand_list4stocks_0_;
+	std::list<T_TupleStrandStockNum> tick_strand_list4stocks_3_;
+	std::list<T_TupleStrandStockNum> tick_strand_list4stocks_6_;
 
 	bool exit_flag_;
 
@@ -43,8 +49,15 @@ private:
 	DBMoudle  db_moudle_;
 	std::unordered_map<int, std::shared_ptr<T_BrokerInfo> > id_brokers_;
 	std::unordered_map<std::string, std::shared_ptr<T_UserInfo> > id_users_;
+
 	std::unordered_map<int, std::shared_ptr<T_AccountInfo> > id_accounts_;
-	 
+	
+	
+	std::shared_ptr<T_CodeMapTableList> code_table_container_beg_0_; //sz begin 0
+	std::shared_ptr<T_CodeMapTableList> code_table_container_beg_3_; //sz begin 3
+	std::shared_ptr<T_CodeMapTableList> code_table_container_beg_6_; //sh
+
+
 	friend class DBMoudle;
 };
 

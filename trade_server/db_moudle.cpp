@@ -96,23 +96,32 @@ void DBMoudle::Init()
 			, "can't find table stocks");
 
 	 
-	std::list<T_CodeBrokerTables> stocks_broker_table_list;
+	//std::list<T_CodeBrokerTables> stocks_broker_table_list;
 	//std::string pre_stock;
-	std::string sql = "SELECT code, broker_tsk_tb_str FROM stocks ORDER BY code ";
-	db_conn_->ExecuteSQL(sql.c_str(),[&stocks_broker_table_list, this](int num_cols, char** vals, char** names)->int
-	{
-		 /*if( pre_stock != *vals )
-		 {
-			 stocks_broker_table_list.emplace_back(*vals);
-			 pre_stock = *vals;
-		 }
-		 auto iter = stocks_broker_table_list.rbegin();*/
-		 auto table_array = TSystem::utility::split(*(vals+1), ";");
-		 std::string stock = *vals;
-		 stocks_broker_table_list.emplace_back(std::move(stock), std::move(table_array));
+	std::string sql = "SELECT code, broker_tsk_tb_str FROM WHERE code like '0%' stocks ORDER BY code ";
+	db_conn_->ExecuteSQL(sql.c_str(),[this](int num_cols, char** vals, char** names)->int
+	{ 
+		 auto table_array = std::make_shared<std::vector<std::string>>(std::move(TSystem::utility::split(*(vals+1), ";")));
+		 std::string stock = *vals; 
+		 app_->code_table_container_beg_0_->insert( std::make_pair(std::move(stock), std::move(table_array)) ); //T_CodeMapTableList
 		 return 0;
 	});
-
+	sql = "SELECT code, broker_tsk_tb_str FROM WHERE code like '3%' stocks ORDER BY code ";
+	db_conn_->ExecuteSQL(sql.c_str(),[this](int num_cols, char** vals, char** names)->int
+	{ 
+		auto table_array = std::make_shared<std::vector<std::string>>(std::move(TSystem::utility::split(*(vals+1), ";")));
+		std::string stock = *vals; 
+		app_->code_table_container_beg_3_->insert( std::make_pair(std::move(stock), std::move(table_array)) ); //T_CodeMapTableList
+		return 0;
+	});
+	sql = "SELECT code, broker_tsk_tb_str FROM WHERE code like '6%' stocks ORDER BY code ";
+	db_conn_->ExecuteSQL(sql.c_str(),[this](int num_cols, char** vals, char** names)->int
+	{ 
+		auto table_array = std::make_shared<std::vector<std::string>>(std::move(TSystem::utility::split(*(vals+1), ";")));
+		std::string stock = *vals; 
+		app_->code_table_container_beg_6_->insert( std::make_pair(std::move(stock), std::move(table_array)) ); //T_CodeMapTableList
+		return 0;
+	});
 }
 
 void DBMoudle::Open(std::shared_ptr<SQLite::SQLiteConnection>& db_conn)
