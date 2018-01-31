@@ -6,8 +6,8 @@
 class Accounter
 {
 public:
-	Accounter();
-	~Accounter();
+    Accounter(){};
+    ~Accounter(){};
 
 private:
 

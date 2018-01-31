@@ -8,8 +8,10 @@
 
 using namespace TSystem;
 
+// (strand, stockNum)
 typedef std::tuple<std::shared_ptr<TaskStrand>, int> T_TupleStrandStockNum;
-
+ 
+ 
 class Accounter;
 class TradeServerApp : public ServerAppBase
 {
@@ -29,14 +31,16 @@ public:
 
     void Initiate();
 
+    std::shared_ptr<TaskStrand> CreateStrand();
+
 private:
+     
+	/*TaskStrand  tick_strand_;
+	TaskStrand  tick_strand_1_;*/
 
-	TaskStrand  tick_strand_;
-	TaskStrand  tick_strand_1_;
-
-	std::list<T_TupleStrandStockNum> tick_strand_list4stocks_0_;
-	std::list<T_TupleStrandStockNum> tick_strand_list4stocks_3_;
-	std::list<T_TupleStrandStockNum> tick_strand_list4stocks_6_;
+	std::list<std::shared_ptr<StockTicker> > tick_strand_list4stocks_0_;
+	std::list<std::shared_ptr<StockTicker> > tick_strand_list4stocks_3_;
+	std::list<std::shared_ptr<StockTicker> > tick_strand_list4stocks_6_;
 
 	bool exit_flag_;
 
@@ -53,9 +57,9 @@ private:
 	std::unordered_map<int, std::shared_ptr<T_AccountInfo> > id_accounts_;
 	
 	
-	std::shared_ptr<T_CodeMapTableList> code_table_container_beg_0_; //sz begin 0
-	std::shared_ptr<T_CodeMapTableList> code_table_container_beg_3_; //sz begin 3
-	std::shared_ptr<T_CodeMapTableList> code_table_container_beg_6_; //sh
+    std::vector<std::shared_ptr<T_CodeBrokerTaskTables> > code_table_container_beg_0_; //sz begin 0
+	std::vector<std::shared_ptr<T_CodeBrokerTaskTables> > code_table_container_beg_3_; //sz begin 3
+	std::vector<std::shared_ptr<T_CodeBrokerTaskTables> > code_table_container_beg_6_; //sh
 
 
 	friend class DBMoudle;

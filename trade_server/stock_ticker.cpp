@@ -17,6 +17,7 @@
 #include "TdxHqApi.h"
 
 #include "sys_common.h"
+#include "trade_server_app.h"
 
  //»ñÈ¡apiº¯Êý
 static TdxHq_ConnectDelegate TdxHq_Connect = nullptr;
@@ -43,8 +44,11 @@ bool StockTicker::has_hq_api_setup_ = false;
 static bool is_codes_in(char* stock_codes[cst_max_stock_code_count], const char *str);
 static int GetRegisteredCodes(TTaskIdMapStrategyTask  &registered_tasks, char* stock_codes[cst_max_stock_code_count], byte markets[cst_max_stock_code_count]);
 
-StockTicker::StockTicker(TSystem::LocalLogger  &logger)
-    : registered_tasks_(cst_max_stock_code_count)
+StockTicker::StockTicker(TradeServerApp *app, TSystem::LocalLogger  &logger, std::shared_ptr<T_CodeMapTableList> &p_list)
+    : app_(app)
+    , strand_( std::move(app->CreateStrand()) )
+    , code_broker_task_tbllist_(p_list)
+    , registered_tasks_(cst_max_stock_code_count)
     , codes_taskids_(cst_max_stock_code_count)
     , tasks_list_mutex_()
     , logger_(logger)
@@ -65,7 +69,7 @@ bool StockTicker::SetUpHqApi()
 	// ndchk: may be a ticker object need a dependence tdxapi moudle
 	if( !has_hq_api_setup_ )
 	{
-		has_hq_api_setup_ = true
+		has_hq_api_setup_ = true;
 		HMODULE TdxApiHMODULE = LoadLibrary("TdxHqApi20991230.dll");
 		if( TdxApiHMODULE == nullptr )
 		{
@@ -112,6 +116,11 @@ bool StockTicker::Init()
     std::cout << Result.data() << std::endl;
     logger_.LogLocal(std::string("StockTicker::Init") + Result.data());
     return true;
+}
+
+void StockTicker::Run()
+{
+    // todo: use task_pool and  strand to run Procedure
 }
 
 bool StockTicker::GetQuotes(char* stock_codes[], short count, Buffer &Result)

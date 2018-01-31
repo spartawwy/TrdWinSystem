@@ -8,11 +8,12 @@
 
 #include <TLib/core/tsystem_local_logger.h>
 
-#include "sys_common.h"
-//#include "strategy_task.h" 
+#include "sys_common.h" 
 
-
-//#include "stk_quoter_api.h"
+namespace TSystem
+{
+    class TaskStrand;
+}
 
 class StrategyTask; 
 
@@ -33,16 +34,20 @@ public:
 	virtual void Procedure() = 0;
 };
 
+class TradeServerApp;
 class StockTicker : public Handler
 {
 public:
 
-    StockTicker(TSystem::LocalLogger  &logger);
+    StockTicker(TradeServerApp *app, TSystem::LocalLogger  &logger, std::shared_ptr<T_CodeMapTableList> &p_list);
     virtual ~StockTicker();
 
     virtual void Procedure() override;
 
     virtual bool Init();
+
+    void Run();
+
     void Register(const std::shared_ptr<StrategyTask> & task);
     void UnRegister(unsigned int task_id);
     void ClearAllTask();
@@ -60,6 +65,11 @@ protected:
       
 	static bool SetUpHqApi();
 	static bool has_hq_api_setup_;
+
+    TradeServerApp  *app_;
+    std::shared_ptr<TSystem::TaskStrand>  strand_; 
+    std::vector<std::shared_ptr<T_CodeBrokerTaskTables> >  code_broker_task_tbllist_;
+
 
     TTaskIdMapStrategyTask  registered_tasks_;
      

@@ -11,6 +11,8 @@
 #include <string>
 #include <algorithm>
 #include <chrono>
+#include <unordered_map>
+#include <memory>
 
 #ifndef IN
 #define  IN
@@ -358,7 +360,13 @@ struct T_TaskInformation
 
 };
 
-typedef std::unordered_map<std::string, std::shared_ptr<std::vector<std::string> > > T_CodeMapTableList;
+struct T_CodeBrokerTaskTables
+{
+    std::string code;
+    std::vector<std::string> tables;
+};
+
+//typedef std::unordered_map<std::string, std::shared_ptr<std::vector<std::string> > > T_CodeMapTableList;
 
 void Delay(unsigned short mseconds);
 
