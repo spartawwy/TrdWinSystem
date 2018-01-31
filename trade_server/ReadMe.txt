@@ -10,4 +10,19 @@
  * 用户动态添加的新股(简称B)追加到 专门负责动态股票池的这些task_pool
  * 定时(11点)重新reload数据库任务股票池,进而重新分批到不同的task_pool
 
+ -----------20180201
 
+ 计划: *独立多个 ticker进程, 根据股票代码所在段,将股票分给不同的ticker
+      *各个ticker管理相关 stockTask, stockTask触发任务后发给trade_server
+	    由trade_server发送交易指令
+	  *fronter接收trade_server交易结果转发给客户端
+
+	  *各ticker主动连接 trade_server
+	  *fronter 连接trade_server
+	  *fronter 连接各ticker
+
+	  *fronter 持有 userinfo, accounters等信息
+	  *fronter 将接收的task增减配置等任务 并发送到 ticker
+	  *task增减配置等任务的数据库保存由recorder负责
+	  *trade_server 完成任务后 发信息到 recorder
+	  *recorder主动连接 fronter和trader_server

@@ -28,15 +28,7 @@ namespace TSystem
 class  TradeServerApp;
 class DBMoudle
 {
-public: 
-	class T_CodeBrokerTables
-	{
-	public:
-		T_CodeBrokerTables(const std::string &stock) : stock_(stock){}
-		T_CodeBrokerTables(std::string &&stock, std::vector<std::string> &&broker_tables) : stock_(std::move(stock)), broker_tables_(std::move(broker_tables)){}
-		std::string stock_;
-		std::vector<std::string> broker_tables_;
-	};
+public:  
 
 	DBMoudle(TradeServerApp *app);
 	~DBMoudle();

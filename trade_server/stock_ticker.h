@@ -24,7 +24,7 @@ typedef std::unordered_map<std::string, std::list<unsigned int> > TCodeMapTasks;
 
 static const unsigned int cst_result_len = 1024 * 1024;
 static const unsigned int cst_error_len = 1024;
-static const unsigned int cst_max_stock_code_count = 128;
+static const unsigned int cst_max_stock_code_count = 400;
 
 typedef std::tuple<std::string, std::shared_ptr<QuotesData> > T_codeQuoteDateTuple;
 
@@ -39,7 +39,8 @@ class StockTicker : public Handler
 {
 public:
 
-    StockTicker(TradeServerApp *app, TSystem::LocalLogger  &logger, std::shared_ptr<T_CodeMapTableList> &p_list);
+    StockTicker(TradeServerApp *app, TSystem::LocalLogger  &logger, TypeMarket market
+		, std::vector<std::shared_ptr<T_CodeBrokerTaskTables> > &&p_list, const std::string &tag);
     virtual ~StockTicker();
 
     virtual void Procedure() override;
@@ -65,19 +66,24 @@ protected:
       
 	static bool SetUpHqApi();
 	static bool has_hq_api_setup_;
+	std::mutex  hq_api_connect_mutex_;
+	static bool has_hq_api_connected_;
 
     TradeServerApp  *app_;
-    std::shared_ptr<TSystem::TaskStrand>  strand_; 
+    TSystem::TaskStrand  strand_; 
+	TypeMarket market_;
     std::vector<std::shared_ptr<T_CodeBrokerTaskTables> >  code_broker_task_tbllist_;
-
+	std::string tag_;
 
     TTaskIdMapStrategyTask  registered_tasks_;
      
     TCodeMapTasks  codes_taskids_;
 
-    std::mutex  tasks_list_mutex_;
+	std::mutex  tasks_list_mutex_;
+	
     TSystem::LocalLogger  &logger_;
 
+	int stock_ticker_life_count_;
 };
 
 #if 0 

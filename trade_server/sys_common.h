@@ -360,10 +360,13 @@ struct T_TaskInformation
 
 };
 
-struct T_CodeBrokerTaskTables
+class T_CodeBrokerTaskTables
 {
-    std::string code;
-    std::vector<std::string> tables;
+public:
+	T_CodeBrokerTaskTables(const std::string &stock) : stock_(stock){}
+	T_CodeBrokerTaskTables(std::string &&stock, std::vector<std::string> &&broker_tables) : stock_(std::move(stock)), broker_tables_(std::move(broker_tables)){}
+	std::string stock_;
+	std::vector<std::string> broker_tables_;
 };
 
 //typedef std::unordered_map<std::string, std::shared_ptr<std::vector<std::string> > > T_CodeMapTableList;

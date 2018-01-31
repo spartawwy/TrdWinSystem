@@ -39,19 +39,27 @@ using namespace TSystem;
 static char cst_hq_server[] = "122.224.66.108";
 static int  cst_hq_port = 7709;
 
+static const int cst_ticker_update_interval = 2000;  //ms :notice value have to be bigger than 1000
+
 bool StockTicker::has_hq_api_setup_ = false;
+bool StockTicker::has_hq_api_connected_ = false;
 
 static bool is_codes_in(char* stock_codes[cst_max_stock_code_count], const char *str);
 static int GetRegisteredCodes(TTaskIdMapStrategyTask  &registered_tasks, char* stock_codes[cst_max_stock_code_count], byte markets[cst_max_stock_code_count]);
 
-StockTicker::StockTicker(TradeServerApp *app, TSystem::LocalLogger  &logger, std::shared_ptr<T_CodeMapTableList> &p_list)
+StockTicker::StockTicker(TradeServerApp *app, TSystem::LocalLogger  &logger, TypeMarket market
+						 , std::vector<std::shared_ptr<T_CodeBrokerTaskTables> > &&list, const std::string &tag)
     : app_(app)
-    , strand_( std::move(app->CreateStrand()) )
-    , code_broker_task_tbllist_(p_list)
+	//, strand_( std::move(app->CreateStrand()) )
+	, strand_(app->task_pool())
+	, market_(market)
+    , code_broker_task_tbllist_(std::move(list))
+	, tag_(tag)
     , registered_tasks_(cst_max_stock_code_count)
     , codes_taskids_(cst_max_stock_code_count)
     , tasks_list_mutex_()
     , logger_(logger)
+	, stock_ticker_life_count_(0)
 {
 
 }
@@ -103,6 +111,12 @@ bool StockTicker::Init()
     //载入dll, dll要复制到debug和release目录下,必须采用多字节字符集编程设置,用户编程时需自己控制浮点数显示的小数位数与精度
     if( !SetUpHqApi() )
 		return false;
+	if( has_hq_api_connected_ )
+		return true;
+	else
+		std::lock_guard<std::mutex> locker(hq_api_connect_mutex_);
+	if( has_hq_api_connected_ )
+		return true;
     Buffer Result(cst_result_len);
     Buffer ErrInfo(cst_error_len);
     
@@ -115,12 +129,31 @@ bool StockTicker::Init()
     }
     std::cout << Result.data() << std::endl;
     logger_.LogLocal(std::string("StockTicker::Init") + Result.data());
+	has_hq_api_connected_ = true;
     return true;
 }
 
 void StockTicker::Run()
 {
-    // todo: use task_pool and  strand to run Procedure
+	assert(has_hq_api_connected_);
+    // use task_pool and  strand to run Procedure
+	app_->task_pool().PostTask([&, this]()
+	{
+		while( !this->app_->exit_flag() )
+		{
+			Delay(cst_ticker_update_interval);
+
+			if( !this->app_->ticker_enable_flag() )
+				continue;
+
+			strand_.PostTask([this]()
+			{
+				this->Procedure();
+				this->stock_ticker_life_count_ = 0;
+			});
+
+		}
+	});
 }
 
 bool StockTicker::GetQuotes(char* stock_codes[], short count, Buffer &Result)
@@ -245,6 +278,11 @@ void StockTicker::Procedure()
 	result_array[2] = &Result_2;
 	result_array[3] = &Result_3;
 	result_array[4] = &Result_4;
+	//printf("StockTicker::Procedure \n")
+	const std::string file_tag = "ticker_" + tag_;
+	//logger_.LogLocal( file_tag, "StockTicker::Procedure ");
+	//return; //temp code
+
 	/*for (int i = 0; i < re_count; ++i )
 	{
 
@@ -257,32 +295,46 @@ void StockTicker::Procedure()
     //byte markets[cst_max_stock_code_count];
 
     short stock_count = 0;
-     
-    //auto  cur_time = QTime::currentTime();
-#if 0
-    //--------------------------- 
-    stock_count = GetRegisteredCodes(registered_tasks_, stock_codes, markets);
-    if( stock_count < 1 )
-        return;
-#else
+    
+//#if 0
+//    //--------------------------- 
+//    stock_count = GetRegisteredCodes(registered_tasks_, stock_codes, markets);
+//    if( stock_count < 1 )
+//        return;
+//#else
 	Buffer stocks[cst_max_stock_code_count];
 	
-	char * stock_array[MAX_STOCKS];
-	int stk_count = GetBaseStocks(stock_array, MAX_STOCKS);
-
-#endif
-	for (int i = 0; i < re_count; ++i )
+	char * stock_array[cst_max_stock_code_count];
+	memset(stock_array, 0, sizeof(char*) * cst_max_stock_code_count);
+	//int stk_count = GetBaseStocks(stock_array, MAX_STOCKS);
+	int stk_count = 0;
+	std::for_each( code_broker_task_tbllist_.begin(), code_broker_task_tbllist_.end(), [&stocks, &stock_array, &stk_count](std::shared_ptr<T_CodeBrokerTaskTables>& entry)
+	{
+		stock_array[stk_count] = stocks[stk_count].data();
+		strcpy(stock_array[stk_count], entry->stock_.c_str());
+		++stk_count;
+	});
+//#endif
+	const int max_per_stock = 80;
+	int i = 0;
+	for (; i < stk_count / max_per_stock; ++i )
 	{ 
 		stock_count = 80;
 		if( !GetQuotes(&stock_array[i * stock_count], stock_count, *result_array[i]) )
 			return;
 		// std::cout << result_array[i]->c_data()[0] << result_array[i]->c_data()[1] << result_array[i]->c_data()[2]  
 		// << result_array[i]->c_data()[3] << result_array[i]->c_data()[4] << result_array[i]->c_data()[5] << std::endl;
-		std::cout << result_array[i]->c_data() << std::endl;
-		std::cout << "StockTicker::Procedure GetQuotes for " << i << " OK ret " << stock_count << " stocks " << std::endl;
 
-		DecodeStkQuoteResult(*result_array[i], nullptr, std::bind(&StockTicker::TellAllRelTasks, this, std::placeholders::_1, std::placeholders::_2));
-
+		///std::cout << result_array[i]->c_data() << std::endl;
+		///std::cout << "StockTicker::Procedure GetQuotes for " << i << " OK ret " << stock_count << " stocks " << std::endl;
+		logger_.LogLocal(file_tag, result_array[i]->c_data());
+		///DecodeStkQuoteResult(*result_array[i], nullptr, std::bind(&StockTicker::TellAllRelTasks, this, std::placeholders::_1, std::placeholders::_2));
+	}
+	if( stk_count % max_per_stock > 0)
+	{
+		if( !GetQuotes(&stock_array[i * stock_count], stk_count % max_per_stock, *result_array[i]) )
+			return;
+		logger_.LogLocal(file_tag, result_array[i]->c_data());
 	}
     /*auto tp_now = std::chrono::system_clock::now();
     time_t t_t = std::chrono::system_clock::to_time_t(tp_now); */

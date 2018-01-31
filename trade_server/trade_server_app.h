@@ -32,6 +32,8 @@ public:
     void Initiate();
 
     std::shared_ptr<TaskStrand> CreateStrand();
+	bool exit_flag() const { return exit_flag_; } 
+	bool ticker_enable_flag() const { return ticker_enable_flag_; }
 
 private:
      
@@ -42,13 +44,12 @@ private:
 	std::list<std::shared_ptr<StockTicker> > tick_strand_list4stocks_3_;
 	std::list<std::shared_ptr<StockTicker> > tick_strand_list4stocks_6_;
 
-	bool exit_flag_;
-
-	bool ticker_enable_flag_;
+	volatile bool exit_flag_; 
+	volatile bool ticker_enable_flag_;
 
 	std::shared_ptr<StockTicker>  stock_ticker_;
 	//std::shared_ptr<IndexTicker>  index_ticker_;
-	int stock_ticker_life_count_;
+	
 
 	DBMoudle  db_moudle_;
 	std::unordered_map<int, std::shared_ptr<T_BrokerInfo> > id_brokers_;

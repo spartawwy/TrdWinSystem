@@ -95,32 +95,26 @@ void DBMoudle::Init()
 			, "DBMoudle::Init"
 			, "can't find table stocks");
 
-	 
-	//std::list<T_CodeBrokerTables> stocks_broker_table_list;
-	//std::string pre_stock;
 	std::string sql = "SELECT code, broker_tsk_tb_str FROM Stocks WHERE code like '0%' ORDER BY code ";
 	db_conn_->ExecuteSQL(sql.c_str(),[this](int num_cols, char** vals, char** names)->int
 	{ 
-		 auto table_array = std::make_shared<std::vector<std::string>>(std::move(TSystem::utility::split(*(vals+1), ";")));
-		 std::string stock = *vals; 
-		 app_->code_table_container_beg_0_->insert( std::make_pair(std::move(stock), std::move(table_array)) ); //T_CodeMapTableList
+		 auto obj = std::make_shared<T_CodeBrokerTaskTables>(*vals, std::move(TSystem::utility::split(*(vals+1), ";")));
+		 app_->code_table_container_beg_0_.push_back(std::move(obj));
 		 return 0;
 	});
 
 	sql = "SELECT code, broker_tsk_tb_str FROM Stocks WHERE code like '3%' ORDER BY code ";
 	db_conn_->ExecuteSQL(sql.c_str(),[this](int num_cols, char** vals, char** names)->int
 	{ 
-		auto table_array = std::make_shared<std::vector<std::string>>(std::move(TSystem::utility::split(*(vals+1), ";")));
-		std::string stock = *vals; 
-		app_->code_table_container_beg_3_->insert( std::make_pair(std::move(stock), std::move(table_array)) ); //T_CodeMapTableList
+		auto obj = std::make_shared<T_CodeBrokerTaskTables>(*vals, std::move(TSystem::utility::split(*(vals+1), ";")));
+		app_->code_table_container_beg_3_.push_back(std::move(obj));
 		return 0;
 	});
 	sql = "SELECT code, broker_tsk_tb_str FROM Stocks WHERE code like '6%' ORDER BY code ";
 	db_conn_->ExecuteSQL(sql.c_str(),[this](int num_cols, char** vals, char** names)->int
 	{ 
-		auto table_array = std::make_shared<std::vector<std::string>>(std::move(TSystem::utility::split(*(vals+1), ";")));
-		std::string stock = *vals; 
-		app_->code_table_container_beg_6_->insert( std::make_pair(std::move(stock), std::move(table_array)) ); //T_CodeMapTableList
+		auto obj = std::make_shared<T_CodeBrokerTaskTables>(*vals, std::move(TSystem::utility::split(*(vals+1), ";")));
+		app_->code_table_container_beg_6_.push_back(std::move(obj));
 		return 0;
 	});
 }
