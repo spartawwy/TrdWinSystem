@@ -11,9 +11,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test2", "..\..\..\..\WenJin
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "intermface", "intermface\intermface.vcxproj", "{F2EC0189-2DD3-4DD4-9DE7-61E9FCDCE213}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "..\..\..\Dev_down\Test\Test.vcxproj", "{8D3EF13D-A5DD-471C-856C-D47EC1B5E5E8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "..\..\..\..\WenJin\Dev_src\Dev_lib\Test\Test.vcxproj", "{8D3EF13D-A5DD-471C-856C-D47EC1B5E5E8}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TLibTool", "..\..\..\Dev_down\TLibTool\TLibTool.vcxproj", "{DDE6B8F6-C18D-40D7-9C3F-02DCA394E347}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TLibTool", "..\..\..\..\WenJin\Dev_src\Dev_lib\TLibTool\TLibTool.vcxproj", "{DDE6B8F6-C18D-40D7-9C3F-02DCA394E347}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
