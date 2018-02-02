@@ -35,10 +35,9 @@ public:
 	bool exit_flag() const { return exit_flag_; } 
 	bool ticker_enable_flag() const { return ticker_enable_flag_; }
 
+    std::mutex& hq_api_connect_mutex() { return hq_api_connect_mutex_;}
+
 private:
-     
-	/*TaskStrand  tick_strand_;
-	TaskStrand  tick_strand_1_;*/
 
 	std::list<std::shared_ptr<StockTicker> > tick_strand_list4stocks_0_;
 	std::list<std::shared_ptr<StockTicker> > tick_strand_list4stocks_3_;
@@ -47,8 +46,7 @@ private:
 	volatile bool exit_flag_; 
 	volatile bool ticker_enable_flag_;
 
-	std::shared_ptr<StockTicker>  stock_ticker_;
-	//std::shared_ptr<IndexTicker>  index_ticker_;
+	//std::shared_ptr<StockTicker>  stock_ticker_; 
 	
 
 	DBMoudle  db_moudle_;
@@ -62,6 +60,7 @@ private:
 	std::vector<std::shared_ptr<T_CodeBrokerTaskTables> > code_table_container_beg_3_; //sz begin 3
 	std::vector<std::shared_ptr<T_CodeBrokerTaskTables> > code_table_container_beg_6_; //sh
 
+    std::mutex  hq_api_connect_mutex_;
 
 	friend class DBMoudle;
 };

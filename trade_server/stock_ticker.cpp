@@ -114,7 +114,7 @@ bool StockTicker::Init()
 	if( has_hq_api_connected_ )
 		return true;
 	else
-		std::lock_guard<std::mutex> locker(hq_api_connect_mutex_);
+		std::lock_guard<std::mutex> locker(app_->hq_api_connect_mutex());
 	if( has_hq_api_connected_ )
 		return true;
     Buffer Result(cst_result_len);
@@ -168,42 +168,52 @@ bool StockTicker::GetQuotes(char* stock_codes[], short count, Buffer &Result)
     auto ret = TdxHq_GetSecurityQuotes(markets, stock_codes, count, Result.data(), ErrInfo.data());
     if ( !ret )
     {
-        std::cout << ErrInfo.data() << std::endl;
-        logger_.LogLocal(std::string("StockTicker::GetQuotes TdxHq_GetSecurityQuotes fail:") + ErrInfo.data());
-        if( !strstr(ErrInfo.data(), "请重新连接") )
-            TdxHq_Disconnect();
+        // reconnect -----------
+        {
+        std::lock_guard<std::mutex> locker(app_->hq_api_connect_mutex());
+        if( !has_hq_api_connected_ )
+        {  
+            std::cout << ErrInfo.data() << std::endl;
+            logger_.LogLocal(std::string("StockTicker::GetQuotes TdxHq_GetSecurityQuotes fail:") + ErrInfo.data());
+            if( !strstr(ErrInfo.data(), "请重新连接") )
+                TdxHq_Disconnect();
 
-        logger_.LogLocal(utility::FormatStr("StockTicker::GetQuotes TdxHq_Connect %s : %d ", cst_hq_server, cst_hq_port) );
-        Result.reset(); 
-        ErrInfo.reset();
-        try
-        {
-        ret = TdxHq_Connect(cst_hq_server, cst_hq_port, Result.data(), ErrInfo.data());
-        if ( !ret )
-        {
-            logger_.LogLocal(std::string("StockTicker::GetQuotes retry TdxHq_Connect fail:") + ErrInfo.data());
-            return false;
+            logger_.LogLocal(utility::FormatStr("StockTicker::GetQuotes TdxHq_Connect %s : %d ", cst_hq_server, cst_hq_port) );
+            Result.reset(); 
+            ErrInfo.reset();
+            try
+            {
+            ret = TdxHq_Connect(cst_hq_server, cst_hq_port, Result.data(), ErrInfo.data());
+            if ( !ret )
+            {
+                logger_.LogLocal(std::string("StockTicker::GetQuotes retry TdxHq_Connect fail:") + ErrInfo.data());
+                return false;
+            }
+            logger_.LogLocal(utility::FormatStr("StockTicker::GetQuotes TdxHq_Connect ok!"));
+            has_hq_api_connected_ = true;
+            }catch(std::exception &e)
+            {
+                logger_.LogLocal(utility::FormatStr("StockTicker::GetQuotes exception:%s", e.what()));
+                return false;
+            }catch(...)
+            {
+                logger_.LogLocal("StockTicker::GetQuotes exception");
+                return false;
+            }
         }
-        logger_.LogLocal(utility::FormatStr("StockTicker::GetQuotes TdxHq_Connect ok!"));
+        }
+        // end ----------------
+
         Result.reset(); 
         ErrInfo.reset();
         // debug 
         for( int i = 0; i < count; ++i )
             logger_.LogLocal(utility::FormatStr("StockTicker::GetQuotes stock_codes[%d]:%s", i, stock_codes[i]));
-        // end debug
+        // end debug 
         ret = TdxHq_GetSecurityQuotes(markets, stock_codes, count, Result.data(), ErrInfo.data());
         if ( !ret )
         {
             logger_.LogLocal(std::string("StockTicker::GetQuotes retry TdxHq_GetSecurityQuotes fail:") + ErrInfo.data());
-            return false;
-        }
-        }catch(std::exception &e)
-        {
-            logger_.LogLocal(utility::FormatStr("StockTicker::GetQuotes exception:%s", e.what()));
-            return false;
-        }catch(...)
-        {
-            logger_.LogLocal("StockTicker::GetQuotes exception");
             return false;
         }
          

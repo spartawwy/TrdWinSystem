@@ -66,7 +66,7 @@ protected:
       
 	static bool SetUpHqApi();
 	static bool has_hq_api_setup_;
-	std::mutex  hq_api_connect_mutex_;
+	//std::mutex  hq_api_connect_mutex_;
 	static bool has_hq_api_connected_;
 
     TradeServerApp  *app_;

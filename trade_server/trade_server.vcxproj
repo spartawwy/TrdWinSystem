@@ -99,6 +99,7 @@
     <ClInclude Include="trade_server_app.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="accounter.cpp" />
     <ClCompile Include="db_moudle.cpp" />
     <ClCompile Include="mutex_wrapper.cpp" />
     <ClCompile Include="stock_ticker.cpp" />
