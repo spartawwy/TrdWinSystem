@@ -39,9 +39,13 @@ public:
 private:
 
 	void Open(std::shared_ptr<SQLite::SQLiteConnection>& db_conn);
+
+	void LoadAllBrokerTypeTaskTable();
 	void LoadAllBrokers();
 	void LoadAllUsers();
 	void LoadAllAccounts();
+	
+	void LoadAllTasks();
 
 private:
 

@@ -44,10 +44,10 @@ public:
 
     TypeMarket  market_type() const { return market_type_; }
 
-    void SetOriginalState(TaskCurrentState val) { para_.state = static_cast<int>(val); }
+    void SetOriginalState(TaskCurrentState val) { para_.state = (TaskCurrentState)static_cast<int>(val); }
     bool is_to_run() const 
     { 
-        return para_.state != static_cast<int>(TaskCurrentState::STOP);
+        return para_.state != (TaskCurrentState)static_cast<int>(TaskCurrentState::STOP);
     }
 
     double GetQuoteTargetPrice(const QuotesData& data, bool is_buy);

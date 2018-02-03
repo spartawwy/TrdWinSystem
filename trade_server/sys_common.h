@@ -48,6 +48,8 @@ const char cst_entrepren_plate_index_name[]  = "创业板指数";
 const std::string cst_entreplate_compre_index = "399102"; //创业板综合
 const char cst_entreplate_compre_index_name[]  = "创业板综指";
 
+const int cst_max_task_per_account = 30;
+
 enum class TypeMarket : char
 {
 	SZ = 0,
@@ -89,7 +91,8 @@ enum class TypeBroker : char
 	PING_AN,           //平安
 	ZHONGXIN,          //中信
 	ZHONGYGJ,          //中银国际
-	YINGHE_ZQ,         //银河证券
+
+	//YINGHE_ZQ,         //银河证券
 };
 
 enum class TypeTask : char
@@ -334,7 +337,9 @@ struct T_TaskInformation
 	unsigned int id;
 	TypeTask  type;
 	std::string stock;        // TEXT not null, alse can be index code--when type is INDEX_RISKMAN 
-	std::string stock_pinyin; // TEXT 
+	int user_id;
+	int account_id;
+	TaskCurrentState state;    
 
 	double alert_price;       // DOUBLE, 
 	bool back_alert_trigger;  // 是否重回则触发
@@ -348,16 +353,21 @@ struct T_TaskInformation
 	int start_time; 
 	int end_time;
 	bool is_loop;
-	int  state;               // TaskCurrentState  
 	int  bs_times;            // 卖出次数, used by batches sell batches buy
 	std::string  assistant_field;       // used by batches sell; batches buy
-	T_TaskInformation() : id(0), type(TypeTask::BREAK_SELL), alert_price(0),back_alert_trigger(0), rebounce(0), continue_second(0), step(0), quantity(0), target_price_level(0), start_time(0), end_time(0), is_loop(0), state(0), bs_times(0), assistant_field() {} 
+	T_TaskInformation() : id(0), type(TypeTask::BREAK_SELL), stock(), user_id(0), account_id(0), state(TaskCurrentState::STOP), alert_price(0)
+		,back_alert_trigger(0), rebounce(0), continue_second(0), step(0.0), quantity(0), target_price_level(0), start_time(0), end_time(0), is_loop(0), bs_times(0), assistant_field() {} 
 
-	T_TaskInformation(const T_TaskInformation& lh) : id(lh.id), type(lh.type), stock(lh.stock), stock_pinyin(lh.stock_pinyin), alert_price(lh.alert_price), back_alert_trigger(lh.back_alert_trigger)
+	T_TaskInformation(const T_TaskInformation& lh) : id(lh.id), type(lh.type), stock(lh.stock), user_id(lh.user_id), account_id(lh.account_id), state(lh.state), alert_price(lh.alert_price), back_alert_trigger(lh.back_alert_trigger)
 		, rebounce(lh.rebounce), continue_second(lh.continue_second), step(lh.step), quantity(lh.quantity), secton_task(lh.secton_task), index_rel_task(lh.index_rel_task)
-		, target_price_level(lh.target_price_level), start_time(lh.start_time), end_time(lh.end_time), is_loop(lh.is_loop), state(lh.state), bs_times(lh.bs_times)
+		, target_price_level(lh.target_price_level), start_time(lh.start_time), end_time(lh.end_time), is_loop(lh.is_loop), bs_times(lh.bs_times)
 		, assistant_field(lh.assistant_field) { }
-
+#if 0
+	T_TaskInformation(T_TaskInformation&& lh) : id(lh.id), type(lh.type), stock(lh.stock), user_id(lh.user_id), account_id(lh.account_id), state(lh.state), alert_price(lh.alert_price), back_alert_trigger(lh.back_alert_trigger)
+		, rebounce(lh.rebounce), continue_second(lh.continue_second), step(lh.step), quantity(lh.quantity), secton_task(lh.secton_task), index_rel_task(lh.index_rel_task)
+		, target_price_level(lh.target_price_level), start_time(lh.start_time), end_time(lh.end_time), is_loop(lh.is_loop), bs_times(lh.bs_times)
+		, assistant_field(lh.assistant_field) { }
+#endif
 };
 
 class T_CodeBrokerTaskTables
@@ -370,6 +380,8 @@ public:
 };
 
 //typedef std::unordered_map<std::string, std::shared_ptr<std::vector<std::string> > > T_CodeMapTableList;
+
+typedef std::unordered_map<int64_t, T_TaskInformation> T_Id_TaskInfo_Map;
 
 void Delay(unsigned short mseconds);
 

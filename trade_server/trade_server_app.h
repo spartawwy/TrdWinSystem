@@ -39,6 +39,8 @@ public:
 
 private:
 
+	void CreateStockTickers();
+
 	std::list<std::shared_ptr<StockTicker> > tick_strand_list4stocks_0_;
 	std::list<std::shared_ptr<StockTicker> > tick_strand_list4stocks_3_;
 	std::list<std::shared_ptr<StockTicker> > tick_strand_list4stocks_6_;
@@ -50,7 +52,10 @@ private:
 	
 
 	DBMoudle  db_moudle_;
+	// (broker id, T_BrokerInfo)
 	std::unordered_map<int, std::shared_ptr<T_BrokerInfo> > id_brokers_;
+	// (broker type, BrokerTaskTableName)
+	std::unordered_map<int, std::string> type_broker_task_tablename_;
 	std::unordered_map<std::string, std::shared_ptr<T_UserInfo> > id_users_;
 
 	std::unordered_map<int, std::shared_ptr<T_AccountInfo> > id_accounts_;
@@ -59,6 +64,9 @@ private:
     std::vector<std::shared_ptr<T_CodeBrokerTaskTables> > code_table_container_beg_0_; //sz begin 0
 	std::vector<std::shared_ptr<T_CodeBrokerTaskTables> > code_table_container_beg_3_; //sz begin 3
 	std::vector<std::shared_ptr<T_CodeBrokerTaskTables> > code_table_container_beg_6_; //sh
+	
+	// (broker_type, (account_id, (task_id, taskinfo) ) ) 
+	std::unordered_map<int, std::shared_ptr<std::unordered_map<int, T_Id_TaskInfo_Map> > > broker_account_taskid_info_;
 
     std::mutex  hq_api_connect_mutex_;
 
