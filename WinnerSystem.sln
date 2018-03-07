@@ -15,6 +15,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "..\..\..\..\WenJin\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TLibTool", "..\..\..\..\WenJin\Dev_src\Dev_lib\TLibTool\TLibTool.vcxproj", "{DDE6B8F6-C18D-40D7-9C3F-02DCA394E347}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "quotation_server", "quotation_server\quotation_server.vcxproj", "{F8790822-5356-4406-8DD9-1EA9E8206FF4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{4004E473-BD01-4D2B-94B9-8FFCCA6D1800}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "servers", "servers", "{6913D7D7-4C93-4ED0-9339-877443AE0291}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -69,8 +75,20 @@ Global
 		{DDE6B8F6-C18D-40D7-9C3F-02DCA394E347}.Release|Win32.Build.0 = Release|Win32
 		{DDE6B8F6-C18D-40D7-9C3F-02DCA394E347}.Release|x64.ActiveCfg = Release|x64
 		{DDE6B8F6-C18D-40D7-9C3F-02DCA394E347}.Release|x64.Build.0 = Release|x64
+		{F8790822-5356-4406-8DD9-1EA9E8206FF4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F8790822-5356-4406-8DD9-1EA9E8206FF4}.Debug|Win32.Build.0 = Debug|Win32
+		{F8790822-5356-4406-8DD9-1EA9E8206FF4}.Debug|x64.ActiveCfg = Debug|Win32
+		{F8790822-5356-4406-8DD9-1EA9E8206FF4}.Release|Win32.ActiveCfg = Release|Win32
+		{F8790822-5356-4406-8DD9-1EA9E8206FF4}.Release|Win32.Build.0 = Release|Win32
+		{F8790822-5356-4406-8DD9-1EA9E8206FF4}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8D3EF13D-A5DD-471C-856C-D47EC1B5E5E8} = {4004E473-BD01-4D2B-94B9-8FFCCA6D1800}
+		{4C943E4A-4C2E-4A4A-A85C-F7EDAF6D66D9} = {4004E473-BD01-4D2B-94B9-8FFCCA6D1800}
+		{2BD48F05-0D26-475D-BD92-7AB78744910A} = {6913D7D7-4C93-4ED0-9339-877443AE0291}
+		{F8790822-5356-4406-8DD9-1EA9E8206FF4} = {6913D7D7-4C93-4ED0-9339-877443AE0291}
 	EndGlobalSection
 EndGlobal
