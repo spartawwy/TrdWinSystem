@@ -2,7 +2,10 @@
  
 #include <array>
 
+#include <TLib/tool/tsystem_connection_handshake.pb.h>
 #include <TLib/core/tsystem_utility_functions.h>
+#include <TLib/core/tsystem_serialization.h>
+
 #include "WINNERLib/winner_message_system.h"
 
 #include "sys_common.h"
@@ -38,11 +41,16 @@ TradeServerApp::TradeServerApp(const std::string &name, const std::string &versi
 
 void TradeServerApp::Initiate()
 {
+    try
+    {
     option_load_class_id(false);
     WINNERSystem::LoadClassID(msg_system_);
     //option_load_config(true);
     ServerAppBase::Initiate();
-
+    }catch(TException &e)
+    {
+        throw e;
+    }
 	db_moudle_.Init();
 	 
 	CreateStockTickers();
@@ -58,7 +66,25 @@ std::shared_ptr<TaskStrand> TradeServerApp::CreateStrand()
 
 void TradeServerApp::HandleInboundHandShake(TSystem::communication::Connection* p, const TSystem::Message& msg)
 {
+    HandShake hs;
 
+	if(Decode(msg, hs, msg_system_))
+	{
+		const layinfo::AppResource& res = resource_manager_.FindUnique(hs.pid()); 
+		if( res )
+		{
+			auto pconn = p->shared_this();
+
+			p->hand_shaked(true);
+			SetupInboundConnection(pconn, res);
+
+			// add connection for forward module
+			//this->forward_module_.AddConnection(hs.pid(), pconn);
+
+			// add connection for master selection module
+			//this->master_selection_module_.AsyncAddResource(res.raid_id, res.pid, pconn);
+		}
+	}
 }
 
 void TradeServerApp::HandleInboundDisconnect(std::shared_ptr<TSystem::communication::Connection>& pconn, const TSystem::TError& te) 

@@ -4,6 +4,9 @@
 
 #include "Python.h"
 
+#include <TLib/tool/tsystem_connection_handshake.pb.h>
+#include <TLib/core/tsystem_serialization.h>
+
 #include "WINNERLib/winner_message_system.h"
 
 //#pragma comment(lib, "python36.lib")
@@ -63,7 +66,25 @@ void QuotationServerApp::InitPython()
 
 void QuotationServerApp::HandleInboundHandShake(TSystem::communication::Connection* p, const TSystem::Message& msg)
 {
+    HandShake hs;
 
+	if(Decode(msg, hs, msg_system_))
+	{
+		const layinfo::AppResource& res = resource_manager_.FindUnique(hs.pid()); 
+		if( res )
+		{
+			auto pconn = p->shared_this();
+
+			p->hand_shaked(true);
+			SetupInboundConnection(pconn, res);
+
+			// add connection for forward module
+			//this->forward_module_.AddConnection(hs.pid(), pconn);
+
+			// add connection for master selection module
+			//this->master_selection_module_.AsyncAddResource(res.raid_id, res.pid, pconn);
+		}
+	}
 }
 
 void QuotationServerApp::HandleInboundDisconnect(std::shared_ptr<TSystem::communication::Connection>& pconn, const TSystem::TError& te) 
