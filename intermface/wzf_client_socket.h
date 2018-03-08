@@ -57,8 +57,9 @@ public:
 	}
 
 	// send user request <LOGIN or LOGOUT>
-	//void SendUserRequest(unsigned int request_id, RequestType type, unsigned int user_id, const std::string& password);
+	void SendUserRequest(unsigned int request_id, RequestType type, unsigned int user_id, const std::string& password);
 
+    void SendQuotationRequst(const std::string& code);
 	// send quote request
 	//void SendPrivateQuoteRequest(unsigned int user_id);
 	//void CancelPrivateQuoteRequest(unsigned int user_id);

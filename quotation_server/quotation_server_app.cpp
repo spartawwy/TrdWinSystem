@@ -6,8 +6,10 @@
 
 #include <TLib/tool/tsystem_connection_handshake.pb.h>
 #include <TLib/core/tsystem_serialization.h>
+#include <TLib/core/tsystem_return_code.h>
 
 #include "WINNERLib/winner_message_system.h"
+
 
 //#pragma comment(lib, "python36.lib")
 
@@ -34,8 +36,8 @@ void QuotationServerApp::Initiate()
 	/*db_moudle_.Init();
 
 	CreateStockTickers();*/
-
-
+	SetupServerSocket();
+	 
 	StartPort();
 }
 
@@ -95,4 +97,56 @@ void QuotationServerApp::HandleInboundDisconnect(std::shared_ptr<TSystem::commun
 void QuotationServerApp::UpdateState()
 {
 
+}
+
+void QuotationServerApp::SetupServerSocket()
+{
+	msg_handlers_.RegisterHandler("UserRequest", [this](communication::Connection* p, const Message& msg)
+	{
+		auto req = std::make_shared<UserRequest>();
+		if( Decode(msg, *req, this->msg_system()) )
+			this->task_pool_.PostTask( std::bind(&QuotationServerApp::HandleUserRequest, this, std::move(req), p->shared_this()));
+	});
+
+    msg_handlers_.RegisterHandler("QuotationRequest", [this](communication::Connection* p, const Message& msg)
+    {
+        auto req = std::make_shared<QuotationRequest>();
+        if( Decode(msg, *req, this->msg_system()) )
+            this->task_pool_.PostTask( std::bind(&QuotationServerApp::HandleQuotationRequest, this, std::move(req), p->shared_this()));
+    });
+}
+
+void QuotationServerApp::HandleUserRequest(std::shared_ptr<UserRequest>& req, std::shared_ptr<communication::Connection>& pconn)
+{
+	switch (req->request_type())
+	{
+	case RequestType::LOGIN:
+		HandleUserLogin(*req, pconn);
+		break;
+	case RequestType::LOGOUT:
+		//HandleUserLogout(*req, pconn);
+		break;
+	default:
+		break;
+	}
+}
+
+void QuotationServerApp::HandleUserLogin(const UserRequest& req, const std::shared_ptr<communication::Connection>& pconn)
+{
+	SendRequestAck(req.user_id(), req.request_id(), req.request_type(), pconn);
+}
+
+void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn)
+{
+    QuotationMessage quotation_msg;
+    quotation_msg.set_code(req->code());
+    pconn->AsyncSend( Encode(quotation_msg, msg_system(), Message::HeaderType(0, pid(), 0)) );
+}
+void QuotationServerApp::SendRequestAck(int user_id, int req_id, RequestType type, const std::shared_ptr<TSystem::communication::Connection>& pconn)
+{
+	UserRequestAck ack;
+	ack.set_req_type(type);
+	ack.set_user_id(user_id);
+	TSystem::FillRequestAck(req_id, *ack.mutable_req_ack());
+	pconn->AsyncSend( Encode(ack, msg_system(), Message::HeaderType(0, pid(), 0)));
 }

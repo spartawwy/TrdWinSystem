@@ -2,11 +2,12 @@
 #define QUOTATION_SERVER_APP_H_SDF55SDSF_
 
 #include <TLib/tool/tsystem_server_appbase.h>
- 
+#include "WINNERLib/winner_user_msg.pb.h"
+#include "WINNERLib/quotation_msg.pb.h"
 //#include "db_moudle.h"
 
 using namespace TSystem;
-
+class UserRequest;
 class QuotationServerApp : public ServerAppBase
 {
 public:
@@ -29,5 +30,12 @@ public:
 private:
 
 	void InitPython();
+	void SetupServerSocket();
+	void HandleUserRequest(std::shared_ptr<UserRequest>& req, std::shared_ptr<communication::Connection>& pconn);
+	void HandleUserLogin(const UserRequest& req, const std::shared_ptr<communication::Connection>& pconn);
+
+    void HandleQuotationRequest(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn);
+
+	void SendRequestAck(int user_id, int req_id, RequestType type, const std::shared_ptr<TSystem::communication::Connection>& pconn);
 };
 #endif // QUOTATION_SERVER_APP_H_SDF55SDSF_

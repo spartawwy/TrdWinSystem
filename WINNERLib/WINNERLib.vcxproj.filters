@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="quotation">
+      <UniqueIdentifier>{b788c2ca-e7cc-43dd-9132-3837222d0c09}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -30,6 +33,9 @@
     <ClInclude Include="winner_user_msg.pb.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="quotation_msg.pb.h">
+      <Filter>quotation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="winner_error.cpp">
@@ -41,10 +47,16 @@
     <ClCompile Include="winner_user_msg.pb.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="quotation_msg.pb.cc">
+      <Filter>quotation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="winner_user_msg.proto">
       <Filter>Source Files</Filter>
+    </None>
+    <None Include="quotation_msg.proto">
+      <Filter>quotation</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -15,6 +15,12 @@ namespace WINNERSystem
 		 
 		"TopicRequest",
 		 
+		"UserRequest",
+		"UserRequestAck",
+
+        "QuotationRequest",
+        "QuotationMessage"
+
         //"RaidStateMessage",
         //"Listing",
         //"ListingVariable",

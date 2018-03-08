@@ -1,0 +1,33 @@
+//-----------------------------
+// user related messages
+//-----------------------------
+
+import "TLib/core/tsystem_time.proto";
+import "TLib/core/tsystem_return_code.proto";
+// use message_lite
+option optimize_for = LITE_RUNTIME;
+
+enum QuotationReqType
+{
+	FENBI           = 0;
+	ONE_MINUTE      = 1;
+	THREE_MINUTE    = 2;
+	FIVE_MINUTE     = 3;
+	TEN_MINUTE      = 4;
+	THIRTEEN_MINUTE = 5;
+	HOUR            = 6;
+	DAY             = 7;
+}
+
+message QuotationRequest
+{
+	  required QuotationReqType  req_type = 1;
+	  required string            code     = 2;
+      required Time              beg_time = 3;
+      required Time              end_time = 4;
+}
+
+message QuotationMessage
+{
+	  required string            code     = 1;
+}
