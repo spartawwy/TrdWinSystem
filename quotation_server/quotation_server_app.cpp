@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include <boost/lexical_cast.hpp>
+
 #include "Python.h"
 
 #include <TLib/tool/tsystem_connection_handshake.pb.h>
@@ -10,11 +12,22 @@
 
 #include "WINNERLib/winner_message_system.h"
 
-
+#ifdef _DEBUG
+#undef Py_XDECREF
+#define Py_XDECREF(a) (a)
+#endif
 //#pragma comment(lib, "python36.lib")
+#define  GET_LONGDATE_YEAR(a) (assert(a > 10000000), a/10000)
+#define  GET_LONGDATE_MONTH(a) (assert(a > 10000000), (a%10000)/100)
+#define  GET_LONGDATE_DAY(a) (assert(a > 10000000), (a%100))
+
+static bool IsLongDate(int date);
+static bool IsStockCode(const std::string &code);
 
 QuotationServerApp::QuotationServerApp(const std::string &name, const std::string &version)
 	: ServerAppBase("quotation_server", name, version)
+    , PyFuncGetAllFill2File(nullptr)
+    , stk_data_dir_()
 {
 	
 }
@@ -33,6 +46,20 @@ void QuotationServerApp::Initiate()
 
 	InitPython();
 
+    char stk_data_dir[256] = {0};
+	unsigned int ret_env_size = sizeof(stk_data_dir);
+	getenv_s(&ret_env_size, stk_data_dir, ret_env_size, "STK_DATA_DIR");
+    if( strlen(stk_data_dir) == 0 )
+    {
+        std::cout << "QuotationServerApp::Initiate STK_DATA_DIR unset! " << std::endl;
+		// todo: throw exception
+		throw ""; 
+    } 
+    stk_data_dir_ = stk_data_dir;
+    if( stk_data_dir_.rfind("\\") != stk_data_dir_.length() - 1 && stk_data_dir_.rfind("/") != stk_data_dir_.length() - 1 )
+    {
+       stk_data_dir_ += "/";
+    }
 	/*db_moudle_.Init();
 
 	CreateStockTickers();*/
@@ -46,7 +73,7 @@ void QuotationServerApp::InitPython()
 	int r = Py_IsInitialized();  //1为已经初始化了
 	if (r != 0)
 	{
-		std::cout << "init python fail " << std::endl;
+		std::cout << "QuotationServerApp::InitPython init python fail " << std::endl;
 		// todo: throw exception
 		throw ""; 
 	}
@@ -55,15 +82,64 @@ void QuotationServerApp::InitPython()
 	auto p_main_Module = PyImport_ImportModule("__main__");
 	if (!p_main_Module)
 	{
-		throw "";
+		std::cout << "QuotationServerApp::InitPython PyImport_ImportModule __main__ fail " << std::endl;
+		throw ""; 
 	}
 	auto pDict = PyModule_GetDict(p_main_Module);
 	if ( !pDict ) 
 	{          
+		std::cout << "QuotationServerApp::InitPython PyModule_GetDict fail " << std::endl;
 		throw ""; 
 	}     
 
 	PyRun_SimpleString("import sys");
+
+    char stk_py_dir[256] = {0};
+	unsigned int ret_env_size = sizeof(stk_py_dir);
+	getenv_s(&ret_env_size, stk_py_dir, ret_env_size, "STK_PY_DIR");
+    std::string path = stk_py_dir;
+    std::string chdir_cmd = std::string("sys.path.append(\"") + path + "\")";
+    const char* cstr_cmd = chdir_cmd.c_str(); 
+    PyRun_SimpleString(cstr_cmd);
+
+    //导入模块   
+    PyObject* pModule = PyImport_ImportModule("get_stk_his_fill2file"); // get_stock_his.py
+    if (!pModule)  
+    {  
+        std::cout << "QuotationServerApp::InitPython PyImport_ImportModule get_stk_his_fill2file fail " << std::endl;
+		// todo: throw exception
+		throw ""; 
+    }  
+    PyObject *pDic = PyModule_GetDict(pModule);
+    if (!pDic)  
+    {  
+        std::cout << "QuotationServerApp::InitPython PyModule_GetDict of get_stk_his_fill2file fail " << std::endl;
+		// todo: throw exception
+		throw ""; 
+    }  
+
+    PyObject* pcls = PyObject_GetAttrString(pModule, "STOCK");   
+    if (!pcls || !PyCallable_Check(pcls))  
+    {  
+        std::cout << "QuotationServerApp::InitPython PyObject_GetAttrString class STOCK fail " << std::endl;
+		// todo: throw exception
+		throw ""; 
+    }  
+ 
+    PyObject* p_stock_obj = PyEval_CallObject(pcls, NULL);
+    if( !p_stock_obj )
+    { 
+        std::cout << "QuotationServerApp::InitPython PyEval_CallObject create STOCK obj fail " << std::endl;
+		// todo: throw exception
+		throw ""; 
+    }
+    PyFuncGetAllFill2File = PyObject_GetAttrString(p_stock_obj, "getAllFill2File");
+    if( !PyFuncGetAllFill2File )
+    {
+        std::cout << "QuotationServerApp::InitPython get func getAllFill2File fail " << std::endl;
+		// todo: throw exception
+		throw ""; 
+    }
 }
 
 void QuotationServerApp::HandleInboundHandShake(TSystem::communication::Connection* p, const TSystem::Message& msg)
@@ -138,10 +214,13 @@ void QuotationServerApp::HandleUserLogin(const UserRequest& req, const std::shar
 
 void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn)
 {
+    // Py get ------------
+    //GetFenbi2File();
     QuotationMessage quotation_msg;
     quotation_msg.set_code(req->code());
     pconn->AsyncSend( Encode(quotation_msg, msg_system(), Message::HeaderType(0, pid(), 0)) );
 }
+
 void QuotationServerApp::SendRequestAck(int user_id, int req_id, RequestType type, const std::shared_ptr<TSystem::communication::Connection>& pconn)
 {
 	UserRequestAck ack;
@@ -149,4 +228,66 @@ void QuotationServerApp::SendRequestAck(int user_id, int req_id, RequestType typ
 	ack.set_user_id(user_id);
 	TSystem::FillRequestAck(req_id, *ack.mutable_req_ack());
 	pconn->AsyncSend( Encode(ack, msg_system(), Message::HeaderType(0, pid(), 0)));
+}
+
+std::vector<int> QuotationServerApp::GetFenbi2File(const std::string &code, int date_beg, int date_end)
+{
+    assert(PyFuncGetAllFill2File);
+
+    if( !IsLongDate(date_beg) || !IsLongDate(date_end) || !IsStockCode(code) )
+        return std::vector<int>();
+    int beg_date = (date_beg > date_end) ? date_end : date_beg;
+    int end_date = (date_beg > date_end) ? date_beg : date_end;
+     
+    auto pArg = PyTuple_New(3);
+    PyTuple_SetItem(pArg, 0, Py_BuildValue("s", code.c_str()));
+    char beg_date_str[32] = {0};
+    sprintf_s(beg_date_str, "%d-%02d-%02d\0", GET_LONGDATE_YEAR(beg_date), GET_LONGDATE_MONTH(beg_date), GET_LONGDATE_DAY(beg_date));
+    PyTuple_SetItem(pArg, 1, Py_BuildValue("s", beg_date_str));
+    char end_date_str[32] = {0};
+    sprintf_s(end_date_str, "%d-%02d-%02d\0", GET_LONGDATE_YEAR(beg_date), GET_LONGDATE_MONTH(beg_date), GET_LONGDATE_DAY(beg_date));
+    PyTuple_SetItem(pArg, 2, Py_BuildValue("s", end_date_str));
+
+    auto pRet = PyEval_CallObject((PyObject*)PyFuncGetAllFill2File, pArg);
+    char *result;
+    PyArg_Parse(pRet, "s", &result);
+    if( !stricmp(result, "OK") )
+    {
+        Py_XDECREF(result);
+        return std::vector<int>();
+    }
+    Py_XDECREF(result);
+    //-------------------
+   
+    for( int the_date = date_beg; the_date <= date_end; the_date )
+    {
+        stk_data_dir_ + code + "/";
+    }
+    return std::vector<int>();
+
+}
+
+bool IsLongDate(int date)
+{
+    /*if( date < 10000000 && date > 30000000 )
+        return false;*/
+    return date > 19000101 && date < 30000101;
+}
+
+
+bool IsStockCode(const std::string &code)
+{
+    //code.find(" ") 
+    //boost::lexical_cast<int>(code
+    if( code.length() != 6 )
+        return false;
+    try
+    {
+        auto val = std::stoi(code);
+        return (code[0] == '0' || code[0] == '3' || code[0] == '6' || code[0] == '8' || code[0] == '9');
+    }catch(std::exception&)
+    {
+        return false;
+    }
+    return false;
 }

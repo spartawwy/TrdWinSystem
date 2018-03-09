@@ -4,6 +4,7 @@
 
 import "TLib/core/tsystem_time.proto";
 import "TLib/core/tsystem_return_code.proto";
+import "TLib/tool/tsystem_rational_number.proto";
 // use message_lite
 option optimize_for = LITE_RUNTIME;
 
@@ -21,13 +22,23 @@ enum QuotationReqType
 
 message QuotationRequest
 {
-	  required QuotationReqType  req_type = 1;
-	  required string            code     = 2;
-      required Time              beg_time = 3;
-      required Time              end_time = 4;
+	  required  QuotationReqType  req_type = 1;
+	  required  string            code     = 2;
+      required  Time              beg_time = 3;
+      required  Time              end_time = 4;
 }
+
 
 message QuotationMessage
 {
-	  required string            code     = 1;
+      message QuotationFillMessage
+      {
+        required Time            time               = 1;
+        required RationalNumber  price              = 2;
+        required uint32          vol                = 3;
+        optional RationalNumber  price_change       = 4;
+        optional bool            is_change_positive = 5;
+      }
+	  required  string                code            = 1;
+      repeated  QuotationFillMessage  quote_fill_msg  = 2; 
 }

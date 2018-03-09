@@ -25,6 +25,7 @@
 #include <google/protobuf/extension_set.h>
 #include "TLib/core/tsystem_time.pb.h"
 #include "TLib/core/tsystem_return_code.pb.h"
+#include "TLib/tool/tsystem_rational_number.pb.h"
 // @@protoc_insertion_point(includes)
 
 // Internal implementation detail -- do not call these.
@@ -34,6 +35,7 @@ void protobuf_ShutdownFile_WINNERLib_2fquotation_5fmsg_2eproto();
 
 class QuotationRequest;
 class QuotationMessage;
+class QuotationMessage_QuotationFillMessage;
 
 enum QuotationReqType {
   FENBI = 0,
@@ -174,6 +176,135 @@ class QuotationRequest : public ::google::protobuf::MessageLite {
 };
 // -------------------------------------------------------------------
 
+class QuotationMessage_QuotationFillMessage : public ::google::protobuf::MessageLite {
+ public:
+  QuotationMessage_QuotationFillMessage();
+  virtual ~QuotationMessage_QuotationFillMessage();
+
+  QuotationMessage_QuotationFillMessage(const QuotationMessage_QuotationFillMessage& from);
+
+  inline QuotationMessage_QuotationFillMessage& operator=(const QuotationMessage_QuotationFillMessage& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const QuotationMessage_QuotationFillMessage& default_instance();
+
+  #ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  // Returns the internal default instance pointer. This function can
+  // return NULL thus should not be used by the user. This is intended
+  // for Protobuf internal code. Please use default_instance() declared
+  // above instead.
+  static inline const QuotationMessage_QuotationFillMessage* internal_default_instance() {
+    return default_instance_;
+  }
+  #endif
+
+  void Swap(QuotationMessage_QuotationFillMessage* other);
+
+  // implements Message ----------------------------------------------
+
+  QuotationMessage_QuotationFillMessage* New() const;
+  void CheckTypeAndMergeFrom(const ::google::protobuf::MessageLite& from);
+  void CopyFrom(const QuotationMessage_QuotationFillMessage& from);
+  void MergeFrom(const QuotationMessage_QuotationFillMessage& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+
+  ::std::string GetTypeName() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required .Time time = 1;
+  inline bool has_time() const;
+  inline void clear_time();
+  static const int kTimeFieldNumber = 1;
+  inline const ::Time& time() const;
+  inline ::Time* mutable_time();
+  inline ::Time* release_time();
+  inline void set_allocated_time(::Time* time);
+
+  // required .RationalNumber price = 2;
+  inline bool has_price() const;
+  inline void clear_price();
+  static const int kPriceFieldNumber = 2;
+  inline const ::RationalNumber& price() const;
+  inline ::RationalNumber* mutable_price();
+  inline ::RationalNumber* release_price();
+  inline void set_allocated_price(::RationalNumber* price);
+
+  // required uint32 vol = 3;
+  inline bool has_vol() const;
+  inline void clear_vol();
+  static const int kVolFieldNumber = 3;
+  inline ::google::protobuf::uint32 vol() const;
+  inline void set_vol(::google::protobuf::uint32 value);
+
+  // optional .RationalNumber price_change = 4;
+  inline bool has_price_change() const;
+  inline void clear_price_change();
+  static const int kPriceChangeFieldNumber = 4;
+  inline const ::RationalNumber& price_change() const;
+  inline ::RationalNumber* mutable_price_change();
+  inline ::RationalNumber* release_price_change();
+  inline void set_allocated_price_change(::RationalNumber* price_change);
+
+  // optional bool is_change_positive = 5;
+  inline bool has_is_change_positive() const;
+  inline void clear_is_change_positive();
+  static const int kIsChangePositiveFieldNumber = 5;
+  inline bool is_change_positive() const;
+  inline void set_is_change_positive(bool value);
+
+  // @@protoc_insertion_point(class_scope:QuotationMessage.QuotationFillMessage)
+ private:
+  inline void set_has_time();
+  inline void clear_has_time();
+  inline void set_has_price();
+  inline void clear_has_price();
+  inline void set_has_vol();
+  inline void clear_has_vol();
+  inline void set_has_price_change();
+  inline void clear_has_price_change();
+  inline void set_has_is_change_positive();
+  inline void clear_has_is_change_positive();
+
+  ::Time* time_;
+  ::RationalNumber* price_;
+  ::RationalNumber* price_change_;
+  ::google::protobuf::uint32 vol_;
+  bool is_change_positive_;
+
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
+
+  #ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  friend void  protobuf_AddDesc_WINNERLib_2fquotation_5fmsg_2eproto_impl();
+  #else
+  friend void  protobuf_AddDesc_WINNERLib_2fquotation_5fmsg_2eproto();
+  #endif
+  friend void protobuf_AssignDesc_WINNERLib_2fquotation_5fmsg_2eproto();
+  friend void protobuf_ShutdownFile_WINNERLib_2fquotation_5fmsg_2eproto();
+
+  void InitAsDefaultInstance();
+  static QuotationMessage_QuotationFillMessage* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class QuotationMessage : public ::google::protobuf::MessageLite {
  public:
   QuotationMessage();
@@ -225,6 +356,8 @@ class QuotationMessage : public ::google::protobuf::MessageLite {
 
   // nested types ----------------------------------------------------
 
+  typedef QuotationMessage_QuotationFillMessage QuotationFillMessage;
+
   // accessors -------------------------------------------------------
 
   // required string code = 1;
@@ -239,15 +372,28 @@ class QuotationMessage : public ::google::protobuf::MessageLite {
   inline ::std::string* release_code();
   inline void set_allocated_code(::std::string* code);
 
+  // repeated .QuotationMessage.QuotationFillMessage quote_fill_msg = 2;
+  inline int quote_fill_msg_size() const;
+  inline void clear_quote_fill_msg();
+  static const int kQuoteFillMsgFieldNumber = 2;
+  inline const ::QuotationMessage_QuotationFillMessage& quote_fill_msg(int index) const;
+  inline ::QuotationMessage_QuotationFillMessage* mutable_quote_fill_msg(int index);
+  inline ::QuotationMessage_QuotationFillMessage* add_quote_fill_msg();
+  inline const ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationFillMessage >&
+      quote_fill_msg() const;
+  inline ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationFillMessage >*
+      mutable_quote_fill_msg();
+
   // @@protoc_insertion_point(class_scope:QuotationMessage)
  private:
   inline void set_has_code();
   inline void clear_has_code();
 
   ::std::string* code_;
+  ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationFillMessage > quote_fill_msg_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
 
   #ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
   friend void  protobuf_AddDesc_WINNERLib_2fquotation_5fmsg_2eproto_impl();
@@ -446,6 +592,180 @@ inline void QuotationRequest::set_allocated_end_time(::Time* end_time) {
 
 // -------------------------------------------------------------------
 
+// QuotationMessage_QuotationFillMessage
+
+// required .Time time = 1;
+inline bool QuotationMessage_QuotationFillMessage::has_time() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void QuotationMessage_QuotationFillMessage::set_has_time() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_has_time() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_time() {
+  if (time_ != NULL) time_->::Time::Clear();
+  clear_has_time();
+}
+inline const ::Time& QuotationMessage_QuotationFillMessage::time() const {
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  return time_ != NULL ? *time_ : *default_instance().time_;
+#else
+  return time_ != NULL ? *time_ : *default_instance_->time_;
+#endif
+}
+inline ::Time* QuotationMessage_QuotationFillMessage::mutable_time() {
+  set_has_time();
+  if (time_ == NULL) time_ = new ::Time;
+  return time_;
+}
+inline ::Time* QuotationMessage_QuotationFillMessage::release_time() {
+  clear_has_time();
+  ::Time* temp = time_;
+  time_ = NULL;
+  return temp;
+}
+inline void QuotationMessage_QuotationFillMessage::set_allocated_time(::Time* time) {
+  delete time_;
+  time_ = time;
+  if (time) {
+    set_has_time();
+  } else {
+    clear_has_time();
+  }
+}
+
+// required .RationalNumber price = 2;
+inline bool QuotationMessage_QuotationFillMessage::has_price() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void QuotationMessage_QuotationFillMessage::set_has_price() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_has_price() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_price() {
+  if (price_ != NULL) price_->::RationalNumber::Clear();
+  clear_has_price();
+}
+inline const ::RationalNumber& QuotationMessage_QuotationFillMessage::price() const {
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  return price_ != NULL ? *price_ : *default_instance().price_;
+#else
+  return price_ != NULL ? *price_ : *default_instance_->price_;
+#endif
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::mutable_price() {
+  set_has_price();
+  if (price_ == NULL) price_ = new ::RationalNumber;
+  return price_;
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::release_price() {
+  clear_has_price();
+  ::RationalNumber* temp = price_;
+  price_ = NULL;
+  return temp;
+}
+inline void QuotationMessage_QuotationFillMessage::set_allocated_price(::RationalNumber* price) {
+  delete price_;
+  price_ = price;
+  if (price) {
+    set_has_price();
+  } else {
+    clear_has_price();
+  }
+}
+
+// required uint32 vol = 3;
+inline bool QuotationMessage_QuotationFillMessage::has_vol() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void QuotationMessage_QuotationFillMessage::set_has_vol() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_has_vol() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_vol() {
+  vol_ = 0u;
+  clear_has_vol();
+}
+inline ::google::protobuf::uint32 QuotationMessage_QuotationFillMessage::vol() const {
+  return vol_;
+}
+inline void QuotationMessage_QuotationFillMessage::set_vol(::google::protobuf::uint32 value) {
+  set_has_vol();
+  vol_ = value;
+}
+
+// optional .RationalNumber price_change = 4;
+inline bool QuotationMessage_QuotationFillMessage::has_price_change() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void QuotationMessage_QuotationFillMessage::set_has_price_change() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_has_price_change() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_price_change() {
+  if (price_change_ != NULL) price_change_->::RationalNumber::Clear();
+  clear_has_price_change();
+}
+inline const ::RationalNumber& QuotationMessage_QuotationFillMessage::price_change() const {
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  return price_change_ != NULL ? *price_change_ : *default_instance().price_change_;
+#else
+  return price_change_ != NULL ? *price_change_ : *default_instance_->price_change_;
+#endif
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::mutable_price_change() {
+  set_has_price_change();
+  if (price_change_ == NULL) price_change_ = new ::RationalNumber;
+  return price_change_;
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::release_price_change() {
+  clear_has_price_change();
+  ::RationalNumber* temp = price_change_;
+  price_change_ = NULL;
+  return temp;
+}
+inline void QuotationMessage_QuotationFillMessage::set_allocated_price_change(::RationalNumber* price_change) {
+  delete price_change_;
+  price_change_ = price_change;
+  if (price_change) {
+    set_has_price_change();
+  } else {
+    clear_has_price_change();
+  }
+}
+
+// optional bool is_change_positive = 5;
+inline bool QuotationMessage_QuotationFillMessage::has_is_change_positive() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void QuotationMessage_QuotationFillMessage::set_has_is_change_positive() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_has_is_change_positive() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_is_change_positive() {
+  is_change_positive_ = false;
+  clear_has_is_change_positive();
+}
+inline bool QuotationMessage_QuotationFillMessage::is_change_positive() const {
+  return is_change_positive_;
+}
+inline void QuotationMessage_QuotationFillMessage::set_is_change_positive(bool value) {
+  set_has_is_change_positive();
+  is_change_positive_ = value;
+}
+
+// -------------------------------------------------------------------
+
 // QuotationMessage
 
 // required string code = 1;
@@ -516,6 +836,31 @@ inline void QuotationMessage::set_allocated_code(::std::string* code) {
     clear_has_code();
     code_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   }
+}
+
+// repeated .QuotationMessage.QuotationFillMessage quote_fill_msg = 2;
+inline int QuotationMessage::quote_fill_msg_size() const {
+  return quote_fill_msg_.size();
+}
+inline void QuotationMessage::clear_quote_fill_msg() {
+  quote_fill_msg_.Clear();
+}
+inline const ::QuotationMessage_QuotationFillMessage& QuotationMessage::quote_fill_msg(int index) const {
+  return quote_fill_msg_.Get(index);
+}
+inline ::QuotationMessage_QuotationFillMessage* QuotationMessage::mutable_quote_fill_msg(int index) {
+  return quote_fill_msg_.Mutable(index);
+}
+inline ::QuotationMessage_QuotationFillMessage* QuotationMessage::add_quote_fill_msg() {
+  return quote_fill_msg_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationFillMessage >&
+QuotationMessage::quote_fill_msg() const {
+  return quote_fill_msg_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationFillMessage >*
+QuotationMessage::mutable_quote_fill_msg() {
+  return &quote_fill_msg_;
 }
 
 
