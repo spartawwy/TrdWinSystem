@@ -1,12 +1,6 @@
 #ifndef WINNER_API_SDF32DF_H_
 #define WINNER_API_SDF32DF_H_
-
-#ifdef  WINNER_API_EXPORTS
-    #define WINNER_API_IMEXPORT  __declspec(dllexport)
-#else
-    #define WINNER_API_IMEXPORT  __declspec(dllimport)
-#endif
-
+ 
 //API使用流程为: 应用程序先调用WinnerHisHq_Connect连接赢家历史服务器,然后才可以调用其他接口获取行情数据,应用程序应自行处理网络断线问题, 接口是线程安全的
 //如果断线，调用任意api函数后，api会返回已经断线的错误信息，应用程序应根据此错误信息重新连接服务器。
 
@@ -19,12 +13,12 @@
 /// <param name="Result">此API执行返回后  </param>
 /// <param name="ErrInfo">此API执行返回后，如果出错，保存了错误信息说明。一般要分配256字节的空间。没出错时为空字符串。</param>
 /// <returns>成功返货true, 失败返回false</returns>
-typedef bool (__stdcall* WinnerHisHq_ConnectDelegate)(char* IP, int Port, char* Result, char* ErrInfo);
+typedef int (__cdecl* WinnerHisHq_ConnectDelegate)(char* IP, int Port, char* Result, char* ErrInfo);
 
 /// <summary>
 /// 断开同服务器的连接
 /// </summary>
-typedef void(__stdcall* WinnerHisHq_DisconnectDelegate)();
+typedef void(__cdecl* WinnerHisHq_DisconnectDelegate)();
 
 /// <summary>
 /// 获取证券指定范围的的K线数据
@@ -37,7 +31,7 @@ typedef void(__stdcall* WinnerHisHq_DisconnectDelegate)();
 /// <param name="Result">此API执行返回后，Result内保存了返回的查询数据, 形式为表格数据，行数据之间通过\n字符分割，列数据之间通过\t分隔。一般要分配1024*1024字节的空间。出错时为空字符串。</param>
 /// <param name="ErrInfo">此API执行返回后，如果出错，保存了错误信息说明。一般要分配256字节的空间。没出错时为空字符串。</param>
 /// <returns>成功返货true, 失败返回false</returns>
-typedef bool(__stdcall* TdxHq_GetSecurityBarsDelegate)(byte Category, byte Market, char* Zqdm, short Start, short& Count, char* Result, char* ErrInfo);
+//typedef bool(__cdecl* TdxHq_GetSecurityBarsDelegate)(byte Category, byte Market, char* Zqdm, short Start, short& Count, char* Result, char* ErrInfo);
 /// <summary>
 
 #endif // WINNER_API_SDF32DF_H_

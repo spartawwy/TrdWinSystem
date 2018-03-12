@@ -1,6 +1,9 @@
 #include "winner_client.h"
 
-#include <Tlib/core/tsystem_utility_functions.h>
+#include <TLib/core/tsystem_utility_functions.h>
+#include <TLib/core/tsystem_serialization.h>
+
+#include <TLib/tool/tsystem_connection_handshake.pb.h>
 
 #include "WINNERLib/winner_message_system.h"
 
@@ -23,19 +26,24 @@ WinnerClient::WinnerClient()
 
 WinnerClient::~WinnerClient()
 {
-
+    /*FireShutdown();*/
 }
 
-void WinnerClient::ShutdownAPI()
+void WinnerClient::Shutdown()
 {
-    try
-    {
-        Shutdown();
-    }catch(const TSystem::TException& e)
-    {
-        LogError(LogMessage::VITAL, e.error(), local_logger());
-    }
+	ServerClientAppBase::Shutdown();
 }
+
+//void WinnerClient::ShutdownAPI()
+//{
+//    try
+//    {
+//        Shutdown();
+//    }catch(const TSystem::TException& e)
+//    {
+//        LogError(LogMessage::VITAL, e.error(), local_logger());
+//    }
+//}
 
 
 void WinnerClient::Initiate()
@@ -56,15 +64,24 @@ void WinnerClient::Initiate()
 
 void WinnerClient::SetupMsgHandlers()
 {
-
+    msg_handlers_.RegisterHandler("HandShake", [this](communication::Connection* p, const Message& msg)
+	{
+		this->local_logger().LogLocal( utility::FormatStr("receive handshake from connection: %d", p->connid()));
+		HandShake hs;
+		if( Decode(msg, hs, this->msg_system_) )
+		{
+			p->hand_shaked(true);
+			//this->callbacks_.OnConnectServer(true);
+			this->pconn_ = p->shared_this();
+		}
+	});
 }
 
 
 bool WinnerClient::ConnectServer(const char* pServerAddress, int port)
 {
     try
-    {
-        Initiate();
+    { 
         std::string connect_str = utility::FormatStr("%s:%d", pServerAddress, port);
 
         comm_dock_.AsyncConnect( pServerAddress, port

@@ -16,11 +16,13 @@ public:
      
     bool ConnectServer(const char* pServerAddress, int port);
 
-    void ShutdownAPI();
+    //void ShutdownAPI();   
 
 private:
 
     void Initiate();
+
+    void Shutdown();
 
     virtual void HandleNodeHandShake(TSystem::communication::Connection* p, const TSystem::Message& msg) override {}
     virtual void HandleNodeDisconnect(std::shared_ptr<TSystem::communication::Connection>& pconn, const TSystem::TError& te) override {}
