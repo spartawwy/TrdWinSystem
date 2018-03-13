@@ -12,13 +12,36 @@
 /// <param name="Port">服务器端口</param>
 /// <param name="Result">此API执行返回后  </param>
 /// <param name="ErrInfo">此API执行返回后，如果出错，保存了错误信息说明。一般要分配256字节的空间。没出错时为空字符串。</param>
-/// <returns>成功返货true, 失败返回false</returns>
+/// <returns>成功返回0, 失败返回其他</returns>
 typedef int (__cdecl* WinnerHisHq_ConnectDelegate)(char* IP, int Port, char* Result, char* ErrInfo);
 
 /// <summary>
 /// 断开同服务器的连接
 /// </summary>
 typedef void(__cdecl* WinnerHisHq_DisconnectDelegate)();
+
+typedef struct _t_quote_atom_data
+{
+    // 'code','date','time','price','change','volume','amount','type'
+    char code[16];
+    int  date; //yyyymmdd
+    int  time; //HHMMSS
+    double price; // .2f
+    double price_change;
+    int  vol;
+    unsigned char bid_type; // 0: buy_pan  1 :sell_pan
+}T_QuoteAtomData;
+
+typedef void (*FenbiCallBack)(T_QuoteAtomData *quote_data, bool is_end);
+/// <summary>
+/// 获取历史分时数据
+/// </summary>
+/// <param name="Zqdm">证券代码</param>
+/// <param name="Date">日期, 比如2014年1月1日为整数20140101</param>
+/// <param name="FenbiCallBack"> 回调函数</param>
+/// <param name="ErrInfo">此API执行返回后，如果出错，保存了错误信息说明。一般要分配256字节的空间。没出错时为空字符串。</param>
+/// <returns>成功返回0, 失败返回其他 -1--未连接</returns>
+typedef int (__cdecl* WinnerHisHq_GetHisFenbiDataDelegate)(char* Zqdm, int Date, FenbiCallBack call_back, char* ErrInfo);
 
 /// <summary>
 /// 获取证券指定范围的的K线数据

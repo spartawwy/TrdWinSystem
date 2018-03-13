@@ -9,6 +9,8 @@
 #include <TLib/tool/tsystem_connection_handshake.pb.h>
 #include <TLib/core/tsystem_serialization.h>
 #include <TLib/core/tsystem_return_code.h>
+#include <TLib/core/tsystem_utility_functions.h>
+#include <TLib/core/tsystem_time.h>
 
 #include "WINNERLib/winner_message_system.h"
 
@@ -23,6 +25,7 @@
 
 static bool IsLongDate(int date);
 static bool IsStockCode(const std::string &code);
+static void ConvertTime(const Time& t, int& longdate, std::string * timestamp=nullptr);
 
 QuotationServerApp::QuotationServerApp(const std::string &name, const std::string &version)
 	: ServerAppBase("quotation_server", name, version)
@@ -214,8 +217,14 @@ void QuotationServerApp::HandleUserLogin(const UserRequest& req, const std::shar
 
 void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn)
 {
+    assert(req);
+    int beg_date = 0;
+    int end_date = 0;
+    ConvertTime(req->beg_time(), beg_date);
+    ConvertTime(req->end_time(), end_date);
     // Py get ------------
-    //GetFenbi2File();
+    auto file_vector = GetFenbi2File(req->code(), beg_date, end_date);
+
     QuotationMessage quotation_msg;
     quotation_msg.set_code(req->code());
     pconn->AsyncSend( Encode(quotation_msg, msg_system(), Message::HeaderType(0, pid(), 0)) );
@@ -261,7 +270,7 @@ std::vector<int> QuotationServerApp::GetFenbi2File(const std::string &code, int 
    
     for( int the_date = date_beg; the_date <= date_end; the_date )
     {
-        stk_data_dir_ + code + "/";
+        //utility::FormatStr("%s%s/%04d-%02d-%02d/%s.fenbi", stk_data_dir_, code, FromLongdate(date)));
     }
     return std::vector<int>();
 
@@ -291,3 +300,12 @@ bool IsStockCode(const std::string &code)
     }
     return false;
 }
+
+// lambda to convert time
+void ConvertTime(const Time& t, int& longdate, std::string * timestamp)
+{
+    TimePoint tp( MakeTimePoint(t.time_value(), t.frac_sec()) );
+    longdate = ToLongdate( tp.year(), tp.month(), tp.day() );
+    if( timestamp )
+        *timestamp = utility::FormatStr("%02d:%02d:%02d.%06d", tp.hour(), tp.min(), tp.sec(), static_cast<int>(tp.frac_sec()*1000000));
+};

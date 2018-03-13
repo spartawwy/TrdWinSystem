@@ -31,9 +31,11 @@ int main()
     WinnerHisHq_DisconnectDelegate WinnerHisHq_DisConnect =  (WinnerHisHq_DisconnectDelegate)GetProcAddress(api_handle, "WinnerHisHq_Disconnect"); 
     char result[1024] = {0};
     char error[1024] = {0};
-
+#if 1
+    auto ret = WinnerHisHq_Connect("192.168.1.5", 50010, result, error);
+#else
     auto ret = WinnerHisHq_Connect("128.1.1.3", 50010, result, error);
-
+#endif 
     std::string cmd;
 	std::vector<std::string> args;
 
@@ -47,7 +49,11 @@ int main()
         if( args.size() > 0 && args[0] == "EOF" )
         {
             break;
+        }else if( args[0] == "FENBI" && args.size() > 3 ) // FENBI  stock start_date end_date  --yyyymmdd
+        {
+
         }
+
     }
 
 #if 1

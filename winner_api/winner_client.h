@@ -5,6 +5,7 @@
 
 #include <TLib/tool/tsystem_server_client_appbase.h>
 
+#include "winner_his_hq.h"
 //using namespace TSystem;
 
 class WinnerClient : public TSystem::ServerClientAppBase
@@ -17,6 +18,10 @@ public:
     bool ConnectServer(const char* pServerAddress, int port);
     void DisConnectServer();
     //void ShutdownAPI();   
+
+    bool is_connected() const { return is_connected_; }
+
+    bool RequestFenbiHisData(char* Zqdm, int Date, FenbiCallBack call_back, char* ErrInfo);
 
 private:
 
@@ -44,8 +49,10 @@ private:
 
     std::shared_ptr<TSystem::communication::Connection>  pconn_;
 
-    TSystem::TaskStrand strand_;
+    TSystem::TaskStrand  strand_;
 
-    //int connect_id_;
+    bool is_connected_;
+    
+    FenbiCallBack fenbi_callback_;
 };
 #endif // WINNER_CLIENT_SDF3SDFSDF_H_

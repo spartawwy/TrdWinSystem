@@ -30,6 +30,25 @@ extern "C" DLLIMEXPORT void __cdecl WinnerHisHq_Disconnect()
 #endif
 }
 
+extern "C" DLLIMEXPORT void __cdecl WinnerHisHq_Disconnect()
+{
+
+#if 1 
+    GetInstance(true); 
+#else
+    GetInstance()->DisConnectServer();
+#endif
+}
+
+
+extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_GetHisFenbiData(char* Zqdm, int Date, FenbiCallBack call_back, char* ErrInfo)
+{
+    if( !GetInstance()->is_connected() )
+        return -1;
+    auto val = GetInstance()->RequestFenbiHisData(Zqdm, Date, call_back, ErrInfo);
+    return val ? 0 : -2;
+}
+
 static WinnerClient* GetInstance(bool is_del)
 {
     static std::string pro_tag = TSystem::utility::ProjectTag("wzf");

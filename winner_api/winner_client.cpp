@@ -14,7 +14,8 @@ WinnerClient::WinnerClient()
     , msg_handlers_(msg_system_)
     , pconn_(nullptr)
     , strand_(task_pool())
-    //, connect_id_(-1)
+    , is_connected_(false)
+    , fenbi_callback_(nullptr)
 {
     try
     {
@@ -74,6 +75,7 @@ void WinnerClient::SetupMsgHandlers()
 			p->hand_shaked(true);
 			//this->callbacks_.OnConnectServer(true);
 			this->pconn_ = p->shared_this();
+            is_connected_ = true;
 		}
 	});
 }
@@ -118,6 +120,7 @@ bool WinnerClient::ConnectServer(const char* pServerAddress, int port)
                         this->local_logger().LogLocal("connection disconnect");
                         // todo: this->callbacks_.OnDisconnectServer(true);
                     }
+                    is_connected_ = false; 
                 };
 
                 // start writing / reading loop
@@ -141,4 +144,11 @@ bool WinnerClient::ConnectServer(const char* pServerAddress, int port)
 void WinnerClient::DisConnectServer()
 {
     comm_dock_.Shutdown();
+    is_connected_ = false;
+}
+
+bool WinnerClient::RequestFenbiHisData(char* Zqdm, int Date, FenbiCallBack call_back, char* ErrInfo)
+{
+    fenbi_callback_ = call_back;
+    // todo: request fenbi data from quotation server
 }
