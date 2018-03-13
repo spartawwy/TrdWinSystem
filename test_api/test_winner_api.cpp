@@ -1,7 +1,13 @@
 
 #include <iostream>
+#include <string>
+
+#include <stdlib.h>
+#include <vector>
 
 #include <Windows.h>
+
+#include <TLib/core/tsystem_utility_functions.h>
 
 #include "winner_hq_api.h"
 
@@ -25,9 +31,29 @@ int main()
     WinnerHisHq_DisconnectDelegate WinnerHisHq_DisConnect =  (WinnerHisHq_DisconnectDelegate)GetProcAddress(api_handle, "WinnerHisHq_Disconnect"); 
     char result[1024] = {0};
     char error[1024] = {0};
+
     auto ret = WinnerHisHq_Connect("128.1.1.3", 50010, result, error);
+
+    std::string cmd;
+	std::vector<std::string> args;
+
+    bool exit = false;
+	while( !exit )
+	{
+
+		std::getline(std::cin, cmd);
+		std::cout << cmd << std::endl;
+		args = TSystem::utility::split(cmd);
+        if( args.size() > 0 && args[0] == "EOF" )
+        {
+            break;
+        }
+    }
+
+#if 1
     if( WinnerHisHq_DisConnect )
         WinnerHisHq_DisConnect();
-    getchar();
+#endif
+    //getchar();
     return 0;
 }

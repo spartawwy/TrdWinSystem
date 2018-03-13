@@ -14,6 +14,7 @@ WinnerClient::WinnerClient()
     , msg_handlers_(msg_system_)
     , pconn_(nullptr)
     , strand_(task_pool())
+    //, connect_id_(-1)
 {
     try
     {
@@ -137,3 +138,7 @@ bool WinnerClient::ConnectServer(const char* pServerAddress, int port)
     }
 }
  
+void WinnerClient::DisConnectServer()
+{
+    comm_dock_.Shutdown();
+}

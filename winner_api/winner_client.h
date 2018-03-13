@@ -15,7 +15,7 @@ public:
     virtual ~WinnerClient();
      
     bool ConnectServer(const char* pServerAddress, int port);
-
+    void DisConnectServer();
     //void ShutdownAPI();   
 
 private:
@@ -45,5 +45,7 @@ private:
     std::shared_ptr<TSystem::communication::Connection>  pconn_;
 
     TSystem::TaskStrand strand_;
+
+    //int connect_id_;
 };
 #endif // WINNER_CLIENT_SDF3SDFSDF_H_
