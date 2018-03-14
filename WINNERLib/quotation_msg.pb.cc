@@ -419,7 +419,7 @@ void QuotationMessage_QuotationFillMessage::SharedCtor() {
   price_ = NULL;
   vol_ = 0u;
   price_change_ = NULL;
-  is_change_positive_ = false;
+  is_change_positive_ = true;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -471,7 +471,7 @@ void QuotationMessage_QuotationFillMessage::Clear() {
     if (has_price_change()) {
       if (price_change_ != NULL) price_change_->::RationalNumber::Clear();
     }
-    is_change_positive_ = false;
+    is_change_positive_ = true;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -539,7 +539,7 @@ bool QuotationMessage_QuotationFillMessage::MergePartialFromCodedStream(
         break;
       }
 
-      // optional bool is_change_positive = 5;
+      // optional bool is_change_positive = 5 [default = true];
       case 5: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
@@ -595,7 +595,7 @@ void QuotationMessage_QuotationFillMessage::SerializeWithCachedSizes(
       4, this->price_change(), output);
   }
 
-  // optional bool is_change_positive = 5;
+  // optional bool is_change_positive = 5 [default = true];
   if (has_is_change_positive()) {
     ::google::protobuf::internal::WireFormatLite::WriteBool(5, this->is_change_positive(), output);
   }
@@ -634,7 +634,7 @@ int QuotationMessage_QuotationFillMessage::ByteSize() const {
           this->price_change());
     }
 
-    // optional bool is_change_positive = 5;
+    // optional bool is_change_positive = 5 [default = true];
     if (has_is_change_positive()) {
       total_size += 1 + 1;
     }

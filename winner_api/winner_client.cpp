@@ -2,10 +2,12 @@
 
 #include <TLib/core/tsystem_utility_functions.h>
 #include <TLib/core/tsystem_serialization.h>
+#include <TLib/core/tsystem_time.h>
 
 #include <TLib/tool/tsystem_connection_handshake.pb.h>
 
 #include "WINNERLib/winner_message_system.h"
+#include "WINNERLib/quotation_msg.pb.h"
 
 using namespace TSystem;
 
@@ -78,6 +80,19 @@ void WinnerClient::SetupMsgHandlers()
             is_connected_ = true;
 		}
 	});
+
+    msg_handlers_.RegisterHandler("QuotationMessage", [this](communication::Connection* p, const Message& msg)
+    {
+        this->local_logger().LogLocal( utility::FormatStr("receive QuotationMessage from connection: %d", p->connid()));
+        QuotationMessage quotation_message;
+        if( Decode(msg, quotation_message, this->msg_system_) )
+        {
+            for(int i = 0; i < quotation_message.quote_fill_msg().size(); ++i )
+            {
+                fenbi_callback_(nullptr, false);
+            }
+        }
+    });
 }
 
 
@@ -149,6 +164,18 @@ void WinnerClient::DisConnectServer()
 
 bool WinnerClient::RequestFenbiHisData(char* Zqdm, int Date, FenbiCallBack call_back, char* ErrInfo)
 {
+    if( !is_connected_ || !pconn_ )
+        return false;
     fenbi_callback_ = call_back;
-    // todo: request fenbi data from quotation server
+
+    // request fenbi data from quotation server
+    QuotationRequest quotation_req;
+    quotation_req.set_code(Zqdm);
+
+    FillTime(TimePoint(MakeTimePoint(2018, 3, 8)), *quotation_req.mutable_beg_time());
+    FillTime(TimePoint(MakeTimePoint(2018, 3, 8)), *quotation_req.mutable_end_time());
+    quotation_req.set_req_type(QuotationReqType::FENBI);
+
+    pconn_->AsyncSend( Encode(quotation_req, msg_system_, Message::HeaderType(0, pid(), 0)));
+    return true; 
 }

@@ -7,12 +7,14 @@
 
 #include "Python.h"
 
-#include <TLib/tool/tsystem_connection_handshake.pb.h>
 #include <TLib/core/tsystem_serialization.h>
 #include <TLib/core/tsystem_return_code.h>
 #include <TLib/core/tsystem_utility_functions.h>
 #include <TLib/core/tsystem_time.h>
 
+#include <TLib/tool/tsystem_connection_handshake.pb.h>
+#include <TLib/tool/tsystem_rational_number.h>
+ 
 #include "WINNERLib/winner_message_system.h"
 
 #ifdef _DEBUG
@@ -219,22 +221,52 @@ void QuotationServerApp::HandleUserLogin(const UserRequest& req, const std::shar
 void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn)
 {
    assert(req);
+   assert(pconn);
    static auto time_to_longday = [](const Time& t_m) ->int
     {
         auto tm_point = TSystem::MakeTimePoint((time_t)t_m.time_value(), t_m.frac_sec());
         TimePoint t_p(tm_point);
         return ToLongdate(t_p.year(), t_p.month(), t_p.day());
     };
+   static auto bar_daystr_to_longday = [](const std::string &day_str)->int
+   { 
+       auto tmp_str = day_str;
+       TSystem::utility::replace_all( *const_cast<std::string*>(&tmp_str), "-", ""); 
+       try
+       {
+           std::stoi(tmp_str);
+       }catch(std::exception &e)
+       {
+           std::cout << "bar_daystr_to_longday error: '" << day_str << "' " << e.what() << std::endl;
+           return 0;
+       }catch(...)
+       {
+           std::cout <<"bar_daystr_to_longday error: '" << day_str << "' "  << std::endl;
+           return 0;
+       }
+        
+       assert(day_str.size() == 10 ); // strlen("yyyy-mm-dd") == 10
+       int year, mon, day;
+       sscanf_s(day_str.c_str(), "%04d-%02d-%02d", &year, &mon, &day);
+       return ToLongdate(year, mon, day);
+   };
+   QuotationMessage quotation_msg;
+   quotation_msg.set_code(req->code());
 
     auto tm_point = TSystem::MakeTimePoint((time_t)req->beg_time().time_value(), req->beg_time().frac_sec());
     TimePoint t_p(tm_point);
     int longday_beg = ToLongdate(t_p.year(), t_p.month(), t_p.day());
 
-    
+    // format: yyyy-mm-dd
     auto data_str_vector = GetFenbi2File(req->code(), time_to_longday(req->beg_time()), time_to_longday(req->end_time()));
 
-    std::for_each( std::begin(data_str_vector), std::end(data_str_vector), [&req, this](std::string & entry)
+    std::for_each( std::begin(data_str_vector), std::end(data_str_vector), [&req, &quotation_msg, this](std::string & entry)
     {
+        int longdate = bar_daystr_to_longday(entry);
+        if( longdate == 0 )
+        {
+            return;
+        }
         std::string full_path = this->stk_data_dir_ + req->code() + "/" + entry + "/fenbi/" + req->code() + ".fenbi";
         std::ifstream file;
         file.open(full_path);
@@ -245,14 +277,16 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
             while( !file.eof() )
             {
                 file.getline(buf, 128);
-                printf(buf);
+                //printf(buf);
                 std::string str_input = buf;
- const static std::regex 
- quote_regex("^(\\d+)\\s+([0-1][0-9]|[2][0-3]):([0-5][0-9]):([0-5][0-9])\\s+([0-9]*\.?[0-9]+)\\s+(\\-?[0-9]*\.?[0-9]+)\\s+(\\d+)\\s+(\\d+)\\s+([\u4E00-\u9FA5]+)$");
+                const static std::regex quote_regex("^(\\d+)\\s+([0-1][0-9]|[2][0-3]):([0-5][0-9]):([0-5][0-9])\\s+([0-9]*\\.?[0-9]+)\\s+(\\-?[0-9]*\\.?[0-9]+)\\s+(\\d+)\\s+(\\d+)\\s?$");
   
 	            std::smatch match_res;
                 if( std::regex_match( str_input.cbegin(), str_input.cend(), match_res, quote_regex) )
                 {
+#if 1
+                    QuotationMessage::QuotationFillMessage * p_fill_msg = quotation_msg.add_quote_fill_msg();
+#if 1
                     std::string id = match_res[1];
                     std::string hour = match_res[2];
                     std::string minute = match_res[3];
@@ -261,15 +295,28 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
                     std::string change_price = match_res[6];
                     std::string vol = match_res[7];
                     std::string amount = match_res[8];
-                    std::string cn_bid_type = match_res[9];
+                    //std::string cn_bid_type = match_res[9];
+#endif
+                    auto date_comp = TSystem::FromLongdate(longdate);
+                    FillTime( TimePoint(TSystem::MakeTimePoint(std::get<0>(date_comp), std::get<1>(date_comp), std::get<2>(date_comp)
+                        , std::stoi(match_res[2]), std::stoi(match_res[3]), std::stoi(match_res[4])))
+                        , *p_fill_msg->mutable_time() );
+                    TSystem::FillRational(match_res[5], *p_fill_msg->mutable_price());
+                    
+                    
+                    TSystem::FillRational(match_res[6], *p_fill_msg->mutable_price_change());
+                    if( std::stod(match_res[6]) < 0.0 )
+                        p_fill_msg->set_is_change_positive(false);
+                      
+                    p_fill_msg->set_vol(std::stoi(match_res[7]));
+#endif
                 }
             }
             file.close();
         }
     });
 
-    QuotationMessage quotation_msg;
-    quotation_msg.set_code(req->code());
+    
     pconn->AsyncSend( Encode(quotation_msg, msg_system(), Message::HeaderType(0, pid(), 0)) );
 }
 

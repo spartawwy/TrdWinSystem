@@ -263,7 +263,7 @@ class QuotationMessage_QuotationFillMessage : public ::google::protobuf::Message
   inline ::RationalNumber* release_price_change();
   inline void set_allocated_price_change(::RationalNumber* price_change);
 
-  // optional bool is_change_positive = 5;
+  // optional bool is_change_positive = 5 [default = true];
   inline bool has_is_change_positive() const;
   inline void clear_is_change_positive();
   static const int kIsChangePositiveFieldNumber = 5;
@@ -742,7 +742,7 @@ inline void QuotationMessage_QuotationFillMessage::set_allocated_price_change(::
   }
 }
 
-// optional bool is_change_positive = 5;
+// optional bool is_change_positive = 5 [default = true];
 inline bool QuotationMessage_QuotationFillMessage::has_is_change_positive() const {
   return (_has_bits_[0] & 0x00000010u) != 0;
 }
@@ -753,7 +753,7 @@ inline void QuotationMessage_QuotationFillMessage::clear_has_is_change_positive(
   _has_bits_[0] &= ~0x00000010u;
 }
 inline void QuotationMessage_QuotationFillMessage::clear_is_change_positive() {
-  is_change_positive_ = false;
+  is_change_positive_ = true;
   clear_has_is_change_positive();
 }
 inline bool QuotationMessage_QuotationFillMessage::is_change_positive() const {

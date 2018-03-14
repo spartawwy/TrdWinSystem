@@ -37,7 +37,7 @@ message QuotationMessage
         required RationalNumber  price              = 2;
         required uint32          vol                = 3;
         optional RationalNumber  price_change       = 4;
-        optional bool            is_change_positive = 5;
+        optional bool            is_change_positive = 5[default=true];
       }
 	  required  string                code            = 1;
       repeated  QuotationFillMessage  quote_fill_msg  = 2; 

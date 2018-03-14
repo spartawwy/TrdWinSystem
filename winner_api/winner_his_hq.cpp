@@ -1,11 +1,11 @@
 #include "winner_his_hq.h"
 
 #include <thread>
-
-#include "winner_client.h"
+#include <windows.h>
 
 #include <TLib/core/tsystem_core_paths.h>
-
+#include "winner_client.h"
+ 
 static WinnerClient* GetInstance(bool is_del = false);
   
 extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_Connect(char* IP, int Port, char* Result, char* ErrInfo)
@@ -19,17 +19,7 @@ extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_Connect(char* IP, int Port, char*
 #endif 
     
 }
-
-extern "C" DLLIMEXPORT void __cdecl WinnerHisHq_Disconnect()
-{
-
-#if 1 
-    GetInstance(true); 
-#else
-    GetInstance()->DisConnectServer();
-#endif
-}
-
+ 
 extern "C" DLLIMEXPORT void __cdecl WinnerHisHq_Disconnect()
 {
 
@@ -74,6 +64,6 @@ static WinnerClient* GetInstance(bool is_del)
     }
 
     while( !is_del && !winn_client_obj )
-        _sleep(10);
+        Sleep(10);
     return winn_client_obj;
 }
