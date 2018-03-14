@@ -42,7 +42,7 @@ private:
 	void SendRequestAck(int user_id, int req_id, RequestType type, const std::shared_ptr<TSystem::communication::Connection>& pconn);
 
     // date_beg : yyyyMMdd 
-    std::vector<int> GetFenbi2File(const std::string &code, int date_beg, int date_end);
+    std::vector<std::string> GetFenbi2File(const std::string &code, int date_beg, int date_end);
 
 private:
 

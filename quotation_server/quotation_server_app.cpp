@@ -1,6 +1,7 @@
 #include "quotation_server_app.h"
 
 #include <iostream>
+#include <fstream>
 
 #include <boost/lexical_cast.hpp>
 
@@ -217,13 +218,55 @@ void QuotationServerApp::HandleUserLogin(const UserRequest& req, const std::shar
 
 void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn)
 {
-    assert(req);
-    int beg_date = 0;
-    int end_date = 0;
-    ConvertTime(req->beg_time(), beg_date);
-    ConvertTime(req->end_time(), end_date);
-    // Py get ------------
-    auto file_vector = GetFenbi2File(req->code(), beg_date, end_date);
+   assert(req);
+   static auto time_to_longday = [](const Time& t_m) ->int
+    {
+        auto tm_point = TSystem::MakeTimePoint((time_t)t_m.time_value(), t_m.frac_sec());
+        TimePoint t_p(tm_point);
+        return ToLongdate(t_p.year(), t_p.month(), t_p.day());
+    };
+
+    auto tm_point = TSystem::MakeTimePoint((time_t)req->beg_time().time_value(), req->beg_time().frac_sec());
+    TimePoint t_p(tm_point);
+    int longday_beg = ToLongdate(t_p.year(), t_p.month(), t_p.day());
+
+    
+    auto data_str_vector = GetFenbi2File(req->code(), time_to_longday(req->beg_time()), time_to_longday(req->end_time()));
+
+    std::for_each( std::begin(data_str_vector), std::end(data_str_vector), [&req, this](std::string & entry)
+    {
+        std::string full_path = this->stk_data_dir_ + req->code() + "/" + entry + "/fenbi/" + req->code() + ".fenbi";
+        std::ifstream file;
+        file.open(full_path);
+        if( file.is_open() )
+        {
+            printf("QuotationServerApp::HandleQuotationRequest:\n");
+            char buf[256];
+            while( !file.eof() )
+            {
+                file.getline(buf, 128);
+                printf(buf);
+                std::string str_input = buf;
+ const static std::regex 
+ quote_regex("^(\\d+)\\s+([0-1][0-9]|[2][0-3]):([0-5][0-9]):([0-5][0-9])\\s+([0-9]*\.?[0-9]+)\\s+(\\-?[0-9]*\.?[0-9]+)\\s+(\\d+)\\s+(\\d+)\\s+([\u4E00-\u9FA5]+)$");
+  
+	            std::smatch match_res;
+                if( std::regex_match( str_input.cbegin(), str_input.cend(), match_res, quote_regex) )
+                {
+                    std::string id = match_res[1];
+                    std::string hour = match_res[2];
+                    std::string minute = match_res[3];
+                    std::string second = match_res[4];
+                    std::string price = match_res[5];
+                    std::string change_price = match_res[6];
+                    std::string vol = match_res[7];
+                    std::string amount = match_res[8];
+                    std::string cn_bid_type = match_res[9];
+                }
+            }
+            file.close();
+        }
+    });
 
     QuotationMessage quotation_msg;
     quotation_msg.set_code(req->code());
@@ -239,12 +282,12 @@ void QuotationServerApp::SendRequestAck(int user_id, int req_id, RequestType typ
 	pconn->AsyncSend( Encode(ack, msg_system(), Message::HeaderType(0, pid(), 0)));
 }
 
-std::vector<int> QuotationServerApp::GetFenbi2File(const std::string &code, int date_beg, int date_end)
+std::vector<std::string> QuotationServerApp::GetFenbi2File(const std::string &code, int date_beg, int date_end)
 {
     assert(PyFuncGetAllFill2File);
 
     if( !IsLongDate(date_beg) || !IsLongDate(date_end) || !IsStockCode(code) )
-        return std::vector<int>();
+        return std::vector<std::string>();
     int beg_date = (date_beg > date_end) ? date_end : date_beg;
     int end_date = (date_beg > date_end) ? date_beg : date_end;
      
@@ -260,20 +303,18 @@ std::vector<int> QuotationServerApp::GetFenbi2File(const std::string &code, int 
     auto pRet = PyEval_CallObject((PyObject*)PyFuncGetAllFill2File, pArg);
     char *result;
     PyArg_Parse(pRet, "s", &result);
-    if( !stricmp(result, "OK") )
+    std::vector<std::string> ret_vector;
+    if( result && strlen(result) > 0 )
     {
-        Py_XDECREF(result);
-        return std::vector<int>();
-    }
+        if( strstr(result, ";") )
+        {
+            ret_vector = utility::split(result, ";"); 
+        }else
+            ret_vector.push_back(result);
+    } 
     Py_XDECREF(result);
     //-------------------
-   
-    for( int the_date = date_beg; the_date <= date_end; the_date )
-    {
-        //utility::FormatStr("%s%s/%04d-%02d-%02d/%s.fenbi", stk_data_dir_, code, FromLongdate(date)));
-    }
-    return std::vector<int>();
-
+    return ret_vector; 
 }
 
 bool IsLongDate(int date)
