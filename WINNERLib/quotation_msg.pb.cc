@@ -711,7 +711,7 @@ void QuotationMessage_QuotationFillMessage::Swap(QuotationMessage_QuotationFillM
 
 #ifndef _MSC_VER
 const int QuotationMessage::kCodeFieldNumber;
-const int QuotationMessage::kQuoteFillMsgFieldNumber;
+const int QuotationMessage::kQuoteFillMsgsFieldNumber;
 #endif  // !_MSC_VER
 
 QuotationMessage::QuotationMessage()
@@ -778,7 +778,7 @@ void QuotationMessage::Clear() {
       }
     }
   }
-  quote_fill_msg_.Clear();
+  quote_fill_msgs_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -797,21 +797,21 @@ bool QuotationMessage::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(18)) goto parse_quote_fill_msg;
+        if (input->ExpectTag(18)) goto parse_quote_fill_msgs;
         break;
       }
 
-      // repeated .QuotationMessage.QuotationFillMessage quote_fill_msg = 2;
+      // repeated .QuotationMessage.QuotationFillMessage quote_fill_msgs = 2;
       case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_quote_fill_msg:
+         parse_quote_fill_msgs:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_quote_fill_msg()));
+                input, add_quote_fill_msgs()));
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(18)) goto parse_quote_fill_msg;
+        if (input->ExpectTag(18)) goto parse_quote_fill_msgs;
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -839,10 +839,10 @@ void QuotationMessage::SerializeWithCachedSizes(
       1, this->code(), output);
   }
 
-  // repeated .QuotationMessage.QuotationFillMessage quote_fill_msg = 2;
-  for (int i = 0; i < this->quote_fill_msg_size(); i++) {
+  // repeated .QuotationMessage.QuotationFillMessage quote_fill_msgs = 2;
+  for (int i = 0; i < this->quote_fill_msgs_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessage(
-      2, this->quote_fill_msg(i), output);
+      2, this->quote_fill_msgs(i), output);
   }
 
 }
@@ -859,12 +859,12 @@ int QuotationMessage::ByteSize() const {
     }
 
   }
-  // repeated .QuotationMessage.QuotationFillMessage quote_fill_msg = 2;
-  total_size += 1 * this->quote_fill_msg_size();
-  for (int i = 0; i < this->quote_fill_msg_size(); i++) {
+  // repeated .QuotationMessage.QuotationFillMessage quote_fill_msgs = 2;
+  total_size += 1 * this->quote_fill_msgs_size();
+  for (int i = 0; i < this->quote_fill_msgs_size(); i++) {
     total_size +=
       ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->quote_fill_msg(i));
+        this->quote_fill_msgs(i));
   }
 
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
@@ -880,7 +880,7 @@ void QuotationMessage::CheckTypeAndMergeFrom(
 
 void QuotationMessage::MergeFrom(const QuotationMessage& from) {
   GOOGLE_CHECK_NE(&from, this);
-  quote_fill_msg_.MergeFrom(from.quote_fill_msg_);
+  quote_fill_msgs_.MergeFrom(from.quote_fill_msgs_);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from.has_code()) {
       set_code(from.code());
@@ -897,8 +897,8 @@ void QuotationMessage::CopyFrom(const QuotationMessage& from) {
 bool QuotationMessage::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
 
-  for (int i = 0; i < quote_fill_msg_size(); i++) {
-    if (!this->quote_fill_msg(i).IsInitialized()) return false;
+  for (int i = 0; i < quote_fill_msgs_size(); i++) {
+    if (!this->quote_fill_msgs(i).IsInitialized()) return false;
   }
   return true;
 }
@@ -906,7 +906,7 @@ bool QuotationMessage::IsInitialized() const {
 void QuotationMessage::Swap(QuotationMessage* other) {
   if (other != this) {
     std::swap(code_, other->code_);
-    quote_fill_msg_.Swap(&other->quote_fill_msg_);
+    quote_fill_msgs_.Swap(&other->quote_fill_msgs_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     std::swap(_cached_size_, other->_cached_size_);
   }

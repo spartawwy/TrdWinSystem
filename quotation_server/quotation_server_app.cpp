@@ -285,7 +285,7 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
                 if( std::regex_match( str_input.cbegin(), str_input.cend(), match_res, quote_regex) )
                 {
 #if 1
-                    QuotationMessage::QuotationFillMessage * p_fill_msg = quotation_msg.add_quote_fill_msg();
+                    QuotationMessage::QuotationFillMessage * p_fill_msg = quotation_msg.add_quote_fill_msgs();
 #if 1
                     std::string id = match_res[1];
                     std::string hour = match_res[2];

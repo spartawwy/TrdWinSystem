@@ -372,17 +372,17 @@ class QuotationMessage : public ::google::protobuf::MessageLite {
   inline ::std::string* release_code();
   inline void set_allocated_code(::std::string* code);
 
-  // repeated .QuotationMessage.QuotationFillMessage quote_fill_msg = 2;
-  inline int quote_fill_msg_size() const;
-  inline void clear_quote_fill_msg();
-  static const int kQuoteFillMsgFieldNumber = 2;
-  inline const ::QuotationMessage_QuotationFillMessage& quote_fill_msg(int index) const;
-  inline ::QuotationMessage_QuotationFillMessage* mutable_quote_fill_msg(int index);
-  inline ::QuotationMessage_QuotationFillMessage* add_quote_fill_msg();
+  // repeated .QuotationMessage.QuotationFillMessage quote_fill_msgs = 2;
+  inline int quote_fill_msgs_size() const;
+  inline void clear_quote_fill_msgs();
+  static const int kQuoteFillMsgsFieldNumber = 2;
+  inline const ::QuotationMessage_QuotationFillMessage& quote_fill_msgs(int index) const;
+  inline ::QuotationMessage_QuotationFillMessage* mutable_quote_fill_msgs(int index);
+  inline ::QuotationMessage_QuotationFillMessage* add_quote_fill_msgs();
   inline const ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationFillMessage >&
-      quote_fill_msg() const;
+      quote_fill_msgs() const;
   inline ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationFillMessage >*
-      mutable_quote_fill_msg();
+      mutable_quote_fill_msgs();
 
   // @@protoc_insertion_point(class_scope:QuotationMessage)
  private:
@@ -390,7 +390,7 @@ class QuotationMessage : public ::google::protobuf::MessageLite {
   inline void clear_has_code();
 
   ::std::string* code_;
-  ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationFillMessage > quote_fill_msg_;
+  ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationFillMessage > quote_fill_msgs_;
 
   mutable int _cached_size_;
   ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
@@ -838,29 +838,29 @@ inline void QuotationMessage::set_allocated_code(::std::string* code) {
   }
 }
 
-// repeated .QuotationMessage.QuotationFillMessage quote_fill_msg = 2;
-inline int QuotationMessage::quote_fill_msg_size() const {
-  return quote_fill_msg_.size();
+// repeated .QuotationMessage.QuotationFillMessage quote_fill_msgs = 2;
+inline int QuotationMessage::quote_fill_msgs_size() const {
+  return quote_fill_msgs_.size();
 }
-inline void QuotationMessage::clear_quote_fill_msg() {
-  quote_fill_msg_.Clear();
+inline void QuotationMessage::clear_quote_fill_msgs() {
+  quote_fill_msgs_.Clear();
 }
-inline const ::QuotationMessage_QuotationFillMessage& QuotationMessage::quote_fill_msg(int index) const {
-  return quote_fill_msg_.Get(index);
+inline const ::QuotationMessage_QuotationFillMessage& QuotationMessage::quote_fill_msgs(int index) const {
+  return quote_fill_msgs_.Get(index);
 }
-inline ::QuotationMessage_QuotationFillMessage* QuotationMessage::mutable_quote_fill_msg(int index) {
-  return quote_fill_msg_.Mutable(index);
+inline ::QuotationMessage_QuotationFillMessage* QuotationMessage::mutable_quote_fill_msgs(int index) {
+  return quote_fill_msgs_.Mutable(index);
 }
-inline ::QuotationMessage_QuotationFillMessage* QuotationMessage::add_quote_fill_msg() {
-  return quote_fill_msg_.Add();
+inline ::QuotationMessage_QuotationFillMessage* QuotationMessage::add_quote_fill_msgs() {
+  return quote_fill_msgs_.Add();
 }
 inline const ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationFillMessage >&
-QuotationMessage::quote_fill_msg() const {
-  return quote_fill_msg_;
+QuotationMessage::quote_fill_msgs() const {
+  return quote_fill_msgs_;
 }
 inline ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationFillMessage >*
-QuotationMessage::mutable_quote_fill_msg() {
-  return &quote_fill_msg_;
+QuotationMessage::mutable_quote_fill_msgs() {
+  return &quote_fill_msgs_;
 }
 
 

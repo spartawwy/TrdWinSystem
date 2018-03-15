@@ -5,6 +5,7 @@
 #include <TLib/core/tsystem_time.h>
 
 #include <TLib/tool/tsystem_connection_handshake.pb.h>
+#include <TLib/tool/tsystem_rational_number.h>
 
 #include "WINNERLib/winner_message_system.h"
 #include "WINNERLib/quotation_msg.pb.h"
@@ -87,9 +88,24 @@ void WinnerClient::SetupMsgHandlers()
         QuotationMessage quotation_message;
         if( Decode(msg, quotation_message, this->msg_system_) )
         {
-            for(int i = 0; i < quotation_message.quote_fill_msg().size(); ++i )
+            for(int i = 0; i < quotation_message.quote_fill_msgs().size(); ++i )
             {
-                fenbi_callback_(nullptr, false);
+                if( fenbi_callback_ )
+                {
+                    T_QuoteAtomData quote_atom_data = {0};
+                     
+                    QuotationMessage::QuotationFillMessage *msg_fill = quotation_message.mutable_quote_fill_msgs()->Mutable(i);
+ 
+                    strcpy_s(quote_atom_data.code, quotation_message.code().c_str());
+                    TimePoint tp( MakeTimePoint( msg_fill->time().time_value(),  msg_fill->time().frac_sec() ) );
+                    quote_atom_data.date = ToLongdate(tp.year(), tp.month(), tp.day());
+                    quote_atom_data.time = tp.hour() * 10000 + tp.min() * 100 + tp.sec();
+                        
+                    quote_atom_data.price = RationalDouble(msg_fill->price());
+                    quote_atom_data.vol = msg_fill->vol();
+                          
+                    fenbi_callback_(&quote_atom_data, i == quotation_message.quote_fill_msgs().size() - 1);
+                }
             }
         }
     });

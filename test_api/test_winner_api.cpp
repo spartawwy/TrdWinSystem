@@ -83,7 +83,7 @@ int main()
     }
     char result[1024] = {0};
     char error[1024] = {0};
-#if 1
+#if 0
     auto ret = WinnerHisHq_Connect("192.168.1.5", 50010, result, error);
 #else
     auto ret = WinnerHisHq_Connect("128.1.1.3", 50010, result, error);
@@ -106,7 +106,14 @@ int main()
             break;
         }else if( args[0] == "FENBI" && args.size() > 3 ) // FENBI  stock start_date end_date  --yyyymmdd
         {
-            auto val_ret = WinnerHisHq_GetHisFenbiData("600487", 20080308, FenbiCallBackFun, error);
+            try
+            {
+                std::stoi(args[1]);
+            }catch(...)
+            {
+                continue;
+            }
+            auto val_ret = WinnerHisHq_GetHisFenbiData(const_cast<char*>(args[1].c_str()), 20080308, FenbiCallBackFun, error);
             if( val_ret != 0 )
                 std::cout << " WinnerHisHq_GetHisFenbiData fail !" << std::endl;
         }

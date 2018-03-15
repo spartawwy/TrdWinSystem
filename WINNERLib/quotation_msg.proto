@@ -40,5 +40,5 @@ message QuotationMessage
         optional bool            is_change_positive = 5[default=true];
       }
 	  required  string                code            = 1;
-      repeated  QuotationFillMessage  quote_fill_msg  = 2; 
+      repeated  QuotationFillMessage  quote_fill_msgs  = 2; 
 }
