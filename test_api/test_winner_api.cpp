@@ -104,18 +104,28 @@ int main()
         if( args[0] == "EOF" )
         {
             break;
-        }else if( args[0] == "FENBI" && args.size() > 3 ) // FENBI  stock start_date end_date  --yyyymmdd
+        }else if( args[0] == "FENBI" ) // FENBI  stock start_date end_date  --yyyymmdd
         {
+            if( args.size() < 3 )
+            {
+                printf("command not corrent!\n");
+                continue;
+            }
+            int date = 0;
             try
             {
                 std::stoi(args[1]);
+                date = std::stoi(args[2]);
             }catch(...)
             {
                 continue;
             }
-            auto val_ret = WinnerHisHq_GetHisFenbiData(const_cast<char*>(args[1].c_str()), 20080308, FenbiCallBackFun, error);
+            auto val_ret = WinnerHisHq_GetHisFenbiData(const_cast<char*>(args[1].c_str()), date, FenbiCallBackFun, error);
             if( val_ret != 0 )
-                std::cout << " WinnerHisHq_GetHisFenbiData fail !" << std::endl;
+                std::cout << " WinnerHisHq_GetHisFenbiData fail: " << error << std::endl;
+        }else 
+        {
+             printf("Can't recognize this command!\n");
         }
 
     }
@@ -132,7 +142,8 @@ void FenbiCallBackFun(T_QuoteAtomData *quote_data, bool is_end)
 {
     if( quote_data )
     {
-        quote_data->code;
+        printf("%s %d:%d %.2f %.2f %d\n", quote_data->code, quote_data->date, quote_data->time, quote_data->price, quote_data->price_change, quote_data->vol);
+        
     }
     if( is_end )
         is_end = is_end;

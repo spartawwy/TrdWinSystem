@@ -10,6 +10,8 @@
 #include "WINNERLib/winner_message_system.h"
 #include "WINNERLib/quotation_msg.pb.h"
 
+bool IsLongDate(int date);
+
 using namespace TSystem;
 
 WinnerClient::WinnerClient()
@@ -102,6 +104,8 @@ void WinnerClient::SetupMsgHandlers()
                     quote_atom_data.time = tp.hour() * 10000 + tp.min() * 100 + tp.sec();
                         
                     quote_atom_data.price = RationalDouble(msg_fill->price());
+                    quote_atom_data.price_change = RationalDouble(msg_fill->price_change()) * (msg_fill->is_change_positive() ? 1 : -1);
+                    
                     quote_atom_data.vol = msg_fill->vol();
                           
                     fenbi_callback_(&quote_atom_data, i == quotation_message.quote_fill_msgs().size() - 1);
@@ -181,17 +185,41 @@ void WinnerClient::DisConnectServer()
 bool WinnerClient::RequestFenbiHisData(char* Zqdm, int Date, FenbiCallBack call_back, char* ErrInfo)
 {
     if( !is_connected_ || !pconn_ )
+    {
+        if( ErrInfo ) strcpy(ErrInfo, "server is not connected!");
         return false;
+    }
+    try
+    {
+        std::stoi(Zqdm);
+    }catch(...)
+    {
+        if( ErrInfo ) sprintf(ErrInfo, "code:%d is illegal ", Zqdm);
+        return false;
+    }
+    if( !IsLongDate(Date) )
+    {
+        if( ErrInfo ) sprintf(ErrInfo, "date:%d is illegal ", Date);
+        return false;
+    }
     fenbi_callback_ = call_back;
 
     // request fenbi data from quotation server
     QuotationRequest quotation_req;
     quotation_req.set_code(Zqdm);
 
-    FillTime(TimePoint(MakeTimePoint(2018, 3, 8)), *quotation_req.mutable_beg_time());
-    FillTime(TimePoint(MakeTimePoint(2018, 3, 8)), *quotation_req.mutable_end_time());
+    auto date_com = FromLongdate(Date);
+    FillTime(TimePoint(MakeTimePoint(std::get<0>(date_com), std::get<1>(date_com), std::get<2>(date_com))), *quotation_req.mutable_beg_time());
+    FillTime(TimePoint(MakeTimePoint(std::get<0>(date_com), std::get<1>(date_com), std::get<2>(date_com))), *quotation_req.mutable_end_time());
     quotation_req.set_req_type(QuotationReqType::FENBI);
 
     pconn_->AsyncSend( Encode(quotation_req, msg_system_, Message::HeaderType(0, pid(), 0)));
     return true; 
+}
+
+bool IsLongDate(int date)
+{
+    /*if( date < 10000000 && date > 30000000 )
+        return false;*/
+    return date > 19000101 && date < 30000101;
 }
