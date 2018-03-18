@@ -18,11 +18,132 @@
 using namespace TSystem;
 #endif
 
-void FenbiCallBackFun(T_QuoteAtomData *quote_data, bool is_end);
+void FenbiCallBackFun(T_QuoteAtomData *quote_data, bool is_end, void *para);
+ 
+void testFenbiStrMatch()
+{
+    std::string id;
+    std::string hour;
+    std::string minute;
+    std::string second;
+    std::string price;
+    std::string change_price;
+    std::string vol;
+    std::string amount; 
+
+    char buf[1024] = {0};
+    strcpy(buf, "13908 14:59:41 38.65 -0.01 14 54110\n13909 14:59:45 38.65 0.0 10 38650\n");
+
+    char *p0 = buf;
+    char *p1 = p0;
+
+    char strbuf[1024] = {0};
+    while( *p1 != '\0' )
+    {
+        int count = 0;
+        p0 = p1;
+        while( *p1 != '\0' && int(*p1) != 0x0D && *p1 != ' ' ) { ++p1; ++count;}
+        if( *p1 == '\0' ) break; 
+        // id relate  ------
+        if( count > 0 )
+        { 
+            memcpy(strbuf, p0, count);
+            strbuf[count] = '\0'; 
+            id = strbuf;
+        }
+        // time realte -----
+        p0 = ++p1;
+        count = 0;
+        while( *p1 != '\0' && int(*p1) != 0x0D && *p1 != ' ' ) { ++p1; ++count;}
+        if( *p1 == '\0' ) break; 
+        if( count > 0 )
+        { 
+            memcpy(strbuf, p0, count);
+            strbuf[count] = '\0';  
+            //char *ptr1 = strbuf;
+            strbuf[2] = '\0';
+            hour = strbuf;
+
+            //ptr1 = strbuf + 3;
+            strbuf[5] = '\0';
+            minute = strbuf + 3;
+
+            second = strbuf + 6;
+
+            /*char *ptr1 = strbuf;
+            char temp_buf[16] = {0}; 
+            char *ptr0 = ptr1;
+            int num = 0;
+            while( *ptr1 != ':' ) { ++ptr1; ++num; }
+            memcpy(temp_buf, ptr0, num);
+            temp_buf[num] = '\0';
+            hour = temp_buf;
+
+            ++ptr1;
+            ptr0 = ptr1;
+            int num = 0;
+            while( *ptr1 != ':' ) { ++ptr1; ++num; }
+            memcpy(temp_buf, ptr0, num);
+            temp_buf[num] = '\0';
+            hour = temp_buf;*/
+
+        }
+         
+        // price realte -----
+        p0 = ++p1;
+        count = 0;
+        while( *p1 != '\0' && int(*p1) != 0x0D && *p1 != ' ' ) { ++p1; ++count;}
+        if( *p1 == '\0' ) break; 
+        if( count > 0 )
+        { 
+            memcpy(strbuf, p0, count);
+            strbuf[count] = '\0'; 
+            price = strbuf;
+        }
+        // change_price realte -----
+        p0 = ++p1;
+        count = 0;
+        while( *p1 != '\0' && int(*p1) != 0x0D && *p1 != ' ' ) { ++p1; ++count;}
+        if( *p1 == '\0' ) break; 
+        if( count > 0 )
+        { 
+            memcpy(strbuf, p0, count);
+            strbuf[count] = '\0'; 
+            change_price = strbuf;
+        }
+        // vol realte -----
+        p0 = ++p1;
+        count = 0;
+        while( *p1 != '\0' && int(*p1) != 0x0D && *p1 != ' ' ) { ++p1; ++count;}
+        if( *p1 == '\0' ) break; 
+        if( count > 0 )
+        { 
+            memcpy(strbuf, p0, count);
+            strbuf[count] = '\0'; 
+            vol = strbuf;
+        }
+        // amount realte -----
+        p0 = ++p1;
+        count = 0;
+        while( *p1 != '\0' && int(*p1) != 0x0D && *p1 != ' ' ) { ++p1; ++count;}
+        if( *p1 == '\0' ) break; 
+        if( count > 0 )
+        { 
+            memcpy(strbuf, p0, count);
+            strbuf[count] = '\0'; 
+            amount = strbuf;
+        }
+
+        // filter 0x0A
+        if( *p1 != '\0' )
+            ++p1;
+    } 
+}
 
 int main()
 {
 #ifdef TEST_OHTER
+    testFenbiStrMatch();
     static auto bar_daystr_to_longday = [](const std::string &day_str)->int
     {
         auto tmp_str = day_str;
@@ -120,7 +241,13 @@ int main()
             {
                 continue;
             }
-            auto val_ret = WinnerHisHq_GetHisFenbiData(const_cast<char*>(args[1].c_str()), date, FenbiCallBackFun, error);
+            static std::vector<T_FenbiCallBack> callbk_obj_vector;
+            callbk_obj_vector.clear();
+            T_FenbiCallBack  call_back_obj;
+            callbk_obj_vector.push_back(call_back_obj);
+
+            callbk_obj_vector[0].call_back_func = FenbiCallBackFun;
+            auto val_ret = WinnerHisHq_GetHisFenbiData(const_cast<char*>(args[1].c_str()), date, &callbk_obj_vector[0], error);
             if( val_ret != 0 )
                 std::cout << " WinnerHisHq_GetHisFenbiData fail: " << error << std::endl;
         }else 
@@ -138,7 +265,7 @@ int main()
     return 0;
 }
 
-void FenbiCallBackFun(T_QuoteAtomData *quote_data, bool is_end)
+void FenbiCallBackFun(T_QuoteAtomData *quote_data, bool is_end, void *para)
 {
     if( quote_data )
     {

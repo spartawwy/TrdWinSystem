@@ -32,7 +32,16 @@ typedef struct _t_quote_atom_data
     unsigned char bid_type; // 0: buy_pan  1 :sell_pan
 }T_QuoteAtomData;
 
-typedef void (*FenbiCallBack)(T_QuoteAtomData *quote_data, bool is_end);
+typedef void (*FenbiCallBack)(T_QuoteAtomData *quote_data, bool is_end, void *para);
+typedef struct _t_fenbi_call_back
+{
+    FenbiCallBack  call_back_func;
+    void *para;
+    int date;
+    unsigned int serial;
+    _t_fenbi_call_back() : call_back_func(nullptr), para(nullptr), date(0), serial(0){} 
+    _t_fenbi_call_back(const _t_fenbi_call_back &lh) : call_back_func(lh.call_back_func), para(lh.para), date(lh.date), serial(lh.serial){} 
+}T_FenbiCallBack;
 /// <summary>
 /// 获取历史分时数据
 /// </summary>
@@ -41,7 +50,7 @@ typedef void (*FenbiCallBack)(T_QuoteAtomData *quote_data, bool is_end);
 /// <param name="FenbiCallBack"> 回调函数</param>
 /// <param name="ErrInfo">此API执行返回后，如果出错，保存了错误信息说明。一般要分配256字节的空间。没出错时为空字符串。</param>
 /// <returns>成功返回0, 失败返回其他 -1--未连接</returns>
-typedef int (__cdecl* WinnerHisHq_GetHisFenbiDataDelegate)(char* Zqdm, int Date, FenbiCallBack call_back, char* ErrInfo);
+typedef int (__cdecl* WinnerHisHq_GetHisFenbiDataDelegate)(char* Zqdm, int Date, T_FenbiCallBack *call_back_para, char* ErrInfo);
 
 /// <summary>
 /// 获取证券指定范围的的K线数据

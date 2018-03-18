@@ -20,7 +20,7 @@ WinnerClient::WinnerClient()
     , pconn_(nullptr)
     , strand_(task_pool())
     , is_connected_(false)
-    , fenbi_callback_(nullptr)
+    , call_back_para_(nullptr)
 {
     try
     {
@@ -92,7 +92,7 @@ void WinnerClient::SetupMsgHandlers()
         {
             for(int i = 0; i < quotation_message.quote_fill_msgs().size(); ++i )
             {
-                if( fenbi_callback_ )
+                if( call_back_para_ && call_back_para_->call_back_func )
                 {
                     T_QuoteAtomData quote_atom_data = {0};
                      
@@ -107,8 +107,7 @@ void WinnerClient::SetupMsgHandlers()
                     quote_atom_data.price_change = RationalDouble(msg_fill->price_change()) * (msg_fill->is_change_positive() ? 1 : -1);
                     
                     quote_atom_data.vol = msg_fill->vol();
-                          
-                    fenbi_callback_(&quote_atom_data, i == quotation_message.quote_fill_msgs().size() - 1);
+                    call_back_para_->call_back_func(&quote_atom_data, i == quotation_message.quote_fill_msgs().size() - 1, call_back_para_);
                 }
             }
         }
@@ -182,7 +181,7 @@ void WinnerClient::DisConnectServer()
     is_connected_ = false;
 }
 
-bool WinnerClient::RequestFenbiHisData(char* Zqdm, int Date, FenbiCallBack call_back, char* ErrInfo)
+bool WinnerClient::RequestFenbiHisData(char* Zqdm, int Date, T_FenbiCallBack *call_back_para, char* ErrInfo)
 {
     if( !is_connected_ || !pconn_ )
     {
@@ -202,7 +201,7 @@ bool WinnerClient::RequestFenbiHisData(char* Zqdm, int Date, FenbiCallBack call_
         if( ErrInfo ) sprintf(ErrInfo, "date:%d is illegal ", Date);
         return false;
     }
-    fenbi_callback_ = call_back;
+    call_back_para_ = call_back_para;
 
     // request fenbi data from quotation server
     QuotationRequest quotation_req;

@@ -21,7 +21,7 @@ public:
 
     bool is_connected() const { return is_connected_; }
 
-    bool RequestFenbiHisData(char* Zqdm, int Date, FenbiCallBack call_back, char* ErrInfo);
+    bool RequestFenbiHisData(char* Zqdm, int Date, T_FenbiCallBack *call_back_para, char* ErrInfo);
 
 private:
 
@@ -53,6 +53,6 @@ private:
 
     bool is_connected_;
     
-    FenbiCallBack fenbi_callback_;
+    T_FenbiCallBack *call_back_para_; 
 };
 #endif // WINNER_CLIENT_SDF3SDFSDF_H_

@@ -62,6 +62,12 @@
       <AdditionalLibraryDirectories>z:\lib\win32;$(OutDir);</AdditionalLibraryDirectories>
       <AdditionalDependencies>TLib_d.lib;TLibTool_d.lib;SQLite_d.lib;WINNERLIB_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <CustomBuildStep>
+      <Command>copy  $(OutDir)$(TargetName)$(TargetExt)  $(SolutionDir)..\mock_proj\Build\$(Platform)\$(Configuration)\</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>'copy dll'</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

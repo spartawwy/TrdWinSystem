@@ -17,6 +17,8 @@
  
 #include "WINNERLib/winner_message_system.h"
 
+#include "file_mapping.h"
+
 #ifdef _DEBUG
 #undef Py_XDECREF
 #define Py_XDECREF(a) (a)
@@ -259,64 +261,130 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
 
     // format: yyyy-mm-dd
     auto data_str_vector = GetFenbi2File(req->code(), time_to_longday(req->beg_time()), time_to_longday(req->end_time()));
-
+#if 1 
     std::for_each( std::begin(data_str_vector), std::end(data_str_vector), [&req, &quotation_msg, this](std::string & entry)
-    {
+    { 
         int longdate = bar_daystr_to_longday(entry);
         if( longdate == 0 )
         {
             return;
         }
         std::string full_path = this->stk_data_dir_ + req->code() + "/" + entry + "/fenbi/" + req->code() + ".fenbi";
-        std::ifstream file;
-        file.open(full_path);
-        if( file.is_open() )
+        FileMapping file_map_obj;
+        if( !file_map_obj.Create(full_path) )
         {
-            printf("QuotationServerApp::HandleQuotationRequest:\n");
-            char buf[256];
-            while( !file.eof() )
-            {
-                file.getline(buf, 128);
-                //printf(buf);
-                std::string str_input = buf;
-                const static std::regex quote_regex("^(\\d+)\\s+([0-1][0-9]|[2][0-3]):([0-5][0-9]):([0-5][0-9])\\s+([0-9]*\\.?[0-9]+)\\s+(\\-?[0-9]*\\.?[0-9]+)\\s+(\\d+)\\s+(\\d+)\\s?$");
-  
-	            std::smatch match_res;
-                if( std::regex_match( str_input.cbegin(), str_input.cend(), match_res, quote_regex) )
-                {
-#if 1
-                    QuotationMessage::QuotationFillMessage * p_fill_msg = quotation_msg.add_quote_fill_msgs();
-#if 1
-                    std::string id = match_res[1];
-                    std::string hour = match_res[2];
-                    std::string minute = match_res[3];
-                    std::string second = match_res[4];
-                    std::string price = match_res[5];
-                    std::string change_price = match_res[6];
-                    std::string vol = match_res[7];
-                    std::string amount = match_res[8];
-                    //std::string cn_bid_type = match_res[9];
-#endif
-                    auto date_comp = TSystem::FromLongdate(longdate);
-                    FillTime( TimePoint(TSystem::MakeTimePoint(std::get<0>(date_comp), std::get<1>(date_comp), std::get<2>(date_comp)
-                        , std::stoi(match_res[2]), std::stoi(match_res[3]), std::stoi(match_res[4])))
-                        , *p_fill_msg->mutable_time() );
-                    TSystem::FillRational(match_res[5], *p_fill_msg->mutable_price());
-                    
-                    
-                    TSystem::FillRational(match_res[6], *p_fill_msg->mutable_price_change());
-                    if( std::stod(match_res[6]) < 0.0 )
-                        p_fill_msg->set_is_change_positive(false);
-                      
-                    p_fill_msg->set_vol(std::stoi(match_res[7]));
-#endif
-                }
-            }
-            file.close();
+            std::cout << "map " << full_path << " fail!";
+            return;
         }
-    });
+        //std::string id;
+        std::string hour;
+        std::string minute;
+        std::string second;
+        std::string price;
+        std::string change_price;
+        std::string vol;
+        //std::string amount; 
+        char *p0 = file_map_obj.data_address(); 
+        char *p1 = p0; 
+        char strbuf[1024] = {0};
+        while( *p1 != '\0' ) 
+        {
+            int count = 0;
+            p0 = p1;
+            while( *p1 != '\0' && int(*p1) != 0x0D && *p1 != ' ' ) { ++p1; ++count;}
+            if( *p1 == '\0' ) break; 
+            // id relate  ------
+#if 0
+            if( count > 0 )
+            {  
+                memcpy(strbuf, p0, count);
+                strbuf[count] = '\0'; 
+                id = strbuf; 
+            }
+#endif
+            // time realte -----
+            p0 = ++p1;
+            count = 0;
+            while( *p1 != '\0' && int(*p1) != 0x0D && *p1 != ' ' ) { ++p1; ++count;}
+            if( *p1 == '\0' ) break; 
+            if( count > 0 )
+            { 
+                memcpy(strbuf, p0, count);
+                strbuf[count] = '\0';   
+                strbuf[2] = '\0';
+                hour = strbuf;
+                strbuf[5] = '\0';
+                minute = strbuf + 3; 
+                second = strbuf + 6;
+            }
+         
+            // price realte -----
+            p0 = ++p1;
+            count = 0;
+            while( *p1 != '\0' && int(*p1) != 0x0D && *p1 != ' ' ) { ++p1; ++count;}
+            if( *p1 == '\0' ) break; 
+            if( count > 0 )
+            { 
+                memcpy(strbuf, p0, count);
+                strbuf[count] = '\0'; 
+                price = strbuf;
+            }
+            // change_price realte -----
+            p0 = ++p1;
+            count = 0;
+            while( *p1 != '\0' && int(*p1) != 0x0D && *p1 != ' ' ) { ++p1; ++count;}
+            if( *p1 == '\0' ) break; 
+            if( count > 0 )
+            { 
+                memcpy(strbuf, p0, count);
+                strbuf[count] = '\0'; 
+                change_price = strbuf;
+            }
+            // vol realte -----
+            p0 = ++p1;
+            count = 0;
+            while( *p1 != '\0' && int(*p1) != 0x0D && *p1 != ' ' ) { ++p1; ++count;}
+            if( *p1 == '\0' ) break; 
+            if( count > 0 )
+            { 
+                memcpy(strbuf, p0, count);
+                strbuf[count] = '\0'; 
+                vol = strbuf;
+            }
+            // amount realte -----
+            p0 = ++p1;
+            count = 0;
+            while( *p1 != '\0' && int(*p1) != 0x0D && *p1 != ' ' ) { ++p1; ++count;}
+            if( *p1 == '\0' ) break; 
+#if 0
+            if( count > 0 )
+            { 
+                memcpy(strbuf, p0, count);
+                strbuf[count] = '\0'; 
+                amount = strbuf;
+            } 
+#endif
+            // filter 0x0A
+            if( *p1 != '\0' )
+                ++p1;
 
-    
+            QuotationMessage::QuotationFillMessage * p_fill_msg = quotation_msg.add_quote_fill_msgs();
+
+            auto date_comp = TSystem::FromLongdate(longdate);
+            FillTime( TimePoint(TSystem::MakeTimePoint(std::get<0>(date_comp), std::get<1>(date_comp), std::get<2>(date_comp)
+                , std::stoi(hour), std::stoi(minute), std::stoi(second)))
+                , *p_fill_msg->mutable_time() );
+            TSystem::FillRational(price, *p_fill_msg->mutable_price()); 
+            TSystem::FillRational(change_price, *p_fill_msg->mutable_price_change());
+            if( std::stod(change_price) < 0.0 )
+                p_fill_msg->set_is_change_positive(false);
+
+            p_fill_msg->set_vol(std::stoi(vol));
+            //std::cout <<  price << " " << change_price << " " << vol << std::endl;
+        } // while 
+          
+    }); // std::for_each file
+#endif
     pconn->AsyncSend( Encode(quotation_msg, msg_system(), Message::HeaderType(0, pid(), 0)) );
 }
 

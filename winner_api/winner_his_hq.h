@@ -13,5 +13,5 @@ extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_Connect(char* IP, int Port, char*
 
 extern "C" DLLIMEXPORT void __cdecl WinnerHisHq_Disconnect();
 
-extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_GetHisFenbiData(char* Zqdm, int Date, FenbiCallBack call_back, char* ErrInfo);
+extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_GetHisFenbiData(char* Zqdm, int Date, T_FenbiCallBack *call_back_para, char* ErrInfo);
 #endif // WINNER_HIS_HQ_SDF23DFSD_H_

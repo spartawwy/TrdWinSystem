@@ -31,11 +31,11 @@ extern "C" DLLIMEXPORT void __cdecl WinnerHisHq_Disconnect()
 }
 
 
-extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_GetHisFenbiData(char* Zqdm, int Date, FenbiCallBack call_back, char* ErrInfo)
+extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_GetHisFenbiData(char* Zqdm, int Date, T_FenbiCallBack *call_back_para, char* ErrInfo)
 {
     if( !GetInstance()->is_connected() )
         return -1;
-    auto val = GetInstance()->RequestFenbiHisData(Zqdm, Date, call_back, ErrInfo);
+    auto val = GetInstance()->RequestFenbiHisData(Zqdm, Date, call_back_para, ErrInfo);
     return val ? 0 : -2;
 }
 

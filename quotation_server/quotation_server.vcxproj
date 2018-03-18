@@ -84,9 +84,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="file_mapping.h" />
     <ClInclude Include="quotation_server_app.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="file_mapping.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="quotation_server_app.cpp" />
   </ItemGroup>
