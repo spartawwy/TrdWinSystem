@@ -166,8 +166,13 @@ bool WinnerClient::ConnectServer(const char* pServerAddress, int port)
             }
         }
         , communication::Connection::Type::tcp);
-
-        return true;
+        //this->local_logger().LogLocal("Waitfor Connection ");
+        if( TSystem::WaitFor( [this]()->bool
+        { 
+            return this->is_connected_;
+        }, 10 * 1000 * 1000) )
+        //this->local_logger().LogLocal("ret Waitfor Connection ");
+        return this->is_connected_;
     }catch(const TException& e)
     {
         LogError(LogMessage::VITAL, e.error(), local_logger());

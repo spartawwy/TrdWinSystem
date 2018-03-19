@@ -21,9 +21,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "winner_api", "winner_api\wi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_api", "test_api\test_api.vcxproj", "{A10CCFC5-AE44-4B49-8C5C-E8E4075B2A3D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "..\..\..\Dev_down\DevLibGit\Test\Test.vcxproj", "{8D3EF13D-A5DD-471C-856C-D47EC1B5E5E8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "..\..\..\..\WenJin\Dev_src\Dev_lib\Test\Test.vcxproj", "{8D3EF13D-A5DD-471C-856C-D47EC1B5E5E8}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TLibTool", "..\..\..\Dev_down\DevLibGit\TLibTool\TLibTool.vcxproj", "{DDE6B8F6-C18D-40D7-9C3F-02DCA394E347}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TLibTool", "..\..\..\..\WenJin\Dev_src\Dev_lib\TLibTool\TLibTool.vcxproj", "{DDE6B8F6-C18D-40D7-9C3F-02DCA394E347}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
