@@ -4,6 +4,8 @@
 #include <vector>
 
 #include <TLib/tool/tsystem_server_appbase.h>
+
+#include "WINNERLib/boost_locker.h"
 #include "WINNERLib/winner_user_msg.pb.h"
 #include "WINNERLib/quotation_msg.pb.h"
 //#include "db_moudle.h"
@@ -48,6 +50,11 @@ private:
 
     void *PyFuncGetAllFill2File;
     std::string stk_data_dir_;
+    // ------------
+    typedef std::unordered_map<int, std::shared_ptr<TaskStrand> > TConnidMapStrand;
+    TConnidMapStrand conn_strands_;
+    WRMutex  conn_strands_wr_mutex_; 
+    // ------------
 
 };
 #endif // QUOTATION_SERVER_APP_H_SDF55SDSF_

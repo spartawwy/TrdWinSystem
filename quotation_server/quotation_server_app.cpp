@@ -36,6 +36,7 @@ QuotationServerApp::QuotationServerApp(const std::string &name, const std::strin
 	: ServerAppBase("quotation_server", name, version)
     , PyFuncGetAllFill2File(nullptr)
     , stk_data_dir_()
+    , conn_strands_(256)
 {
 	
 }
@@ -51,6 +52,9 @@ void QuotationServerApp::Initiate()
 	WINNERSystem::LoadClassID(msg_system_);
 	//option_load_config(true);
 	ServerAppBase::Initiate();
+
+    for( int i = 0; i < 2; ++i )
+        task_pool_.AddWorker();
 
 	InitPython();
 
@@ -175,7 +179,13 @@ void QuotationServerApp::HandleInboundHandShake(TSystem::communication::Connecti
 
 void QuotationServerApp::HandleInboundDisconnect(std::shared_ptr<TSystem::communication::Connection>& pconn, const TSystem::TError& te) 
 {
-
+    WriteLock locker(conn_strands_wr_mutex_);
+    this->local_logger().LogLocal(utility::FormatStr("HandleInboundDisconnect connid:%d disconnect", pconn->connid()));
+    auto iter = conn_strands_.find(pconn->connid());
+    if( iter != conn_strands_.end() )
+    {
+        conn_strands_.erase(iter);
+    }
 }
 
 void QuotationServerApp::UpdateState()
@@ -196,7 +206,16 @@ void QuotationServerApp::SetupServerSocket()
     {
         auto req = std::make_shared<QuotationRequest>();
         if( Decode(msg, *req, this->msg_system()) )
-            this->task_pool_.PostTask( std::bind(&QuotationServerApp::HandleQuotationRequest, this, std::move(req), p->shared_this()));
+        {
+            WriteLock locker(conn_strands_wr_mutex_);
+            auto iter = conn_strands_.find(p->connid());
+            if( iter == conn_strands_.end() )
+            {
+                iter = conn_strands_.insert( std::make_pair(p->connid(), std::make_shared<TaskStrand>(task_pool())) ).first;
+            } 
+            iter->second->PostTask( std::bind(&QuotationServerApp::HandleQuotationRequest, this, std::move(req), p->shared_this()));
+             
+        }
     });
 }
 
@@ -224,6 +243,7 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
 {
    assert(req);
    assert(pconn);
+
    static auto time_to_longday = [](const Time& t_m) ->int
     {
         auto tm_point = TSystem::MakeTimePoint((time_t)t_m.time_value(), t_m.frac_sec());
@@ -252,6 +272,7 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
        sscanf_s(day_str.c_str(), "%04d-%02d-%02d", &year, &mon, &day);
        return ToLongdate(year, mon, day);
    };
+      
    QuotationMessage quotation_msg;
    quotation_msg.set_code(req->code());
 
@@ -385,6 +406,7 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
           
     }); // std::for_each file
 #endif
+     
     pconn->AsyncSend( Encode(quotation_msg, msg_system(), Message::HeaderType(0, pid(), 0)) );
 }
 

@@ -16,6 +16,9 @@
     <Filter Include="quotation">
       <UniqueIdentifier>{b788c2ca-e7cc-43dd-9132-3837222d0c09}</UniqueIdentifier>
     </Filter>
+    <Filter Include="moudle">
+      <UniqueIdentifier>{e39ffcea-1113-4902-b329-125383afa4cc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -35,6 +38,9 @@
     </ClInclude>
     <ClInclude Include="quotation_msg.pb.h">
       <Filter>quotation</Filter>
+    </ClInclude>
+    <ClInclude Include="boost_locker.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

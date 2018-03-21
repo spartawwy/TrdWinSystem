@@ -51,6 +51,7 @@ private:
 
     TSystem::TaskStrand  strand_;
 
+    std::string server_addr;
     bool is_connected_;
     
     T_FenbiCallBack *call_back_para_; 

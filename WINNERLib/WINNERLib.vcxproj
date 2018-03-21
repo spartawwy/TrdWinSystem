@@ -90,6 +90,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="boost_locker.h" />
     <ClInclude Include="quotation_msg.pb.h" />
     <ClInclude Include="winner_error.h" />
     <ClInclude Include="winner_message_classid.h" />

@@ -87,18 +87,20 @@ void WinnerClient::SetupMsgHandlers()
     msg_handlers_.RegisterHandler("QuotationMessage", [this](communication::Connection* p, const Message& msg)
     {
         this->local_logger().LogLocal( utility::FormatStr("receive QuotationMessage from connection: %d", p->connid()));
-        QuotationMessage quotation_message;
-        if( Decode(msg, quotation_message, this->msg_system_) )
+        auto quotation_message = std::make_shared<QuotationMessage>();
+        if( Decode(msg, *quotation_message, this->msg_system_) )
         {
-            for(int i = 0; i < quotation_message.quote_fill_msgs().size(); ++i )
+            strand_.PostTask([quotation_message, this]()
+            {  
+            for(int i = 0; i < quotation_message->quote_fill_msgs().size(); ++i )
             {
                 if( call_back_para_ && call_back_para_->call_back_func )
                 {
                     T_QuoteAtomData quote_atom_data = {0};
                      
-                    QuotationMessage::QuotationFillMessage *msg_fill = quotation_message.mutable_quote_fill_msgs()->Mutable(i);
+                    QuotationMessage::QuotationFillMessage *msg_fill = quotation_message->mutable_quote_fill_msgs()->Mutable(i);
  
-                    strcpy_s(quote_atom_data.code, quotation_message.code().c_str());
+                    strcpy_s(quote_atom_data.code, quotation_message->code().c_str());
                     TimePoint tp( MakeTimePoint( msg_fill->time().time_value(),  msg_fill->time().frac_sec() ) );
                     quote_atom_data.date = ToLongdate(tp.year(), tp.month(), tp.day());
                     quote_atom_data.time = tp.hour() * 10000 + tp.min() * 100 + tp.sec();
@@ -107,9 +109,10 @@ void WinnerClient::SetupMsgHandlers()
                     quote_atom_data.price_change = RationalDouble(msg_fill->price_change()) * (msg_fill->is_change_positive() ? 1 : -1);
                     
                     quote_atom_data.vol = msg_fill->vol();
-                    call_back_para_->call_back_func(&quote_atom_data, i == quotation_message.quote_fill_msgs().size() - 1, call_back_para_);
+                    call_back_para_->call_back_func(&quote_atom_data, i == quotation_message->quote_fill_msgs().size() - 1, call_back_para_);
                 }
             }
+            });
         }
     });
 }
@@ -117,6 +120,11 @@ void WinnerClient::SetupMsgHandlers()
 
 bool WinnerClient::ConnectServer(const char* pServerAddress, int port)
 {
+    if( server_addr == pServerAddress && pconn_ && is_connected() )
+    {
+        local_logger().LogLocal(utility::FormatStr("warning : WinnerClient::ConnectServer %s already connected!", pServerAddress) );
+        return true;
+    }
     try
     { 
         std::string connect_str = utility::FormatStr("%s:%d", pServerAddress, port);
