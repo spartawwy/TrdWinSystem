@@ -101,9 +101,11 @@ void WinnerClient::SetupMsgHandlers()
                     QuotationMessage::QuotationFillMessage *msg_fill = quotation_message->mutable_quote_fill_msgs()->Mutable(i);
  
                     strcpy_s(quote_atom_data.code, quotation_message->code().c_str());
-                    TimePoint tp( MakeTimePoint( msg_fill->time().time_value(),  msg_fill->time().frac_sec() ) );
+
+                    /*TimePoint tp( MakeTimePoint( msg_fill->time().time_value(),  msg_fill->time().frac_sec() ) );
                     quote_atom_data.date = ToLongdate(tp.year(), tp.month(), tp.day());
-                    quote_atom_data.time = tp.hour() * 10000 + tp.min() * 100 + tp.sec();
+*/
+                    quote_atom_data.time = msg_fill->time().time_value();
                         
                     quote_atom_data.price = RationalDouble(msg_fill->price());
                     quote_atom_data.price_change = RationalDouble(msg_fill->price_change()) * (msg_fill->is_change_positive() ? 1 : -1);

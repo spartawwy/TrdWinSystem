@@ -24,8 +24,8 @@ typedef struct _t_quote_atom_data
 {
     // 'code','date','time','price','change','volume','amount','type'
     char code[16];
-    int  date; //yyyymmdd
-    int  time; //HHMMSS
+    //int  date; //yyyymmdd
+    __int64  time; //HHMMSS
     double price; // .2f
     double price_change;
     int  vol;
