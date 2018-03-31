@@ -1,5 +1,7 @@
 #include "winner_client.h"
 
+#include <array>
+
 #include <TLib/core/tsystem_utility_functions.h>
 #include <TLib/core/tsystem_serialization.h>
 #include <TLib/core/tsystem_time.h>
@@ -102,9 +104,6 @@ void WinnerClient::SetupMsgHandlers()
  
                     strcpy_s(quote_atom_data.code, quotation_message->code().c_str());
 
-                    /*TimePoint tp( MakeTimePoint( msg_fill->time().time_value(),  msg_fill->time().frac_sec() ) );
-                    quote_atom_data.date = ToLongdate(tp.year(), tp.month(), tp.day());
-*/
                     quote_atom_data.time = msg_fill->time().time_value();
                         
                     quote_atom_data.price = RationalDouble(msg_fill->price());
@@ -177,12 +176,14 @@ bool WinnerClient::ConnectServer(const char* pServerAddress, int port)
         }
         , communication::Connection::Type::tcp);
         //this->local_logger().LogLocal("Waitfor Connection ");
-        if( TSystem::WaitFor( [this]()->bool
+        TSystem::WaitFor( [this]()->bool
         { 
             return this->is_connected_;
-        }, 10 * 1000 * 1000) )
-        //this->local_logger().LogLocal("ret Waitfor Connection ");
+        }, 10 * 1000 * 1000);
+
+        this->local_logger().LogLocal("ret Waitfor Connection ");
         return this->is_connected_;
+        
     }catch(const TException& e)
     {
         LogError(LogMessage::VITAL, e.error(), local_logger());
@@ -225,6 +226,42 @@ bool WinnerClient::RequestFenbiHisData(char* Zqdm, int Date, T_FenbiCallBack *ca
     auto date_com = FromLongdate(Date);
     FillTime(TimePoint(MakeTimePoint(std::get<0>(date_com), std::get<1>(date_com), std::get<2>(date_com))), *quotation_req.mutable_beg_time());
     FillTime(TimePoint(MakeTimePoint(std::get<0>(date_com), std::get<1>(date_com), std::get<2>(date_com))), *quotation_req.mutable_end_time());
+    quotation_req.set_req_type(QuotationReqType::FENBI);
+
+    pconn_->AsyncSend( Encode(quotation_req, msg_system_, Message::HeaderType(0, pid(), 0)));
+    return true; 
+}
+
+bool WinnerClient::RequestFenbiHisDataBatch(char* Zqdm, int date_begin, int date_end, T_FenbiCallBack *call_back_para, char* ErrInfo)
+{
+    if( !is_connected_ || !pconn_ )
+    {
+        if( ErrInfo ) strcpy(ErrInfo, "server is not connected!");
+        return false;
+    }
+    try
+    {
+        std::stoi(Zqdm);
+    }catch(...)
+    {
+        if( ErrInfo ) sprintf(ErrInfo, "code:%d is illegal ", Zqdm);
+        return false;
+    }
+    if( !IsLongDate(date_begin) || !IsLongDate(date_end) )
+    {
+        if( ErrInfo ) sprintf(ErrInfo, "date:%d or %d is illegal ", date_begin, date_end);
+        return false;
+    }
+    call_back_para_ = call_back_para;
+
+    // request fenbi data from quotation server
+    QuotationRequest quotation_req;
+    quotation_req.set_code(Zqdm);
+
+    auto date_begin_comm = FromLongdate(date_begin);
+    auto date_end_comm = FromLongdate(date_end);
+    FillTime(TimePoint(MakeTimePoint(std::get<0>(date_begin_comm), std::get<1>(date_begin_comm), std::get<2>(date_begin_comm))), *quotation_req.mutable_beg_time());
+    FillTime(TimePoint(MakeTimePoint(std::get<0>(date_end_comm), std::get<1>(date_end_comm), std::get<2>(date_end_comm))), *quotation_req.mutable_end_time());
     quotation_req.set_req_type(QuotationReqType::FENBI);
 
     pconn_->AsyncSend( Encode(quotation_req, msg_system_, Message::HeaderType(0, pid(), 0)));

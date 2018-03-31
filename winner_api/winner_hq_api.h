@@ -53,6 +53,16 @@ typedef struct _t_fenbi_call_back
 typedef int (__cdecl* WinnerHisHq_GetHisFenbiDataDelegate)(char* Zqdm, int Date, T_FenbiCallBack *call_back_para, char* ErrInfo);
 
 /// <summary>
+/// 批量获取历史分时数据
+/// </summary>
+/// <param name="Zqdm">证券代码</param>
+/// <param name="Date">日期, 比如2014年1月1日为整数20140101</param>
+/// <param name="FenbiCallBack"> 回调函数</param>
+/// <param name="ErrInfo">此API执行返回后，如果出错，保存了错误信息说明。一般要分配256字节的空间。没出错时为空字符串。</param>
+/// <returns>成功返回0, 失败返回其他 -1--未连接</returns>
+typedef int (__cdecl* WinnerHisHq_GetHisFenbiDataBatchDelegate)(char* Zqdm, int date_begin, int date_end, T_FenbiCallBack *call_back_para, char* ErrInfo);
+
+/// <summary>
 /// 获取证券指定范围的的K线数据
 /// </summary>
 /// <param name="Category">K线种类, 0->5分钟K线 1->15分钟K线 2->30分钟K线 3->1小时K线 4->日K线 5->周K线 6->月K线 7->1分钟 8->1分钟K线 9->日K线 10->季K线 11->年K线< / param>

@@ -39,6 +39,14 @@ extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_GetHisFenbiData(char* Zqdm, int D
     return val ? 0 : -2;
 }
 
+extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_GetHisFenbiDataBatch(char* Zqdm, int date_begin, int date_end, T_FenbiCallBack *call_back_para, char* ErrInfo)
+{
+    if( !GetInstance()->is_connected() )
+        return -1;
+    auto val = GetInstance()->RequestFenbiHisDataBatch(Zqdm, date_begin, date_end, call_back_para, ErrInfo);
+    return val ? 0 : -2;
+}
+
 static WinnerClient* GetInstance(bool is_del)
 {
     static std::string pro_tag = TSystem::utility::ProjectTag("wzf");

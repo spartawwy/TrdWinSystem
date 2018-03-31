@@ -22,6 +22,7 @@ public:
     bool is_connected() const { return is_connected_; }
 
     bool RequestFenbiHisData(char* Zqdm, int Date, T_FenbiCallBack *call_back_para, char* ErrInfo);
+    bool RequestFenbiHisDataBatch(char* Zqdm, int date_begin, int date_end, T_FenbiCallBack *call_back_para, char* ErrInfo);
 
 private:
 
