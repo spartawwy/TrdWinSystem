@@ -489,7 +489,12 @@ std::vector<std::string> QuotationServerApp::GetFenbi2File(const std::string &co
     try
     {
     auto pRet = PyEval_CallObject((PyObject*)PyFuncGetAllFill2File, pArg);
-    
+    if( !pRet )
+    {
+        std::cout << " GetFenbi2File  PyFuncGetAllFill2File ret null! beg_date:" << beg_date << " end_date:" << end_date << std::endl;
+        local_logger().LogLocal(utility::FormatStr("GetFenbi2File  PyFuncGetAllFill2File ret null! beg_date:%d end_date:%d", beg_date, end_date));
+        return ret_vector;
+    }
     PyArg_Parse(pRet, "s", &result);
     
     if( result && strlen(result) > 0 )
