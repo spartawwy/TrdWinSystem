@@ -57,4 +57,6 @@ private:
     // ------------
 
 };
+
+void Delay(unsigned short mseconds);
 #endif // QUOTATION_SERVER_APP_H_SDF55SDSF_

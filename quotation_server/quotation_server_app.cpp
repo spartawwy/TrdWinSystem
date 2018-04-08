@@ -448,6 +448,7 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
     for( ; i < date_vector.size() / span_len; ++i )
     { 
        fetch_data_send(req, pconn, date_vector[i*span_len], date_vector[(i + 1)*span_len - 1]);
+       Delay(50);
     }
      
     if( date_vector.size() % span_len  )
@@ -580,4 +581,9 @@ std::vector<int> GetSpanTradeDates(int date_begin, int date_end)
         }
     }
     return ret_days;
+}
+
+void Delay(unsigned short mseconds)
+{
+    std::this_thread::sleep_for(std::chrono::system_clock::duration(std::chrono::milliseconds(mseconds)));
 }
