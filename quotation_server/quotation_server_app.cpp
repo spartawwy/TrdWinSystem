@@ -33,6 +33,9 @@ static bool IsStockCode(const std::string &code);
 static void ConvertTime(const Time& t, int& longdate, std::string * timestamp=nullptr);
 static std::vector<int> GetSpanTradeDates(int date_begin, int date_end);
 
+static bool IsLeapYear(int year);
+static int DaysOneMonth(int year, int month);
+
 QuotationServerApp::QuotationServerApp(const std::string &name, const std::string &version)
 	: ServerAppBase("quotation_server", name, version)
     , PyFuncGetAllFill2File(nullptr)
@@ -448,7 +451,12 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
     for( ; i < date_vector.size() / span_len; ++i )
     { 
        fetch_data_send(req, pconn, date_vector[i*span_len], date_vector[(i + 1)*span_len - 1]);
-       Delay(50);
+       if( i < 10 )
+           Delay(20);
+       else if(i < 20 )
+           Delay(40);
+       else                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+           Delay(80); 
     }
      
     if( date_vector.size() % span_len  )
@@ -515,11 +523,50 @@ std::vector<std::string> QuotationServerApp::GetFenbi2File(const std::string &co
     return ret_vector; 
 }
 
-bool IsLongDate(int date)
+
+bool IsLeapYear(int year)
 {
-    /*if( date < 10000000 && date > 30000000 )
-        return false;*/
-    return date > 19000101 && date < 30000101;
+    return ( (year % 4 == 0 && year % 100 != 0) || year % 400 == 0 );
+}
+ 
+int DaysOneMonth(int year, int month)   //返回一个月的天数 
+{
+    int re = 0;
+    bool leap = IsLeapYear(year);    //是否是润年
+    switch(month)
+    {
+        case 1:     //1,3,5,7,8,10,12月每月都是31天
+        case 3:
+        case 5:
+        case 7:
+        case 8:
+        case 10:
+        case 12:
+            re=31;
+            break;
+        case 4:      //4,6,9,11月每月都是30天
+        case 6:
+        case 9:
+        case 11:
+            re=30;
+            break;
+        case 2:
+            if( leap )   
+                re=29;  //是润年,则是29天
+            else
+                re=28;  //不是润年,则是28天
+            break;
+        default:
+            //printf("\nmonth is error!");
+            break;
+    }
+    return re;
+}
+
+bool IsLongDate(int date)
+{ 
+    //return date > 19000101 && date < 30000101;
+    return date > 19000101 && GET_LONGDATE_DAY(date) <= DaysOneMonth( GET_LONGDATE_YEAR(date), GET_LONGDATE_MONTH(date) );
 }
 
 
@@ -549,11 +596,18 @@ void ConvertTime(const Time& t, int& longdate, std::string * timestamp)
         *timestamp = utility::FormatStr("%02d:%02d:%02d.%06d", tp.hour(), tp.min(), tp.sec(), static_cast<int>(tp.frac_sec()*1000000));
 };
 
-
 // ps: make sure date_end >= date_begin
 std::vector<int> GetSpanTradeDates(int date_begin, int date_end)
 {
     assert(date_begin <= date_end);
+
+    static auto get_need_dates = [](int date_begin, int date_end, int y, int m, int d, std::vector<int> &out_days)
+    { 
+        int local_date = y * 10000 + m * 100 + d;
+        if( IsLongDate(local_date) /*&& local_date >= date_begin && local_date <= date_end*/ )
+            out_days.push_back(local_date);
+    };
+
     std::vector<int> ret_days;
 
     const int year_begin = date_begin / 10000;
@@ -562,21 +616,44 @@ std::vector<int> GetSpanTradeDates(int date_begin, int date_end)
     const int year_end = date_end / 10000;
     const int mon_end = (date_end % 10000) / 100;
     const int day_end = (date_end % 100);
-     
+      
     std::array<int, 12> legal_mon = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<int, 31> legal_day = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10
                                      , 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
                                      , 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31};
- 
-    for( int y = year_begin; y <= year_end; ++y )
+     
+    int y = year_begin;
+
+    /*if( year_begin == year_end )
+    {
+        if( mon_begin == mon_end )
+        {
+            for( int d = day_begin; d <= day_end; ++d )
+            {
+                get_need_dates(date_begin, date_end, y, m, d, ret_days);
+            }
+        }
+        int m_val = mon_begin;
+        
+        for( ; m_val < mon_end; ++m_val )
+        {
+
+        }
+    }*/
+    for( ; y <= year_end; ++y )
     {
         for(auto m : legal_mon)
         {
+            
             for( auto d : legal_day )
             {
+#if 1
                 int local_date = y * 10000 + m * 100 + d;
-                if( local_date >= date_begin && local_date <= date_end )
+                if( IsLongDate(local_date) && local_date >= date_begin && local_date <= date_end )
                     ret_days.push_back(local_date);
+#else
+                    get_need_dates(date_begin, date_end, y, m, d, ret_days);
+#endif
             } 
         }
     }
