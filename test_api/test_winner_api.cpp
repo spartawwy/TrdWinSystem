@@ -1,9 +1,12 @@
 
 #include <iostream>
+#include <fstream>
 #include <string>
 
 #include <stdlib.h>
 #include <vector>
+
+#include <regex>
 
 #include <TLib/core/tsystem_utility_functions.h>
 #include <TLib/core/tsystem_time.h>
@@ -12,6 +15,7 @@
 
 #include "winner_hq_api.h"
 
+//#define  TEST_API
 #define  TEST_OHTER
 
 #ifdef TEST_OHTER
@@ -69,23 +73,7 @@ void testFenbiStrMatch()
             minute = strbuf + 3;
 
             second = strbuf + 6;
-
-            /*char *ptr1 = strbuf;
-            char temp_buf[16] = {0}; 
-            char *ptr0 = ptr1;
-            int num = 0;
-            while( *ptr1 != ':' ) { ++ptr1; ++num; }
-            memcpy(temp_buf, ptr0, num);
-            temp_buf[num] = '\0';
-            hour = temp_buf;
-
-            ++ptr1;
-            ptr0 = ptr1;
-            int num = 0;
-            while( *ptr1 != ':' ) { ++ptr1; ++num; }
-            memcpy(temp_buf, ptr0, num);
-            temp_buf[num] = '\0';
-            hour = temp_buf;*/
+             
 
         }
          
@@ -141,8 +129,73 @@ void testFenbiStrMatch()
 }
 
 int main()
-{
-#ifdef TEST_OHTER
+{ 
+#if 0
+    char buffer[256] = {0};
+    std::string full_path = "D:/ProgramData/Stock_Data/201808/20180801/20180801SH/600196_20180801.csv";
+    std::ifstream in(full_path, std::ios::in);
+    if( !in.is_open() )
+    {
+        printf("open file\n");
+        getchar();
+        return 0;
+    }
+    while( !in.eof() )
+    {
+        in.getline(buffer, sizeof(buffer));
+        printf(buffer);
+        printf("\n");
+    }
+#endif
+     char buf[256] = {0};
+     std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d{2}:\\d{2}:\\d{2}),(\\d+\\.\\d+),(\\d+)(.*)$"; 
+     std::regex regex_obj(partten_string); 
+
+     std::string full_path = "D:/ProgramData/Stock_Data/201808/20180801/20180801SH/600196_20180801.csv";
+     std::fstream in(full_path);
+     if( !in.is_open() )
+     {
+         printf("open file fail");
+         getchar();
+         return -1;
+     }
+     while( !in.eof() )
+     {
+         in.getline(buf, sizeof(buf));
+         int len = strlen(buf);
+         if( len < 1 )
+             continue;
+
+         char *p0 = buf;
+         char *p1 = &buf[len-1];
+         std::string src(p0, p1);
+
+         std::smatch result; 
+         if( std::regex_match(src.cbegin(), src.cend(), result, regex_obj) )
+         {
+             std::cout << result[1] << " " << result[2] << " " << result[3] << " " << result[4] << std::endl;
+         }
+     }
+
+    //-------------------
+#if 0  //simple test
+    char content[] = "2018-8-1,09:25:03,37.29,606,606,2259774,37.14,14,37.11,20,37.06,2,37.03,32,37.02,27,37.29,139,37.30,16,37.31,14,37.32,13,37.33,89,B";
+    char *p0 = &content[0];
+    char *p1 = &content[sizeof(content)-1];
+    std::string src(p0, p1);
+    
+    //这里 "()" 用于捕获组, 捕获组的编号是按照 "(" 出现的顺序, 从左到右, 从1开始进行编号的  
+    //std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d{2}:\\d{2}:\\d{2}),([0-9]+\\.[0-9]+),([0-9]+)(.*)$";
+    std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d{2}:\\d{2}:\\d{2}),(\\d+\\.\\d+),(\\d+)(.*)$"; 
+    std::regex regex_obj(partten_string); 
+
+    std::smatch result; 
+    if( std::regex_match(src.cbegin(), src.cend(), result, regex_obj) )
+    {
+        std::cout << result[1] << " " << result[2] << " " << result[3] << " " << result[4] << std::endl;
+    }
+#endif 
+#ifdef TEST_MATCH
     testFenbiStrMatch();
     static auto bar_daystr_to_longday = [](const std::string &day_str)->int
     {
@@ -179,6 +232,7 @@ int main()
     ckday = ckday;
 #endif
 
+#ifdef TEST_API
     HMODULE api_handle = LoadLibrary("winner_api.dll");
     if( !api_handle )
     {
@@ -261,7 +315,9 @@ int main()
     if( WinnerHisHq_DisConnect )
         WinnerHisHq_DisConnect();
 #endif
-    //getchar();
+#endif // TEST_API
+
+    getchar();
     return 0;
 }
 
@@ -269,7 +325,7 @@ void FenbiCallBackFun(T_QuoteAtomData *quote_data, bool is_end, void *para)
 {
     if( quote_data )
     {
-        printf("%s %d:%d %.2f %.2f %d\n", quote_data->code, quote_data->date, quote_data->time, quote_data->price, quote_data->price_change, quote_data->vol);
+        //printf("%s %d:%d %.2f %.2f %d\n", quote_data->code, quote_data->date, quote_data->time, quote_data->price, quote_data->price_change, quote_data->vol);
         
     }
     if( is_end )

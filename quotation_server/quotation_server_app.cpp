@@ -28,6 +28,8 @@
 #define  GET_LONGDATE_MONTH(a) (assert(a > 10000000), (a%10000)/100)
 #define  GET_LONGDATE_DAY(a) (assert(a > 10000000), (a%100))
 
+#define  HIS_DATA_ALREAD
+
 static bool IsLongDate(int date);
 static bool IsStockCode(const std::string &code);
 static void ConvertTime(const Time& t, int& longdate, std::string * timestamp=nullptr);
@@ -47,7 +49,9 @@ QuotationServerApp::QuotationServerApp(const std::string &name, const std::strin
 
 QuotationServerApp::~QuotationServerApp()
 {
+#ifndef HIS_DATA_ALREAD
 	Py_Finalize();
+#endif
 }
 
 void QuotationServerApp::Initiate()
@@ -59,9 +63,9 @@ void QuotationServerApp::Initiate()
 
     for( int i = 0; i < 2; ++i )
         task_pool_.AddWorker();
-
+#ifndef HIS_DATA_ALREAD
 	InitPython();
-
+#endif
     char stk_data_dir[256] = {0};
 	unsigned int ret_env_size = sizeof(stk_data_dir);
 	getenv_s(&ret_env_size, stk_data_dir, ret_env_size, "STK_DATA_DIR");
@@ -253,8 +257,11 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
         TimePoint t_p(tm_point);
         return ToLongdate(t_p.year(), t_p.month(), t_p.day());
    };
+ 
    static auto bar_daystr_to_longday = [](const std::string &day_str)->int
    { 
+       int year, mon, day;
+#if 0
        auto tmp_str = day_str;
        TSystem::utility::replace_all( *const_cast<std::string*>(&tmp_str), "-", ""); 
        try
@@ -269,29 +276,41 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
            std::cout <<"bar_daystr_to_longday error: '" << day_str << "' "  << std::endl;
            return 0;
        }
-        
        assert(day_str.size() == 10 ); // strlen("yyyy-mm-dd") == 10
-       int year, mon, day;
        sscanf_s(day_str.c_str(), "%04d-%02d-%02d", &year, &mon, &day);
+#else 
+       std::string partten_string = "^(\\d{4})-(\\d{1,2})-(\\d{1,2})$"; 
+       std::regex regex_obj(partten_string); 
+       std::smatch result; 
+       if( std::regex_match(day_str.cbegin(), day_str.cend(), result, regex_obj) )
+       {
+           try
+           {
+               year = boost::lexical_cast<int>(result[1]);
+               mon = boost::lexical_cast<int>(result[2]);
+               day = boost::lexical_cast<int>(result[3]);
+           }catch(boost::exception&)
+           {
+                return 0;
+           }
+           std::cout << result[1] << " " << result[2] << " " << result[3] << " " << result[4] << std::endl;
+       }
+#endif
        return ToLongdate(year, mon, day);
    };
-     
-    //printf("\n to GetFenbi2File\n");
-    //// format: yyyy-mm-dd
-    //auto data_str_vector = GetFenbi2File(req->code(), time_to_longday(req->beg_time()), time_to_longday(req->end_time()));
-    //printf("\n ret GetFenbi2File\n");
-    
+      
     static auto fetch_data_send 
         = [this](std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn, int begin_date, int end_date)
     {
         auto ret_date_str_vector = GetFenbi2File(req->code(), begin_date, end_date);
+
         std::for_each( std::begin(ret_date_str_vector), std::end(ret_date_str_vector), [&req, &pconn, this](const std::string &entry)
         { 
-            /*auto date_comp = TSystem::FromLongdate(longdate);
-            char bar_date_str[64] = {0};
-            sprintf_s(bar_date_str, sizeof(bar_date_str), "%04d-%02d-%02d", std::get<0>(date_comp), std::get<1>(date_comp), std::get<2>(date_comp)); 
-           */
+#ifdef HIS_DATA_ALREAD 
+            std::string full_path = "D:/ProgramData/Stock_Data/201808/20180801/20180801SH/600196_20180801.csv";
+#else
             std::string full_path = this->stk_data_dir_ + req->code() + "/" + entry + "/fenbi/" + req->code() + ".fenbi";
+#endif
             FileMapping file_map_obj;
             if( !file_map_obj.Create(full_path) )
             {
@@ -316,8 +335,76 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
             std::string change_price;
             std::string vol;
             //std::string amount; 
-        
+
+            std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d{2}):(\\d{2}):(\\d{2}),(\\d+\\.\\d+),(\\d+)(.*)$"; 
+            std::regex regex_obj(partten_string); 
+
             char *p1 = p0; 
+#ifdef HIS_DATA_ALREAD
+            bool is_first_line = true;
+            while( *p1 != '\0' ) 
+            {
+                //ps: each line in his data, end with 0x0D 0x0A
+                int count = 0;
+                p0 = p1; 
+                while( *p1 != '\0' && int(*p1) != 0x0D ) { ++p1; ++count;}
+                if( int(*p1) == 0x0D ) // let p1 point to 0x0A
+                    ++p1; 
+                if( count < 1 )
+                {
+                    if( int(*p1) == 0x0A ) // filter 0x0A
+                        ++p1;
+                    is_first_line = false;
+                    continue;
+                }
+                if( is_first_line ) 
+                {
+                    is_first_line = false;
+                    ++p1; 
+                    continue;
+                }
+                std::string src(p0, p1);
+                std::smatch result; 
+                if( std::regex_match(src.cbegin(), src.cend(), result, regex_obj) )
+                {  //std::cout << result[1] << " " << result[2] << " " << result[3] << " " << result[4] << std::endl;
+                    hour = result[2];
+                    minute = result[3];
+                    second = result[4];
+                    price = result[5];
+                    change_price = "0.0";
+                    vol =  result[6];
+                }
+                try
+                {
+                    QuotationMessage::QuotationFillMessage * p_fill_msg = quotation_msg.add_quote_fill_msgs();
+
+                    int longdate = bar_daystr_to_longday(entry);
+                    auto date_comp = TSystem::FromLongdate(longdate);
+                    FillTime( TimePoint(TSystem::MakeTimePoint(std::get<0>(date_comp), std::get<1>(date_comp), std::get<2>(date_comp)
+                        , std::stoi(hour), std::stoi(minute), std::stoi(second)))
+                        , *p_fill_msg->mutable_time() );
+                    TSystem::FillRational(price, *p_fill_msg->mutable_price()); 
+                    TSystem::FillRational(change_price, *p_fill_msg->mutable_price_change());
+
+                    if( std::stod(change_price) < 0.0 )
+                        p_fill_msg->set_is_change_positive(false);
+
+                    p_fill_msg->set_vol(std::stoi(vol));
+                }catch(std::exception &e)
+                {
+                    printf("exception:%s", e.what());
+                    continue;
+                }catch(...)
+                {
+                    continue;
+                }
+                //--------------------
+                if( *p1 == '\0' ) break; 
+                if( int(*p1) == 0x0A ) // filter 0x0A
+                    ++p1;
+            }
+
+#else
             char strbuf[1024] = {0};
             while( *p1 != '\0' ) 
             {
@@ -325,15 +412,6 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
                 p0 = p1;
                 while( *p1 != '\0' && int(*p1) != 0x0D && *p1 != ' ' ) { ++p1; ++count;}
                 if( *p1 == '\0' ) break; 
-                // id relate  ------
-    #if 0  //nouse
-                if( count > 0 )
-                {  
-                    memcpy(strbuf, p0, count);
-                    strbuf[count] = '\0'; 
-                    id = strbuf; 
-                }
-    #endif
                 // time realte -----
                 p0 = ++p1;
                 count = 0;
@@ -388,18 +466,9 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
                 count = 0;
                 while( *p1 != '\0' && int(*p1) != 0x0D && *p1 != ' ' ) { ++p1; ++count;}
                 if( *p1 == '\0' ) break; 
-    #if 0 // nouse
-                if( count > 0 )
-                { 
-                    memcpy(strbuf, p0, count);
-                    strbuf[count] = '\0'; 
-                    amount = strbuf;
-                } 
-    #endif
                 // filter 0x0A
                 if( *p1 != '\0' )
                     ++p1;
-    #if 1
                 try
                 {
                 QuotationMessage::QuotationFillMessage * p_fill_msg = quotation_msg.add_quote_fill_msgs();
@@ -424,10 +493,10 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
                 {
                     continue;
                 }
-#endif
+
                 //std::cout <<  price << " " << change_price << " " << vol << std::endl;
             } // while 
-
+ #endif
             printf("pconn->AsyncSend\n");
             pconn->AsyncSend( Encode(quotation_msg, msg_system(), Message::HeaderType(0, pid(), 0)) ); 
 
