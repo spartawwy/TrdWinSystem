@@ -86,11 +86,13 @@
   <ItemGroup>
     <ClInclude Include="file_mapping.h" />
     <ClInclude Include="quotation_server_app.h" />
+    <ClInclude Include="quota_svr_common.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="file_mapping.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="quotation_server_app.cpp" />
+    <ClCompile Include="quota_svr_common.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

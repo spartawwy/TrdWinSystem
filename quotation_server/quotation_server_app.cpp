@@ -18,6 +18,7 @@
 #include "WINNERLib/winner_message_system.h"
 
 #include "file_mapping.h"
+#include "quota_svr_common.h"
 
 #ifdef _DEBUG
 #undef Py_XDECREF
@@ -299,6 +300,16 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
        return ToLongdate(year, mon, day);
    };
       
+    static auto create_file_path = [](const std::string& stk_data_dir, const std::string& date_str, const std::string& code)
+    {
+         int date = bar_daystr_to_longday(date_str);
+	     auto date_com = TSystem::FromLongdate(date);
+         std::string date_format_str = utility::FormatStr("%d%02d%02d", std::get<0>(date_com), std::get<1>(date_com), std::get<2>(date_com));
+	     std::string year_mon = utility::FormatStr("%d%02d", std::get<0>(date_com), std::get<1>(date_com));
+         std::string year_mon_sub = year_mon + (IsShStock(code) ? "SH" : "SZ");
+         return stk_data_dir + year_mon + "/" + year_mon_sub + "/" + date_format_str + "/" + code + "_" + date_format_str + ".csv";
+    };
+
     static auto fetch_data_send 
         = [this](std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn, int begin_date, int end_date)
     {
@@ -307,7 +318,8 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
         std::for_each( std::begin(ret_date_str_vector), std::end(ret_date_str_vector), [&req, &pconn, this](const std::string &entry)
         { 
 #ifdef HIS_DATA_ALREAD 
-            std::string full_path = "D:/ProgramData/Stock_Data/201808/20180801/20180801SH/600196_20180801.csv";
+            std::string full_path = create_file_path(this->stk_data_dir_, entry, req->code());// "D:/ProgramData/Stock_Data/201808/20180801/20180801SH/600196_20180801.csv";
+            
 #else
             std::string full_path = this->stk_data_dir_ + req->code() + "/" + entry + "/fenbi/" + req->code() + ".fenbi";
 #endif

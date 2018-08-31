@@ -10,6 +10,7 @@
 
 #include <TLib/core/tsystem_utility_functions.h>
 #include <TLib/core/tsystem_time.h>
+#include <Boost/lexical_cast.hpp>
 
 #include <Windows.h>
 
@@ -73,8 +74,6 @@ void testFenbiStrMatch()
             minute = strbuf + 3;
 
             second = strbuf + 6;
-             
-
         }
          
         // price realte -----
@@ -128,54 +127,11 @@ void testFenbiStrMatch()
     } 
 }
 
+void Test_GetFenbi(const std::string &start, const std::string &end, const std::string &code);
+
 int main()
-{ 
-#if 0
-    char buffer[256] = {0};
-    std::string full_path = "D:/ProgramData/Stock_Data/201808/20180801/20180801SH/600196_20180801.csv";
-    std::ifstream in(full_path, std::ios::in);
-    if( !in.is_open() )
-    {
-        printf("open file\n");
-        getchar();
-        return 0;
-    }
-    while( !in.eof() )
-    {
-        in.getline(buffer, sizeof(buffer));
-        printf(buffer);
-        printf("\n");
-    }
-#endif
-     char buf[256] = {0};
-     std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d{2}:\\d{2}:\\d{2}),(\\d+\\.\\d+),(\\d+)(.*)$"; 
-     std::regex regex_obj(partten_string); 
-
-     std::string full_path = "D:/ProgramData/Stock_Data/201808/20180801/20180801SH/600196_20180801.csv";
-     std::fstream in(full_path);
-     if( !in.is_open() )
-     {
-         printf("open file fail");
-         getchar();
-         return -1;
-     }
-     while( !in.eof() )
-     {
-         in.getline(buf, sizeof(buf));
-         int len = strlen(buf);
-         if( len < 1 )
-             continue;
-
-         char *p0 = buf;
-         char *p1 = &buf[len-1];
-         std::string src(p0, p1);
-
-         std::smatch result; 
-         if( std::regex_match(src.cbegin(), src.cend(), result, regex_obj) )
-         {
-             std::cout << result[1] << " " << result[2] << " " << result[3] << " " << result[4] << std::endl;
-         }
-     }
+{  
+   Test_GetFenbi("2018-07-02", "2018-07-03", "600196");
 
     //-------------------
 #if 0  //simple test
@@ -319,6 +275,114 @@ int main()
 
     getchar();
     return 0;
+}
+
+void Test_GetFenbi(const std::string &start, const std::string &end, const std::string &code)
+{
+   static auto bar_daystr_to_longday = [](const std::string &day_str)->int
+   { 
+       int year, mon, day;
+#if 1
+       std::string partten_string = "^(\\d{4})-(\\d{1,2})-(\\d{1,2})$"; 
+       std::regex regex_obj(partten_string); 
+       std::smatch result; 
+       if( std::regex_match(day_str.cbegin(), day_str.cend(), result, regex_obj) )
+       {
+           try
+           {
+               year = boost::lexical_cast<int>(result[1]);
+               mon = boost::lexical_cast<int>(result[2]);
+               day = boost::lexical_cast<int>(result[3]);
+           }catch(boost::exception&)
+           {
+                return 0;
+           }
+           std::cout << result[1] << " " << result[2] << " " << result[3] << " " << result[4] << std::endl;
+       }
+#endif
+       return ToLongdate(year, mon, day);
+   };
+
+   static auto is_sh_stock = [](const std::string& code)->bool
+   {
+       if( code.length() == 6 && code.at(0) == '6' )
+           return true;
+       else 
+           return false;
+   };
+#if 0
+    char buffer[256] = {0};
+    std::string full_path = "D:/ProgramData/Stock_Data/201808/20180801/20180801SH/600196_20180801.csv";
+    std::ifstream in(full_path, std::ios::in);
+    if( !in.is_open() )
+    {
+        printf("open file\n");
+        getchar();
+        return 0;
+    }
+    while( !in.eof() )
+    {
+        in.getline(buffer, sizeof(buffer));
+        printf(buffer);
+        printf("\n");
+    }
+#endif
+     char buf[256] = {0};
+     std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d{2}:\\d{2}:\\d{2}),(\\d+\\.\\d+),(\\d+)(.*)$"; 
+     std::regex regex_obj(partten_string); 
+
+	 std::string stk_data_dir = "D:/ProgramFilesBase/StockData/";
+     //std::string full_path = "D:/ProgramData/Stock_Data/201808/20180801/20180801SH/600196_20180801.csv";
+	 //bar_daystr_to_longday(start);
+	
+	 int end_date = bar_daystr_to_longday(end);
+     
+	 auto end_date_com = TSystem::FromLongdate(end_date);
+
+     static auto create_file_path = [](const std::string& stk_data_dir, const std::string& date_str, const std::string& code)
+     {
+         int date = bar_daystr_to_longday(date_str);
+	     auto date_com = TSystem::FromLongdate(date);
+         std::string date_format_str = utility::FormatStr("%d%02d%02d", std::get<0>(date_com), std::get<1>(date_com), std::get<2>(date_com));
+	     std::string year_mon = utility::FormatStr("%d%02d", std::get<0>(date_com), std::get<1>(date_com));
+         std::string year_mon_sub = year_mon + (is_sh_stock(code) ? "SH" : "SZ");
+         return stk_data_dir + year_mon + "/" + year_mon_sub + "/" + date_format_str + "/" + code + "_" + date_format_str + ".csv";
+     };
+
+#if 0
+     int start_date = bar_daystr_to_longday(start);
+	 auto start_date_com = TSystem::FromLongdate(start_date);
+     std::string start_date_str = utility::FormatStr("%d%02d%02d", std::get<0>(start_date_com), std::get<1>(start_date_com), std::get<2>(start_date_com));
+	 std::string start_year_mon = utility::FormatStr("%d%02d", std::get<0>(start_date_com), std::get<1>(start_date_com));
+     std::string start_year_mon_sub = start_year_mon + (is_sh_stock(code) ? "SH" : "SZ");
+#endif
+	 std::string full_path = create_file_path(stk_data_dir, start, code);
+
+     std::fstream in(full_path);
+     if( !in.is_open() )
+     {
+         printf("open file fail");
+         getchar();
+         return;
+     }
+     while( !in.eof() )
+     {
+         in.getline(buf, sizeof(buf));
+         int len = strlen(buf);
+         if( len < 1 )
+             continue;
+
+         char *p0 = buf;
+         char *p1 = &buf[len-1];
+         std::string src(p0, p1);
+
+         std::smatch result; 
+         if( std::regex_match(src.cbegin(), src.cend(), result, regex_obj) )
+         {
+             std::cout << result[1] << " " << result[2] << " " << result[3] << " " << result[4] << std::endl;
+         }
+     }
+
 }
 
 void FenbiCallBackFun(T_QuoteAtomData *quote_data, bool is_end, void *para)

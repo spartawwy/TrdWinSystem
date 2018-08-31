@@ -24,6 +24,9 @@
     <ClInclude Include="file_mapping.h">
       <Filter>moudle</Filter>
     </ClInclude>
+    <ClInclude Include="quota_svr_common.h">
+      <Filter>moudle</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="quotation_server_app.cpp">
@@ -33,6 +36,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="file_mapping.cpp">
+      <Filter>moudle</Filter>
+    </ClCompile>
+    <ClCompile Include="quota_svr_common.cpp">
       <Filter>moudle</Filter>
     </ClCompile>
   </ItemGroup>
