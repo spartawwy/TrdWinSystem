@@ -8,11 +8,13 @@
 #include "WINNERLib/boost_locker.h"
 #include "WINNERLib/winner_user_msg.pb.h"
 #include "WINNERLib/quotation_msg.pb.h"
-//#include "db_moudle.h"
+#include "data_base.h"
+#include "exchange_calendar.h"
 
 using namespace TSystem;
 
 class UserRequest; 
+class ExchangeCalendar;
 class QuotationServerApp : public ServerAppBase
 {
 public:
@@ -55,7 +57,9 @@ private:
     TConnidMapStrand conn_strands_;
     WRMutex  conn_strands_wr_mutex_; 
     // ------------
+    ExchangeCalendar exchange_calendar_;
 
+    DataBase data_base_;
 };
 
 void Delay(unsigned short mseconds);

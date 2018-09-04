@@ -84,11 +84,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="data_base.h" />
+    <ClInclude Include="exchange_calendar.h" />
     <ClInclude Include="file_mapping.h" />
     <ClInclude Include="quotation_server_app.h" />
     <ClInclude Include="quota_svr_common.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="data_base.cpp" />
+    <ClCompile Include="exchange_calendar.cpp" />
     <ClCompile Include="file_mapping.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="quotation_server_app.cpp" />

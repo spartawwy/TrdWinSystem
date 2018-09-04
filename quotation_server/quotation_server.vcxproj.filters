@@ -27,6 +27,12 @@
     <ClInclude Include="quota_svr_common.h">
       <Filter>moudle</Filter>
     </ClInclude>
+    <ClInclude Include="data_base.h">
+      <Filter>moudle</Filter>
+    </ClInclude>
+    <ClInclude Include="exchange_calendar.h">
+      <Filter>moudle</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="quotation_server_app.cpp">
@@ -39,6 +45,12 @@
       <Filter>moudle</Filter>
     </ClCompile>
     <ClCompile Include="quota_svr_common.cpp">
+      <Filter>moudle</Filter>
+    </ClCompile>
+    <ClCompile Include="exchange_calendar.cpp">
+      <Filter>moudle</Filter>
+    </ClCompile>
+    <ClCompile Include="data_base.cpp">
       <Filter>moudle</Filter>
     </ClCompile>
   </ItemGroup>

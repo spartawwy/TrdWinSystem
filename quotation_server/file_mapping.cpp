@@ -46,7 +46,7 @@ bool FileMapping::Create(const std::string & file_full_path)
 
 
     char shared_name[256] = {0};
-    strcpy(shared_name, tag_str.c_str());
+    strcpy_s(shared_name, tag_str.c_str());
     char * rep_p = strstr(shared_name, ".");
     if( rep_p ) *rep_p = '_';
     //const char* shared_name = "cookietrdw_mock";
