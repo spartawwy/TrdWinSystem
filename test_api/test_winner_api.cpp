@@ -328,13 +328,23 @@ void Test_GetFenbi(const std::string &start, const std::string &end, const std::
     }
 #endif
      char buf[256] = {0};
-     std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d{2}:\\d{2}:\\d{2}),(\\d+\\.\\d+),(\\d+)(.*)$"; 
+     //std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d{2}:\\d{2}:\\d{2}),(\\d+\\.\\d+),(\\d+)(.*)$"; 
+     std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d{2}:\\d{2}:\\d{2}),(\\d+\\.\\d+),(\\d+)(.*)"; 
      std::regex regex_obj(partten_string); 
 
 	 std::string stk_data_dir = "D:/ProgramFilesBase/StockData/";
      //std::string full_path = "D:/ProgramData/Stock_Data/201808/20180801/20180801SH/600196_20180801.csv";
-	 //bar_daystr_to_longday(start);
-	
+#if 1
+     //std::string src0 = "2018-7-2,09:25:01,41.38,408,408,1688304,41.36,20,41.30,102,41.25,5,41.23,105,41.20,115,41.38,5,41.39,15,41.40,212,41.41,20,41.42,69,B\r"; // bad
+     std::string src0 = "2018-7-2,09:25:01,41.38,408,408,1688304,41.36,20,41.30,102,41.25,5,41.23,105,41.20,115,41.38,5,41.39,15,41.40,212,41.41,20,41.42,69,B";
+	 std::smatch result0; 
+     if( std::regex_match(src0.cbegin(), src0.cend(), result0, regex_obj) )
+     {
+        std::cout << result0[1] << " " << result0[2] << " " << result0[3] << " " << result0[4] << std::endl;
+     }
+
+#endif
+
 	 int end_date = bar_daystr_to_longday(end);
      
 	 auto end_date_com = TSystem::FromLongdate(end_date);

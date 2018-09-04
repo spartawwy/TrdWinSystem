@@ -383,7 +383,7 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
                 while( *p1 != '\0' && int(*p1) != 0x0D ) { ++p1; ++count;}
                 if( int(*p1) == 0x0D ) // let p1 point to 0x0A
                     ++p1; 
-                if( count < 1 )
+                if( count < 3 )
                 {
                     if( int(*p1) == 0x0A ) // filter 0x0A
                         ++p1;
@@ -396,7 +396,7 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
                     ++p1; 
                     continue;
                 }
-                std::string src(p0, p1);
+                std::string src(p0, p1-2);
                 std::smatch result; 
                 if( std::regex_match(src.cbegin(), src.cend(), result, regex_obj) )
                 {  //std::cout << result[1] << " " << result[2] << " " << result[3] << " " << result[4] << std::endl;
