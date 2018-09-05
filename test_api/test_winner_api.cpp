@@ -375,6 +375,7 @@ void Test_GetFenbi(const std::string &start, const std::string &end, const std::
          getchar();
          return;
      }
+     char buf[256] = {0};
      while( !in.eof() )
      {
          in.getline(buf, sizeof(buf));

@@ -339,6 +339,8 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
         { 
             std::string full_path = this->stk_data_dir_ + req->code() + "/" + entry + "/fenbi/" + req->code() + ".fenbi";
 #endif
+
+#if 0
             FileMapping file_map_obj;
             if( !file_map_obj.Create(full_path) )
             {
@@ -357,6 +359,7 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
                 std::cout << "warning: illegal content in " << full_path << std::endl;
                 return;
             }
+#endif
             QuotationMessage quotation_msg;
             quotation_msg.set_code(req->code());
 
@@ -372,9 +375,12 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
             std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d{2}):(\\d{2}):(\\d{2}),(\\d+\\.\\d+),(\\d+)(.*)$"; 
             std::regex regex_obj(partten_string); 
 
-            char *p1 = p0; 
+            
 #ifdef HIS_DATA_ALREAD
+            
             bool is_first_line = true;
+#if 0
+            char *p1 = p0; 
             while( *p1 != '\0' ) 
             {
                 //ps: each line in his data, end with 0x0D 0x0A
@@ -396,7 +402,29 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
                     ++p1; 
                     continue;
                 }
+                std::string src(p0, p1);
                 std::string src(p0, p1-2);
+                
+#else
+             char buf[256] = {0};
+             std::fstream in(full_path);
+             if( !in.is_open() )
+             {
+                 printf("open file fail");
+                 getchar();
+                 return;
+             }
+             while( !in.eof() )
+             {
+#endif
+                 in.getline(buf, sizeof(buf));
+                 int len = strlen(buf);
+                 if( len < 1 )
+                     continue;
+                 char *p0 = buf;
+                 char *p1 = &buf[len-1];
+                 std::string src(p0, p1);
+
                 std::smatch result; 
                 if( std::regex_match(src.cbegin(), src.cend(), result, regex_obj) )
                 {  //std::cout << result[1] << " " << result[2] << " " << result[3] << " " << result[4] << std::endl;
