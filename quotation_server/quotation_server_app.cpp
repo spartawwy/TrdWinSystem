@@ -44,6 +44,7 @@ QuotationServerApp::QuotationServerApp(const std::string &name, const std::strin
     , PyFuncGetAllFill2File(nullptr)
     , stk_data_dir_()
     , conn_strands_(256) 
+    , code_fenbi_container_(5000)
 {
 	
 }
@@ -263,24 +264,6 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
    static auto bar_daystr_to_longday = [](const std::string &day_str)->int
    { 
        int year, mon, day;
-#if 0
-       auto tmp_str = day_str;
-       TSystem::utility::replace_all( *const_cast<std::string*>(&tmp_str), "-", ""); 
-       try
-       {
-           std::stoi(tmp_str);
-       }catch(std::exception &e)
-       {
-           std::cout << "bar_daystr_to_longday error: '" << day_str << "' " << e.what() << std::endl;
-           return 0;
-       }catch(...)
-       {
-           std::cout <<"bar_daystr_to_longday error: '" << day_str << "' "  << std::endl;
-           return 0;
-       }
-       assert(day_str.size() == 10 ); // strlen("yyyy-mm-dd") == 10
-       sscanf_s(day_str.c_str(), "%04d-%02d-%02d", &year, &mon, &day);
-#else 
        std::string partten_string = "^(\\d{4})-(\\d{1,2})-(\\d{1,2})$"; 
        std::regex regex_obj(partten_string); 
        std::smatch result; 
@@ -297,7 +280,6 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
            }
            std::cout << result[1] << " " << result[2] << " " << result[3] << " " << result[4] << std::endl;
        }
-#endif
        return ToLongdate(year, mon, day);
    };
       
@@ -317,52 +299,56 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
        else 
            return false;
    };
-
+     
     static auto fetch_data_send 
-        = [this](std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn, int begin_date, int end_date)
+        = [this](std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn, int begin_date, int end_date, TDayFenbi &days_fenbi)
     { 
-#ifdef HIS_DATA_ALREAD 
-        auto date_vector = GetSpanTradeDates(begin_date, end_date);
-
-        std::for_each( std::begin(date_vector), std::end(date_vector), [&req, &pconn, this](const int date)
-        { 
-            if( !this->exchange_calendar_.IsTradeDate(date) )
-                return;
-            //stk_data_dir + year_mon + "/" + year_mon_sub + "/" + date_format_str + "/" + code + "_" + date_format_str + ".csv";
-            std::string date_format_str = utility::FormatStr("%d", date);
-	        std::string year_mon = utility::FormatStr("%d%02d", (date/10000), date%10000/100);
-            std::string year_mon_sub = year_mon + (is_sh_stock(req->code()) ? "SH" : "SZ");
-            std::string full_path = this->stk_data_dir_ + year_mon + "/" + year_mon_sub + "/" + date_format_str + "/" + req->code() + "_" + date_format_str + ".csv";
-#else
+#ifndef HIS_DATA_ALREAD 
         auto ret_date_str_vector = GetFenbi2File(req->code(), begin_date, end_date);
         std::for_each( std::begin(ret_date_str_vector), std::end(ret_date_str_vector), [&req, &pconn, this](const std::string &entry)
         { 
             std::string full_path = this->stk_data_dir_ + req->code() + "/" + entry + "/fenbi/" + req->code() + ".fenbi";
-#endif
-
-#if 0
-            FileMapping file_map_obj;
-            if( !file_map_obj.Create(full_path) )
-            {
-                std::cout << "map " << full_path << " fail!\n";
+            QuotationMessage quotation_msg;
+            quotation_msg.set_code(req->code());
+#else 
+        auto date_vector = GetSpanTradeDates(begin_date, end_date);
+        std::for_each( std::begin(date_vector), std::end(date_vector), [&req, &pconn, &days_fenbi, this](const int date)
+        { 
+            if( !this->exchange_calendar_.IsTradeDate(date) )
                 return;
-            }
-            char *p0 = file_map_obj.data_address(); 
-            // ps: every file is start with 10000 
-
-            if( file_map_obj.file_size() < 150 
-#ifndef HIS_DATA_ALREAD 
-                || !isdigit(*(p0 + 6)) 
-#endif
-                )
-            {
-                std::cout << "warning: illegal content in " << full_path << std::endl;
-                return;
-            }
-#endif
             QuotationMessage quotation_msg;
             quotation_msg.set_code(req->code());
 
+            auto day_iter = days_fenbi.find(date);
+            if( day_iter != days_fenbi.end() )
+            { 
+                std::for_each( std::begin(*(day_iter->second)), std::end(*(day_iter->second)), [&quotation_msg, date, &pconn, this](T_Fenbi& fenbi)
+                {
+                    QuotationMessage::QuotationFillMessage * p_fill_msg = quotation_msg.add_quote_fill_msgs();
+                    auto date_comp = TSystem::FromLongdate(date);
+                    FillTime( TimePoint(TSystem::MakeTimePoint(std::get<0>(date_comp), std::get<1>(date_comp), std::get<2>(date_comp)
+                        , GET_HOUR(fenbi.hhmmss), GET_MINUTE(fenbi.hhmmss), GET_SECOND(fenbi.hhmmss)))
+                        , *p_fill_msg->mutable_time() ); 
+                    char tmp_buf[16];
+                    sprintf_s(tmp_buf, sizeof(tmp_buf), "%.2f", fenbi.price);
+                    TSystem::FillRational(std::string(tmp_buf), *p_fill_msg->mutable_price()); 
+                    TSystem::FillRational(std::to_string(0), *p_fill_msg->mutable_price_change()); //ndedt
+                    p_fill_msg->set_is_change_positive(false);//ndedt
+                    p_fill_msg->set_vol(1);
+                });
+                printf("pconn->AsyncSend\n");
+                pconn->AsyncSend( Encode(quotation_msg, msg_system(), Message::HeaderType(0, pid(), 0)) ); 
+                return;
+            } 
+            auto fenbi_vector = std::make_shared<std::vector<T_Fenbi>>();
+            fenbi_vector->reserve(1024);
+            day_iter = days_fenbi.insert( std::make_pair(date, std::move(fenbi_vector)) ).first;
+
+            std::string date_format_str = utility::FormatStr("%d", date);
+	        std::string year_mon = utility::FormatStr("%d%02d", (date/10000), date%10000/100);
+            std::string year_mon_sub = year_mon + (is_sh_stock(req->code()) ? "SH" : "SZ");
+            std::string full_path = this->stk_data_dir_ + year_mon + "/" + year_mon_sub + "/" + date_format_str + "/" + req->code() + "_" + date_format_str + ".csv";
+#endif
             //std::string id;
             std::string hour;
             std::string minute;
@@ -374,38 +360,9 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
 
             std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d{2}):(\\d{2}):(\\d{2}),(\\d+\\.\\d+),(\\d+)(.*)$"; 
             std::regex regex_obj(partten_string); 
-
             
 #ifdef HIS_DATA_ALREAD
-            
-            bool is_first_line = true;
-#if 0
-            char *p1 = p0; 
-            while( *p1 != '\0' ) 
-            {
-                //ps: each line in his data, end with 0x0D 0x0A
-                int count = 0;
-                p0 = p1; 
-                while( *p1 != '\0' && int(*p1) != 0x0D ) { ++p1; ++count;}
-                if( int(*p1) == 0x0D ) // let p1 point to 0x0A
-                    ++p1; 
-                if( count < 3 )
-                {
-                    if( int(*p1) == 0x0A ) // filter 0x0A
-                        ++p1;
-                    is_first_line = false;
-                    continue;
-                }
-                if( is_first_line ) 
-                {
-                    is_first_line = false;
-                    ++p1; 
-                    continue;
-                }
-                std::string src(p0, p1);
-                std::string src(p0, p1-2);
-                
-#else
+             
              char buf[256] = {0};
              std::fstream in(full_path);
              if( !in.is_open() )
@@ -416,7 +373,6 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
              }
              while( !in.eof() )
              {
-#endif
                  in.getline(buf, sizeof(buf));
                  int len = strlen(buf);
                  if( len < 1 )
@@ -434,7 +390,6 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
                     price = result[5];
                     change_price = "0.0";
                     vol =  result[6];
-                 
                     try
                     {
                         QuotationMessage::QuotationFillMessage * p_fill_msg = quotation_msg.add_quote_fill_msgs();
@@ -448,8 +403,12 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
 
                         if( std::stod(change_price) < 0.0 )
                             p_fill_msg->set_is_change_positive(false);
+                        p_fill_msg->set_vol(std::stoi(vol)); 
 
-                        p_fill_msg->set_vol(std::stoi(vol));
+                        // push to code_fenbi_container
+                        int hhmmss = std::stoi(hour)*10000 + std::stoi(minute)*100 + std::stoi(second);
+                        day_iter->second->push_back(std::move(T_Fenbi(hhmmss, std::stof(price))));
+
                     }catch(std::exception &e)
                     {
                         printf("exception:%s", e.what());
@@ -557,13 +516,18 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
 
                 //std::cout <<  price << " " << change_price << " " << vol << std::endl;
             } // while 
- #endif
+#endif
             printf("pconn->AsyncSend\n");
             pconn->AsyncSend( Encode(quotation_msg, msg_system(), Message::HeaderType(0, pid(), 0)) ); 
 
         }); // std::for_each file
 
     }; // fetch_data_send
+
+    auto fenbi_code_iter = code_fenbi_container_.find(req->code());
+    if( fenbi_code_iter == code_fenbi_container_.end() )
+        fenbi_code_iter = code_fenbi_container_.insert(std::make_pair(req->code(), TDayFenbi(10*20))).first; // 10 months
+    TDayFenbi &days_fenbi = fenbi_code_iter->second;
 
     auto tm_point = TSystem::MakeTimePoint((time_t)req->beg_time().time_value(), req->beg_time().frac_sec());
     auto tm_point_end = TSystem::MakeTimePoint((time_t)req->end_time().time_value(), req->end_time().frac_sec());
@@ -577,10 +541,10 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
     auto date_vector = GetSpanTradeDates(longday_beg, longday_end);
 
     const int span_len = 5;
-    int i = 0;
+    unsigned int i = 0;
     for( ; i < date_vector.size() / span_len; ++i )
     { 
-       fetch_data_send(req, pconn, date_vector[i*span_len], date_vector[(i + 1)*span_len - 1]);
+       fetch_data_send(req, pconn, date_vector[i*span_len], date_vector[(i + 1)*span_len - 1], days_fenbi);
        if( i < 10 )
            Delay(20);
        else if(i < 20 )
@@ -591,7 +555,7 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
      
     if( date_vector.size() % span_len  )
     {
-        fetch_data_send(req, pconn, date_vector[i*span_len], date_vector[date_vector.size() - 1]);
+        fetch_data_send(req, pconn, date_vector[i*span_len], date_vector[date_vector.size() - 1], days_fenbi);
     }
 }
 

@@ -11,7 +11,24 @@
 #include "data_base.h"
 #include "exchange_calendar.h"
 
+#define  GET_HOUR(a) ((a)/10000)
+#define  GET_MINUTE(a) ((a)%10000/100)
+#define  GET_SECOND(a) ((a)%100)
+
 using namespace TSystem;
+
+class T_Fenbi
+{
+public:
+    T_Fenbi():hhmmss(0), price(0.0){}
+    T_Fenbi(int hms, float val):hhmmss(hms), price(val){}
+    T_Fenbi(T_Fenbi && lh): hhmmss(lh.hhmmss), price(lh.price){}
+    int hhmmss;
+    float price;
+};
+// ( date, fenbis)
+typedef std::unordered_map<int, std::shared_ptr<std::vector<T_Fenbi> > > TDayFenbi;
+typedef std::unordered_map<std::string, TDayFenbi> TCodeDayFenbi;
 
 class UserRequest; 
 class ExchangeCalendar;
@@ -60,6 +77,8 @@ private:
     ExchangeCalendar exchange_calendar_;
 
     DataBase data_base_;
+
+    TCodeDayFenbi  code_fenbi_container_;
 };
 
 void Delay(unsigned short mseconds);
