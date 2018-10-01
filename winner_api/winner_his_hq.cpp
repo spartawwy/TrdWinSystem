@@ -9,25 +9,15 @@
 static WinnerClient* GetInstance(bool is_del = false);
   
 extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_Connect(char* IP, int Port, char* Result, char* ErrInfo)
-{
-#if 1
+{ 
     auto ret = GetInstance()->ConnectServer(IP, Port);
     return ret ? 0 : -1;
-#else
-     GetInstance();
-     return -1;
-#endif 
-    
 }
  
 extern "C" DLLIMEXPORT void __cdecl WinnerHisHq_Disconnect()
 {
-
-#if 1 
-    GetInstance(true); 
-#else
     GetInstance()->DisConnectServer();
-#endif
+    GetInstance(true); 
 }
 
 
@@ -50,16 +40,30 @@ extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_GetHisFenbiDataBatch(char* Zqdm, 
 static WinnerClient* GetInstance(bool is_del)
 {
     static std::string pro_tag = TSystem::utility::ProjectTag("wzf");
-    static WinnerClient * winn_client_obj = nullptr;
+    static WinnerClient * winn_client_obj = nullptr; 
+
     if( is_del )
     {
         if( winn_client_obj ) 
         {
-            winn_client_obj->FireShutdown(); 
-            
+            //winn_client_obj->FireShutdown(); 
+            winn_client_obj->Shutdown(); 
         }
     }else if( !winn_client_obj )
     {
+#if 0 
+        std::thread man_thread([]()
+        {
+            winn_client_obj = new WinnerClient;
+            //while( !winn_client_obj->HasShutdown() )  // can't get Shutdown why ?
+            while( !man_thread_exit_flag )
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            }
+            delete winn_client_obj; 
+            winn_client_obj = nullptr;
+        });
+#else 
         std::thread man_thread([]()
         {
             winn_client_obj = new WinnerClient;
@@ -68,6 +72,7 @@ static WinnerClient* GetInstance(bool is_del)
             delete winn_client_obj; 
             winn_client_obj = nullptr;
         });
+#endif
         man_thread.detach();
     }
 
