@@ -37,6 +37,14 @@ extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_GetHisFenbiDataBatch(char* Zqdm, 
     return val ? 0 : -2;
 }
 
+extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_GetKData(char* Zqdm, PeriodType type, int date_begin, int date_end
+                                                           , T_KDataCallBack *call_back_para, FqType fq_type, bool is_index)
+{
+    if( !GetInstance()->is_connected() )
+        return -1;
+    // todo:
+}
+
 static WinnerClient* GetInstance(bool is_del)
 {
     static std::string pro_tag = TSystem::utility::ProjectTag("wzf");

@@ -42,6 +42,7 @@ static int DaysOneMonth(int year, int month);
 QuotationServerApp::QuotationServerApp(const std::string &name, const std::string &version)
 	: ServerAppBase("quotation_server", name, version)
     , PyFuncGetAllFill2File(nullptr)
+    , PyFuncGetKbar2File(nullptr)
     , stk_data_dir_()
     , conn_strands_(256) 
     , code_fenbi_container_(5000)
@@ -125,45 +126,76 @@ void QuotationServerApp::InitPython()
     const char* cstr_cmd = chdir_cmd.c_str(); 
     PyRun_SimpleString(cstr_cmd);
 
-    //导入模块   
+    //导入模块   fill2fill ----------------------
     PyObject* pModule = PyImport_ImportModule("get_stk_his_fill2file"); // get_stock_his.py
     if (!pModule)  
     {  
         std::cout << "QuotationServerApp::InitPython PyImport_ImportModule get_stk_his_fill2file fail " << std::endl;
-		// todo: throw exception
-		throw ""; 
+		throw ""; // todo: throw exception
     }  
     PyObject *pDic = PyModule_GetDict(pModule);
     if (!pDic)  
     {  
         std::cout << "QuotationServerApp::InitPython PyModule_GetDict of get_stk_his_fill2file fail " << std::endl;
-		// todo: throw exception
-		throw ""; 
+		throw ""; // todo: throw exception
     }  
 
     PyObject* pcls = PyObject_GetAttrString(pModule, "STOCK");   
     if (!pcls || !PyCallable_Check(pcls))  
     {  
         std::cout << "QuotationServerApp::InitPython PyObject_GetAttrString class STOCK fail " << std::endl;
-		// todo: throw exception
-		throw ""; 
+		throw ""; // todo: throw exception
     }  
  
     PyObject* p_stock_obj = PyEval_CallObject(pcls, NULL);
     if( !p_stock_obj )
     { 
         std::cout << "QuotationServerApp::InitPython PyEval_CallObject create STOCK obj fail " << std::endl;
-		// todo: throw exception
-		throw ""; 
+		throw ""; // todo: throw exception
     }
     PyFuncGetAllFill2File = PyObject_GetAttrString(p_stock_obj, "getAllFill2File");
     if( !PyFuncGetAllFill2File )
     {
         std::cout << "QuotationServerApp::InitPython get func getAllFill2File fail " << std::endl;
-		// todo: throw exception
-		throw ""; 
+		throw ""; // todo: throw exception
+    }
+
+    //导入模块   get_stk_kline ----------------------
+    PyObject* pModule_kline = PyImport_ImportModule("get_stk_kline"); // get_stock_his.py
+    if (!pModule)  
+    {  
+        std::cout << "QuotationServerApp::InitPython PyImport_ImportModule get_stk_kline fail " << std::endl;
+		throw ""; // todo: throw exception
+    }  
+    PyObject *pDic_kline = PyModule_GetDict(pModule_kline);
+    if (!pDic_kline)  
+    {  
+        std::cout << "QuotationServerApp::InitPython PyModule_GetDict of get_stk_kline fail " << std::endl;
+		throw ""; // todo: throw exception
+    }  
+
+    PyObject* pcls_kline = PyObject_GetAttrString(pModule_kline, "KLINE");   
+    if (!pcls_kline || !PyCallable_Check(pcls_kline))  
+    {  
+        std::cout << "QuotationServerApp::InitPython PyObject_GetAttrString class STOCK fail " << std::endl;
+		throw ""; // todo: throw exception
+    }  
+ 
+    PyObject* p_kline_obj = PyEval_CallObject(pcls_kline, NULL);
+    if( !p_stock_obj )
+    { 
+        std::cout << "QuotationServerApp::InitPython PyEval_CallObject create STOCK obj fail " << std::endl;
+		throw ""; // todo: throw exception
+    }
+
+    PyFuncGetKbar2File = PyObject_GetAttrString(p_kline_obj, "getDayKline");
+    if( !PyFuncGetKbar2File )
+    {
+        std::cout << "QuotationServerApp::InitPython get func getDayKline fail " << std::endl;
+		throw ""; // todo: throw exception
     }
 }
+
 
 void QuotationServerApp::HandleInboundHandShake(TSystem::communication::Connection* p, const TSystem::Message& msg)
 {
@@ -252,14 +284,37 @@ void QuotationServerApp::HandleUserLogin(const UserRequest& req, const std::shar
 
 void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn)
 {
+     switch( req->req_type() )
+     {
+     case QuotationReqType::FENBI:
+        _HandleQuotatoinFenbi(req, pconn);
+         break;
+     case QuotationReqType::ONE_MINUTE:
+         // todo: send ack
+         break;
+     case QuotationReqType::FIVE_MINUTE: // 5 minute
+     case QuotationReqType::FIFTEEN_MINUTE:
+     case QuotationReqType::THIRTY_MINUTE:
+     case QuotationReqType::HOUR:
+     case QuotationReqType::DAY:
+     case QuotationReqType::WEEK:
+     case QuotationReqType::MONTH:
+        _HandleQuotatoinKbar(req, pconn);
+         break;
+     }
+
+}
+
+void QuotationServerApp::_HandleQuotatoinFenbi(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn)
+{
    assert(req);
    assert(pconn); 
-   static auto time_to_longday = [](const Time& t_m) ->int
+  /* static auto TimeToLongday = [](const Time& t_m) ->int
    {
         auto tm_point = TSystem::MakeTimePoint((time_t)t_m.time_value(), t_m.frac_sec());
         TimePoint t_p(tm_point);
         return ToLongdate(t_p.year(), t_p.month(), t_p.day());
-   };
+   };*/
  
    static auto bar_daystr_to_longday = [](const std::string &day_str)->int
    { 
@@ -292,14 +347,15 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
          std::string year_mon_sub = year_mon + (IsShStock(code) ? "SH" : "SZ");
          return stk_data_dir + year_mon + "/" + year_mon_sub + "/" + date_format_str + "/" + code + "_" + date_format_str + ".csv";
     };
-    static auto is_sh_stock = [](const std::string& code)->bool
+   /* static auto is_sh_stock = [](const std::string& code)->bool
    {
        if( code.length() == 6 && code.at(0) == '6' )
            return true;
        else 
            return false;
-   };
+   };*/
      
+   
     static auto fetch_data_send 
         = [this](std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn, int begin_date, int end_date, TDayFenbi &days_fenbi)
     { 
@@ -346,7 +402,7 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
 
             std::string date_format_str = utility::FormatStr("%d", date);
 	        std::string year_mon = utility::FormatStr("%d%02d", (date/10000), date%10000/100);
-            std::string year_mon_sub = year_mon + (is_sh_stock(req->code()) ? "SH" : "SZ");
+            std::string year_mon_sub = year_mon + (IsShStock(req->code()) ? "SH" : "SZ");
             std::string full_path = this->stk_data_dir_ + year_mon + "/" + year_mon_sub + "/" + date_format_str + "/" + req->code() + "_" + date_format_str + ".csv";
 #endif
             //std::string id;
@@ -559,6 +615,10 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
     }
 }
 
+void QuotationServerApp::_HandleQuotatoinKbar(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn)
+{
+
+}
 
 void QuotationServerApp::SendRequestAck(int user_id, int req_id, RequestType type, const std::shared_ptr<TSystem::communication::Connection>& pconn)
 {
@@ -622,6 +682,54 @@ std::vector<std::string> QuotationServerApp::GetFenbi2File(const std::string &co
 #endif
 }
 
+std::vector<std::string> QuotationServerApp::GetKbars2File(const std::string &code, QuotationReqType type, int date_beg, int date_end
+                        ,  QuotationFqType fq_type, bool is_index)
+{
+     assert(PyFuncGetAllFill2File);
+
+    if( !IsLongDate(date_beg) || !IsLongDate(date_end) || !IsStockCode(code) )
+        return std::vector<std::string>();
+    int beg_date = (date_beg > date_end) ? date_end : date_beg;
+    int end_date = (date_beg > date_end) ? date_beg : date_end;
+     
+    auto pArg = PyTuple_New(3);
+    PyTuple_SetItem(pArg, 0, Py_BuildValue("s", code.c_str()));
+    char beg_date_str[32] = {0};
+    sprintf_s(beg_date_str, "%d-%02d-%02d\0", GET_LONGDATE_YEAR(beg_date), GET_LONGDATE_MONTH(beg_date), GET_LONGDATE_DAY(beg_date));
+    PyTuple_SetItem(pArg, 1, Py_BuildValue("s", beg_date_str));
+    char end_date_str[32] = {0};
+    sprintf_s(end_date_str, "%d-%02d-%02d\0", GET_LONGDATE_YEAR(end_date), GET_LONGDATE_MONTH(end_date), GET_LONGDATE_DAY(end_date));
+    PyTuple_SetItem(pArg, 2, Py_BuildValue("s", end_date_str));
+    
+    std::vector<std::string> ret_vector;
+    char *result;
+    try
+    {
+    auto pRet = PyEval_CallObject((PyObject*)PyFuncGetAllFill2File, pArg);
+    if( !pRet )
+    {
+        std::cout << " GetFenbi2File  PyFuncGetAllFill2File ret null! beg_date:" << beg_date << " end_date:" << end_date << std::endl;
+        local_logger().LogLocal(utility::FormatStr("GetFenbi2File  PyFuncGetAllFill2File ret null! beg_date:%d end_date:%d", beg_date, end_date));
+        return ret_vector;
+    }
+    PyArg_Parse(pRet, "s", &result);
+    
+    if( result && strlen(result) > 0 )
+    {
+        if( strstr(result, ";") )
+        {
+            ret_vector = utility::split(result, ";"); 
+        }else
+            ret_vector.push_back(result);
+        Py_XDECREF(result);
+    } 
+    }catch(...)
+    {
+        Py_XDECREF(result);
+    } 
+    //-------------------
+    return ret_vector; 
+}
 
 bool IsLeapYear(int year)
 {

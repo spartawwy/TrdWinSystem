@@ -12,12 +12,19 @@ enum QuotationReqType
 {
 	FENBI           = 0;
 	ONE_MINUTE      = 1;
-	THREE_MINUTE    = 2;
-	FIVE_MINUTE     = 3;
-	TEN_MINUTE      = 4;
-	THIRTEEN_MINUTE = 5;
-	HOUR            = 6;
-	DAY             = 7;
+	FIVE_MINUTE     = 2;
+	FIFTEEN_MINUTE  = 3;
+	THIRTY_MINUTE   = 4;
+	HOUR            = 5;
+	DAY             = 6;
+	WEEK            = 7;
+	MONTH           = 8;
+}
+enum QuotationFqType
+{
+    FQ_NO           = 0;
+    FQ_BEFORE       = 1;
+    FQ_AFTER        = 2;
 }
 
 message QuotationRequest
@@ -26,6 +33,8 @@ message QuotationRequest
 	  required  string            code     = 2;
       required  Time              beg_time = 3;
       required  Time              end_time = 4;
+      optional  bool              is_index = 5[default=true];
+      optional  QuotationFqType   fq_type  = 6[default=FQ_BEFORE];
 }
 
 
@@ -39,6 +48,17 @@ message QuotationMessage
         optional RationalNumber  price_change       = 4;
         optional bool            is_change_positive = 5[default=true];
       }
-	  required  string                code            = 1;
+      message QuotationKbarMessage
+      {
+        required uint32         yyyymmdd            =1;
+        optional uint32         hhmmdd              =2;
+        required RationalNumber open                =3;
+        required RationalNumber close               =4;
+        required RationalNumber high                =5;
+        required RationalNumber low                 =6;
+        required uint32         vol                 =7;
+      }
+	  required  string                code             = 1;
       repeated  QuotationFillMessage  quote_fill_msgs  = 2; 
+      repeated  QuotationKbarMessage  kbar_msgs        = 3;
 }

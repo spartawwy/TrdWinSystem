@@ -36,21 +36,33 @@ void protobuf_ShutdownFile_WINNERLib_2fquotation_5fmsg_2eproto();
 class QuotationRequest;
 class QuotationMessage;
 class QuotationMessage_QuotationFillMessage;
+class QuotationMessage_QuotationKbarMessage;
 
 enum QuotationReqType {
   FENBI = 0,
   ONE_MINUTE = 1,
-  THREE_MINUTE = 2,
-  FIVE_MINUTE = 3,
-  TEN_MINUTE = 4,
-  THIRTEEN_MINUTE = 5,
-  HOUR = 6,
-  DAY = 7
+  FIVE_MINUTE = 2,
+  FIFTEEN_MINUTE = 3,
+  THIRTY_MINUTE = 4,
+  HOUR = 5,
+  DAY = 6,
+  WEEK = 7,
+  MONTH = 8
 };
 bool QuotationReqType_IsValid(int value);
 const QuotationReqType QuotationReqType_MIN = FENBI;
-const QuotationReqType QuotationReqType_MAX = DAY;
+const QuotationReqType QuotationReqType_MAX = MONTH;
 const int QuotationReqType_ARRAYSIZE = QuotationReqType_MAX + 1;
+
+enum QuotationFqType {
+  FQ_NO = 0,
+  FQ_BEFORE = 1,
+  FQ_AFTER = 2
+};
+bool QuotationFqType_IsValid(int value);
+const QuotationFqType QuotationFqType_MIN = FQ_NO;
+const QuotationFqType QuotationFqType_MAX = FQ_AFTER;
+const int QuotationFqType_ARRAYSIZE = QuotationFqType_MAX + 1;
 
 // ===================================================================
 
@@ -144,6 +156,20 @@ class QuotationRequest : public ::google::protobuf::MessageLite {
   inline ::Time* release_end_time();
   inline void set_allocated_end_time(::Time* end_time);
 
+  // optional bool is_index = 5 [default = true];
+  inline bool has_is_index() const;
+  inline void clear_is_index();
+  static const int kIsIndexFieldNumber = 5;
+  inline bool is_index() const;
+  inline void set_is_index(bool value);
+
+  // optional .QuotationFqType fq_type = 6 [default = FQ_BEFORE];
+  inline bool has_fq_type() const;
+  inline void clear_fq_type();
+  static const int kFqTypeFieldNumber = 6;
+  inline ::QuotationFqType fq_type() const;
+  inline void set_fq_type(::QuotationFqType value);
+
   // @@protoc_insertion_point(class_scope:QuotationRequest)
  private:
   inline void set_has_req_type();
@@ -154,14 +180,20 @@ class QuotationRequest : public ::google::protobuf::MessageLite {
   inline void clear_has_beg_time();
   inline void set_has_end_time();
   inline void clear_has_end_time();
+  inline void set_has_is_index();
+  inline void clear_has_is_index();
+  inline void set_has_fq_type();
+  inline void clear_has_fq_type();
 
   ::std::string* code_;
   ::Time* beg_time_;
-  ::Time* end_time_;
   int req_type_;
+  bool is_index_;
+  ::Time* end_time_;
+  int fq_type_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(4 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(6 + 31) / 32];
 
   #ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
   friend void  protobuf_AddDesc_WINNERLib_2fquotation_5fmsg_2eproto_impl();
@@ -305,6 +337,157 @@ class QuotationMessage_QuotationFillMessage : public ::google::protobuf::Message
 };
 // -------------------------------------------------------------------
 
+class QuotationMessage_QuotationKbarMessage : public ::google::protobuf::MessageLite {
+ public:
+  QuotationMessage_QuotationKbarMessage();
+  virtual ~QuotationMessage_QuotationKbarMessage();
+
+  QuotationMessage_QuotationKbarMessage(const QuotationMessage_QuotationKbarMessage& from);
+
+  inline QuotationMessage_QuotationKbarMessage& operator=(const QuotationMessage_QuotationKbarMessage& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const QuotationMessage_QuotationKbarMessage& default_instance();
+
+  #ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  // Returns the internal default instance pointer. This function can
+  // return NULL thus should not be used by the user. This is intended
+  // for Protobuf internal code. Please use default_instance() declared
+  // above instead.
+  static inline const QuotationMessage_QuotationKbarMessage* internal_default_instance() {
+    return default_instance_;
+  }
+  #endif
+
+  void Swap(QuotationMessage_QuotationKbarMessage* other);
+
+  // implements Message ----------------------------------------------
+
+  QuotationMessage_QuotationKbarMessage* New() const;
+  void CheckTypeAndMergeFrom(const ::google::protobuf::MessageLite& from);
+  void CopyFrom(const QuotationMessage_QuotationKbarMessage& from);
+  void MergeFrom(const QuotationMessage_QuotationKbarMessage& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+
+  ::std::string GetTypeName() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required uint32 yyyymmdd = 1;
+  inline bool has_yyyymmdd() const;
+  inline void clear_yyyymmdd();
+  static const int kYyyymmddFieldNumber = 1;
+  inline ::google::protobuf::uint32 yyyymmdd() const;
+  inline void set_yyyymmdd(::google::protobuf::uint32 value);
+
+  // optional uint32 hhmmdd = 2;
+  inline bool has_hhmmdd() const;
+  inline void clear_hhmmdd();
+  static const int kHhmmddFieldNumber = 2;
+  inline ::google::protobuf::uint32 hhmmdd() const;
+  inline void set_hhmmdd(::google::protobuf::uint32 value);
+
+  // required .RationalNumber open = 3;
+  inline bool has_open() const;
+  inline void clear_open();
+  static const int kOpenFieldNumber = 3;
+  inline const ::RationalNumber& open() const;
+  inline ::RationalNumber* mutable_open();
+  inline ::RationalNumber* release_open();
+  inline void set_allocated_open(::RationalNumber* open);
+
+  // required .RationalNumber close = 4;
+  inline bool has_close() const;
+  inline void clear_close();
+  static const int kCloseFieldNumber = 4;
+  inline const ::RationalNumber& close() const;
+  inline ::RationalNumber* mutable_close();
+  inline ::RationalNumber* release_close();
+  inline void set_allocated_close(::RationalNumber* close);
+
+  // required .RationalNumber high = 5;
+  inline bool has_high() const;
+  inline void clear_high();
+  static const int kHighFieldNumber = 5;
+  inline const ::RationalNumber& high() const;
+  inline ::RationalNumber* mutable_high();
+  inline ::RationalNumber* release_high();
+  inline void set_allocated_high(::RationalNumber* high);
+
+  // required .RationalNumber low = 6;
+  inline bool has_low() const;
+  inline void clear_low();
+  static const int kLowFieldNumber = 6;
+  inline const ::RationalNumber& low() const;
+  inline ::RationalNumber* mutable_low();
+  inline ::RationalNumber* release_low();
+  inline void set_allocated_low(::RationalNumber* low);
+
+  // required uint32 vol = 7;
+  inline bool has_vol() const;
+  inline void clear_vol();
+  static const int kVolFieldNumber = 7;
+  inline ::google::protobuf::uint32 vol() const;
+  inline void set_vol(::google::protobuf::uint32 value);
+
+  // @@protoc_insertion_point(class_scope:QuotationMessage.QuotationKbarMessage)
+ private:
+  inline void set_has_yyyymmdd();
+  inline void clear_has_yyyymmdd();
+  inline void set_has_hhmmdd();
+  inline void clear_has_hhmmdd();
+  inline void set_has_open();
+  inline void clear_has_open();
+  inline void set_has_close();
+  inline void clear_has_close();
+  inline void set_has_high();
+  inline void clear_has_high();
+  inline void set_has_low();
+  inline void clear_has_low();
+  inline void set_has_vol();
+  inline void clear_has_vol();
+
+  ::google::protobuf::uint32 yyyymmdd_;
+  ::google::protobuf::uint32 hhmmdd_;
+  ::RationalNumber* open_;
+  ::RationalNumber* close_;
+  ::RationalNumber* high_;
+  ::RationalNumber* low_;
+  ::google::protobuf::uint32 vol_;
+
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 _has_bits_[(7 + 31) / 32];
+
+  #ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  friend void  protobuf_AddDesc_WINNERLib_2fquotation_5fmsg_2eproto_impl();
+  #else
+  friend void  protobuf_AddDesc_WINNERLib_2fquotation_5fmsg_2eproto();
+  #endif
+  friend void protobuf_AssignDesc_WINNERLib_2fquotation_5fmsg_2eproto();
+  friend void protobuf_ShutdownFile_WINNERLib_2fquotation_5fmsg_2eproto();
+
+  void InitAsDefaultInstance();
+  static QuotationMessage_QuotationKbarMessage* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class QuotationMessage : public ::google::protobuf::MessageLite {
  public:
   QuotationMessage();
@@ -357,6 +540,7 @@ class QuotationMessage : public ::google::protobuf::MessageLite {
   // nested types ----------------------------------------------------
 
   typedef QuotationMessage_QuotationFillMessage QuotationFillMessage;
+  typedef QuotationMessage_QuotationKbarMessage QuotationKbarMessage;
 
   // accessors -------------------------------------------------------
 
@@ -384,6 +568,18 @@ class QuotationMessage : public ::google::protobuf::MessageLite {
   inline ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationFillMessage >*
       mutable_quote_fill_msgs();
 
+  // repeated .QuotationMessage.QuotationKbarMessage kbar_msgs = 3;
+  inline int kbar_msgs_size() const;
+  inline void clear_kbar_msgs();
+  static const int kKbarMsgsFieldNumber = 3;
+  inline const ::QuotationMessage_QuotationKbarMessage& kbar_msgs(int index) const;
+  inline ::QuotationMessage_QuotationKbarMessage* mutable_kbar_msgs(int index);
+  inline ::QuotationMessage_QuotationKbarMessage* add_kbar_msgs();
+  inline const ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationKbarMessage >&
+      kbar_msgs() const;
+  inline ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationKbarMessage >*
+      mutable_kbar_msgs();
+
   // @@protoc_insertion_point(class_scope:QuotationMessage)
  private:
   inline void set_has_code();
@@ -391,9 +587,10 @@ class QuotationMessage : public ::google::protobuf::MessageLite {
 
   ::std::string* code_;
   ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationFillMessage > quote_fill_msgs_;
+  ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationKbarMessage > kbar_msgs_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
 
   #ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
   friend void  protobuf_AddDesc_WINNERLib_2fquotation_5fmsg_2eproto_impl();
@@ -590,6 +787,51 @@ inline void QuotationRequest::set_allocated_end_time(::Time* end_time) {
   }
 }
 
+// optional bool is_index = 5 [default = true];
+inline bool QuotationRequest::has_is_index() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void QuotationRequest::set_has_is_index() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void QuotationRequest::clear_has_is_index() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void QuotationRequest::clear_is_index() {
+  is_index_ = true;
+  clear_has_is_index();
+}
+inline bool QuotationRequest::is_index() const {
+  return is_index_;
+}
+inline void QuotationRequest::set_is_index(bool value) {
+  set_has_is_index();
+  is_index_ = value;
+}
+
+// optional .QuotationFqType fq_type = 6 [default = FQ_BEFORE];
+inline bool QuotationRequest::has_fq_type() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+inline void QuotationRequest::set_has_fq_type() {
+  _has_bits_[0] |= 0x00000020u;
+}
+inline void QuotationRequest::clear_has_fq_type() {
+  _has_bits_[0] &= ~0x00000020u;
+}
+inline void QuotationRequest::clear_fq_type() {
+  fq_type_ = 1;
+  clear_has_fq_type();
+}
+inline ::QuotationFqType QuotationRequest::fq_type() const {
+  return static_cast< ::QuotationFqType >(fq_type_);
+}
+inline void QuotationRequest::set_fq_type(::QuotationFqType value) {
+  assert(::QuotationFqType_IsValid(value));
+  set_has_fq_type();
+  fq_type_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // QuotationMessage_QuotationFillMessage
@@ -766,6 +1008,244 @@ inline void QuotationMessage_QuotationFillMessage::set_is_change_positive(bool v
 
 // -------------------------------------------------------------------
 
+// QuotationMessage_QuotationKbarMessage
+
+// required uint32 yyyymmdd = 1;
+inline bool QuotationMessage_QuotationKbarMessage::has_yyyymmdd() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void QuotationMessage_QuotationKbarMessage::set_has_yyyymmdd() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void QuotationMessage_QuotationKbarMessage::clear_has_yyyymmdd() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void QuotationMessage_QuotationKbarMessage::clear_yyyymmdd() {
+  yyyymmdd_ = 0u;
+  clear_has_yyyymmdd();
+}
+inline ::google::protobuf::uint32 QuotationMessage_QuotationKbarMessage::yyyymmdd() const {
+  return yyyymmdd_;
+}
+inline void QuotationMessage_QuotationKbarMessage::set_yyyymmdd(::google::protobuf::uint32 value) {
+  set_has_yyyymmdd();
+  yyyymmdd_ = value;
+}
+
+// optional uint32 hhmmdd = 2;
+inline bool QuotationMessage_QuotationKbarMessage::has_hhmmdd() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void QuotationMessage_QuotationKbarMessage::set_has_hhmmdd() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void QuotationMessage_QuotationKbarMessage::clear_has_hhmmdd() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void QuotationMessage_QuotationKbarMessage::clear_hhmmdd() {
+  hhmmdd_ = 0u;
+  clear_has_hhmmdd();
+}
+inline ::google::protobuf::uint32 QuotationMessage_QuotationKbarMessage::hhmmdd() const {
+  return hhmmdd_;
+}
+inline void QuotationMessage_QuotationKbarMessage::set_hhmmdd(::google::protobuf::uint32 value) {
+  set_has_hhmmdd();
+  hhmmdd_ = value;
+}
+
+// required .RationalNumber open = 3;
+inline bool QuotationMessage_QuotationKbarMessage::has_open() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void QuotationMessage_QuotationKbarMessage::set_has_open() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void QuotationMessage_QuotationKbarMessage::clear_has_open() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void QuotationMessage_QuotationKbarMessage::clear_open() {
+  if (open_ != NULL) open_->::RationalNumber::Clear();
+  clear_has_open();
+}
+inline const ::RationalNumber& QuotationMessage_QuotationKbarMessage::open() const {
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  return open_ != NULL ? *open_ : *default_instance().open_;
+#else
+  return open_ != NULL ? *open_ : *default_instance_->open_;
+#endif
+}
+inline ::RationalNumber* QuotationMessage_QuotationKbarMessage::mutable_open() {
+  set_has_open();
+  if (open_ == NULL) open_ = new ::RationalNumber;
+  return open_;
+}
+inline ::RationalNumber* QuotationMessage_QuotationKbarMessage::release_open() {
+  clear_has_open();
+  ::RationalNumber* temp = open_;
+  open_ = NULL;
+  return temp;
+}
+inline void QuotationMessage_QuotationKbarMessage::set_allocated_open(::RationalNumber* open) {
+  delete open_;
+  open_ = open;
+  if (open) {
+    set_has_open();
+  } else {
+    clear_has_open();
+  }
+}
+
+// required .RationalNumber close = 4;
+inline bool QuotationMessage_QuotationKbarMessage::has_close() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void QuotationMessage_QuotationKbarMessage::set_has_close() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void QuotationMessage_QuotationKbarMessage::clear_has_close() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void QuotationMessage_QuotationKbarMessage::clear_close() {
+  if (close_ != NULL) close_->::RationalNumber::Clear();
+  clear_has_close();
+}
+inline const ::RationalNumber& QuotationMessage_QuotationKbarMessage::close() const {
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  return close_ != NULL ? *close_ : *default_instance().close_;
+#else
+  return close_ != NULL ? *close_ : *default_instance_->close_;
+#endif
+}
+inline ::RationalNumber* QuotationMessage_QuotationKbarMessage::mutable_close() {
+  set_has_close();
+  if (close_ == NULL) close_ = new ::RationalNumber;
+  return close_;
+}
+inline ::RationalNumber* QuotationMessage_QuotationKbarMessage::release_close() {
+  clear_has_close();
+  ::RationalNumber* temp = close_;
+  close_ = NULL;
+  return temp;
+}
+inline void QuotationMessage_QuotationKbarMessage::set_allocated_close(::RationalNumber* close) {
+  delete close_;
+  close_ = close;
+  if (close) {
+    set_has_close();
+  } else {
+    clear_has_close();
+  }
+}
+
+// required .RationalNumber high = 5;
+inline bool QuotationMessage_QuotationKbarMessage::has_high() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void QuotationMessage_QuotationKbarMessage::set_has_high() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void QuotationMessage_QuotationKbarMessage::clear_has_high() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void QuotationMessage_QuotationKbarMessage::clear_high() {
+  if (high_ != NULL) high_->::RationalNumber::Clear();
+  clear_has_high();
+}
+inline const ::RationalNumber& QuotationMessage_QuotationKbarMessage::high() const {
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  return high_ != NULL ? *high_ : *default_instance().high_;
+#else
+  return high_ != NULL ? *high_ : *default_instance_->high_;
+#endif
+}
+inline ::RationalNumber* QuotationMessage_QuotationKbarMessage::mutable_high() {
+  set_has_high();
+  if (high_ == NULL) high_ = new ::RationalNumber;
+  return high_;
+}
+inline ::RationalNumber* QuotationMessage_QuotationKbarMessage::release_high() {
+  clear_has_high();
+  ::RationalNumber* temp = high_;
+  high_ = NULL;
+  return temp;
+}
+inline void QuotationMessage_QuotationKbarMessage::set_allocated_high(::RationalNumber* high) {
+  delete high_;
+  high_ = high;
+  if (high) {
+    set_has_high();
+  } else {
+    clear_has_high();
+  }
+}
+
+// required .RationalNumber low = 6;
+inline bool QuotationMessage_QuotationKbarMessage::has_low() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+inline void QuotationMessage_QuotationKbarMessage::set_has_low() {
+  _has_bits_[0] |= 0x00000020u;
+}
+inline void QuotationMessage_QuotationKbarMessage::clear_has_low() {
+  _has_bits_[0] &= ~0x00000020u;
+}
+inline void QuotationMessage_QuotationKbarMessage::clear_low() {
+  if (low_ != NULL) low_->::RationalNumber::Clear();
+  clear_has_low();
+}
+inline const ::RationalNumber& QuotationMessage_QuotationKbarMessage::low() const {
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  return low_ != NULL ? *low_ : *default_instance().low_;
+#else
+  return low_ != NULL ? *low_ : *default_instance_->low_;
+#endif
+}
+inline ::RationalNumber* QuotationMessage_QuotationKbarMessage::mutable_low() {
+  set_has_low();
+  if (low_ == NULL) low_ = new ::RationalNumber;
+  return low_;
+}
+inline ::RationalNumber* QuotationMessage_QuotationKbarMessage::release_low() {
+  clear_has_low();
+  ::RationalNumber* temp = low_;
+  low_ = NULL;
+  return temp;
+}
+inline void QuotationMessage_QuotationKbarMessage::set_allocated_low(::RationalNumber* low) {
+  delete low_;
+  low_ = low;
+  if (low) {
+    set_has_low();
+  } else {
+    clear_has_low();
+  }
+}
+
+// required uint32 vol = 7;
+inline bool QuotationMessage_QuotationKbarMessage::has_vol() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
+}
+inline void QuotationMessage_QuotationKbarMessage::set_has_vol() {
+  _has_bits_[0] |= 0x00000040u;
+}
+inline void QuotationMessage_QuotationKbarMessage::clear_has_vol() {
+  _has_bits_[0] &= ~0x00000040u;
+}
+inline void QuotationMessage_QuotationKbarMessage::clear_vol() {
+  vol_ = 0u;
+  clear_has_vol();
+}
+inline ::google::protobuf::uint32 QuotationMessage_QuotationKbarMessage::vol() const {
+  return vol_;
+}
+inline void QuotationMessage_QuotationKbarMessage::set_vol(::google::protobuf::uint32 value) {
+  set_has_vol();
+  vol_ = value;
+}
+
+// -------------------------------------------------------------------
+
 // QuotationMessage
 
 // required string code = 1;
@@ -861,6 +1341,31 @@ QuotationMessage::quote_fill_msgs() const {
 inline ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationFillMessage >*
 QuotationMessage::mutable_quote_fill_msgs() {
   return &quote_fill_msgs_;
+}
+
+// repeated .QuotationMessage.QuotationKbarMessage kbar_msgs = 3;
+inline int QuotationMessage::kbar_msgs_size() const {
+  return kbar_msgs_.size();
+}
+inline void QuotationMessage::clear_kbar_msgs() {
+  kbar_msgs_.Clear();
+}
+inline const ::QuotationMessage_QuotationKbarMessage& QuotationMessage::kbar_msgs(int index) const {
+  return kbar_msgs_.Get(index);
+}
+inline ::QuotationMessage_QuotationKbarMessage* QuotationMessage::mutable_kbar_msgs(int index) {
+  return kbar_msgs_.Mutable(index);
+}
+inline ::QuotationMessage_QuotationKbarMessage* QuotationMessage::add_kbar_msgs() {
+  return kbar_msgs_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationKbarMessage >&
+QuotationMessage::kbar_msgs() const {
+  return kbar_msgs_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationKbarMessage >*
+QuotationMessage::mutable_kbar_msgs() {
+  return &kbar_msgs_;
 }
 
 

@@ -16,8 +16,8 @@
 
 #include "winner_hq_api.h"
 
-//#define  TEST_API
-#define  TEST_OHTER
+#define  TEST_API
+//#define  TEST_OHTER
 
 #ifdef TEST_OHTER
 using namespace TSystem;
@@ -128,11 +128,15 @@ void testFenbiStrMatch()
 }
 
 void Test_GetFenbi(const std::string &start, const std::string &end, const std::string &code);
+void Test_GetHisData(const std::string &start, const std::string &end, const std::string &code, PeriodType period_type);
+
+static int bar_daystr_to_longday(const std::string &day_str);
+static bool is_sh_stock(const std::string& code);
 
 int main()
 {  
-   Test_GetFenbi("2018-07-02", "2018-07-03", "600196");
-
+   // Test_GetFenbi("2018-07-02", "2018-07-03", "600196");
+    
     //-------------------
 #if 0  //simple test
     char content[] = "2018-8-1,09:25:03,37.29,606,606,2259774,37.14,14,37.11,20,37.06,2,37.03,32,37.02,27,37.29,139,37.30,16,37.31,14,37.32,13,37.33,89,B";
@@ -153,29 +157,7 @@ int main()
 #endif 
 #ifdef TEST_MATCH
     testFenbiStrMatch();
-    static auto bar_daystr_to_longday = [](const std::string &day_str)->int
-    {
-        auto tmp_str = day_str;
-        TSystem::utility::replace_all( *const_cast<std::string*>(&tmp_str), "-", ""); 
-        try
-        {
-            std::stoi(tmp_str);
-        }catch(std::exception &e)
-        {
-            std::cout << "bar_daystr_to_longday error: '" << day_str << "' " << e.what() << std::endl;
-            return 0;
-        }catch(...)
-        {
-            std::cout <<"bar_daystr_to_longday error: '" << day_str << "' "  << std::endl;
-            return 0;
-        }
-
-        assert(day_str.size() == 10 ); // strlen("yyyy-mm-dd") == 10
-        int year, mon, day;
-        sscanf_s(day_str.c_str(), "%04d-%02d-%02d", &year, &mon, &day);
-        return ToLongdate(year, mon, day);
-         
-    };
+      
     std::string src = "2018-01-02";
     int dy = bar_daystr_to_longday(src);
     auto std_tp = TSystem::MakeTimePoint(2018, 3, 8);
@@ -225,7 +207,6 @@ int main()
     bool exit = false;
 	while( !exit )
 	{
-
 		std::getline(std::cin, cmd);
 		std::cout << cmd << std::endl;
         
@@ -260,12 +241,23 @@ int main()
             auto val_ret = WinnerHisHq_GetHisFenbiData(const_cast<char*>(args[1].c_str()), date, &callbk_obj_vector[0], error);
             if( val_ret != 0 )
                 std::cout << " WinnerHisHq_GetHisFenbiData fail: " << error << std::endl;
+        }else if( args[0] == "HISDATA" ) // HISDATA  stock period_type(1:30m, 2:hour, 3:day,4:week,5:mon) start_date end_date  --yyyymmdd
+        {
+            if( args.size() < 5 )
+            {
+                printf("command not corrent!\n");
+                continue;
+            }
+
+            // todo: Get_K_Data(
         }else 
         {
              printf("Can't recognize this command!\n");
         }
 
     }
+
+    //Test_GetHisData("600196", "2018-07-02", "2018-07-03", PeriodType::PERIOD_HOUR);
 
 #if 1
     if( WinnerHisHq_DisConnect )
@@ -279,37 +271,7 @@ int main()
 
 void Test_GetFenbi(const std::string &start, const std::string &end, const std::string &code)
 {
-   static auto bar_daystr_to_longday = [](const std::string &day_str)->int
-   { 
-       int year, mon, day;
-#if 1
-       std::string partten_string = "^(\\d{4})-(\\d{1,2})-(\\d{1,2})$"; 
-       std::regex regex_obj(partten_string); 
-       std::smatch result; 
-       if( std::regex_match(day_str.cbegin(), day_str.cend(), result, regex_obj) )
-       {
-           try
-           {
-               year = boost::lexical_cast<int>(result[1]);
-               mon = boost::lexical_cast<int>(result[2]);
-               day = boost::lexical_cast<int>(result[3]);
-           }catch(boost::exception&)
-           {
-                return 0;
-           }
-           std::cout << result[1] << " " << result[2] << " " << result[3] << " " << result[4] << std::endl;
-       }
-#endif
-       return ToLongdate(year, mon, day);
-   };
-
-   static auto is_sh_stock = [](const std::string& code)->bool
-   {
-       if( code.length() == 6 && code.at(0) == '6' )
-           return true;
-       else 
-           return false;
-   };
+   
 #if 0
     char buffer[256] = {0};
     std::string full_path = "D:/ProgramData/Stock_Data/201808/20180801/20180801SH/600196_20180801.csv";
@@ -396,6 +358,11 @@ void Test_GetFenbi(const std::string &start, const std::string &end, const std::
 
 }
 
+void Test_GetHisData(const std::string &start, const std::string &end, const std::string &code, PeriodType period_type)
+{
+
+}
+
 void FenbiCallBackFun(T_QuoteAtomData *quote_data, bool is_end, void *para)
 {
     if( quote_data )
@@ -405,4 +372,36 @@ void FenbiCallBackFun(T_QuoteAtomData *quote_data, bool is_end, void *para)
     }
     if( is_end )
         is_end = is_end;
+}
+
+
+int bar_daystr_to_longday(const std::string &day_str)
+{ 
+    int year, mon, day;
+    std::string partten_string = "^(\\d{4})-(\\d{1,2})-(\\d{1,2})$"; 
+    std::regex regex_obj(partten_string); 
+    std::smatch result; 
+    if( std::regex_match(day_str.cbegin(), day_str.cend(), result, regex_obj) )
+    {
+        try
+        {
+            year = boost::lexical_cast<int>(result[1]);
+            mon = boost::lexical_cast<int>(result[2]);
+            day = boost::lexical_cast<int>(result[3]);
+        }catch(boost::exception&)
+        {
+            return 0;
+        }
+        std::cout << result[1] << " " << result[2] << " " << result[3] << " " << result[4] << std::endl;
+    }
+
+    return ToLongdate(year, mon, day);
+}
+
+bool is_sh_stock(const std::string& code)
+{
+    if( code.length() == 6 && code.at(0) == '6' )
+        return true;
+    else 
+        return false;
 }

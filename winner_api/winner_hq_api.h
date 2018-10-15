@@ -32,6 +32,17 @@ typedef struct _t_quote_atom_data
     unsigned char bid_type; // 0: buy_pan  1 :sell_pan
 }T_QuoteAtomData;
 
+typedef struct _t_k_data
+{
+    int yyyymmdd;
+    int hhmmdd;
+    double open;
+    double close;
+    double high;
+    double low;
+    int vol;
+}T_K_Data;
+
 typedef void (*FenbiCallBack)(T_QuoteAtomData *quote_data, bool is_end, void *para);
 typedef struct _t_fenbi_call_back
 {
@@ -42,7 +53,21 @@ typedef struct _t_fenbi_call_back
     _t_fenbi_call_back() : call_back_func(nullptr), para(nullptr), date(0), serial(0){} 
     _t_fenbi_call_back(const _t_fenbi_call_back &lh) : call_back_func(lh.call_back_func), para(lh.para), date(lh.date), serial(lh.serial){} 
 }T_FenbiCallBack;
-/// <summary>
+
+ //----------------------------
+typedef void (*KDataCallBack)(T_K_Data *k_data, bool is_end, void *para);
+typedef struct _t_kdata_call_back
+{
+    KDataCallBack  call_back_func;
+    void *para;
+    int date;
+    unsigned int serial;
+    _t_kdata_call_back() : call_back_func(nullptr), para(nullptr), date(0), serial(0){} 
+    _t_kdata_call_back(const _t_kdata_call_back &lh) : call_back_func(lh.call_back_func), para(lh.para), date(lh.date), serial(lh.serial){} 
+}T_KDataCallBack;
+
+
+ 
 /// 获取历史分时数据
 /// </summary>
 /// <param name="Zqdm">证券代码</param>
@@ -62,6 +87,23 @@ typedef int (__cdecl* WinnerHisHq_GetHisFenbiDataDelegate)(char* Zqdm, int Date,
 /// <returns>成功返回0, 失败返回其他 -1--未连接</returns>
 typedef int (__cdecl* WinnerHisHq_GetHisFenbiDataBatchDelegate)(char* Zqdm, int date_begin, int date_end, T_FenbiCallBack *call_back_para, char* ErrInfo);
 
+enum class PeriodType : unsigned char
+{
+    PERIOD_5M = 1,
+    PERIOD_15M,
+    PERIOD_30M,
+    PERIOD_HOUR,
+    PERIOD_DAY,
+    PERIOD_WEEK,
+    PERIOD_MON,
+};
+
+enum class FqType : unsigned char
+{
+    FQ_NO, 
+    FQ_BEFORE,  //前复权
+    FQ_AFTER,   //后复权
+};
 /// <summary>
 /// 获取证券指定范围的的K线数据
 /// </summary>
@@ -72,8 +114,14 @@ typedef int (__cdecl* WinnerHisHq_GetHisFenbiDataBatchDelegate)(char* Zqdm, int 
 /// <param name="Count">范围的大小，API执行前,表示用户要请求的K线数目, API执行后,保存了实际返回的K线数目, 最大值800</param>
 /// <param name="Result">此API执行返回后，Result内保存了返回的查询数据, 形式为表格数据，行数据之间通过\n字符分割，列数据之间通过\t分隔。一般要分配1024*1024字节的空间。出错时为空字符串。</param>
 /// <param name="ErrInfo">此API执行返回后，如果出错，保存了错误信息说明。一般要分配256字节的空间。没出错时为空字符串。</param>
-/// <returns>成功返货true, 失败返回false</returns>
+/// <returns>成功返货0, 失败返回 < 0</returns>
 //typedef bool(__cdecl* TdxHq_GetSecurityBarsDelegate)(byte Category, byte Market, char* Zqdm, short Start, short& Count, char* Result, char* ErrInfo);
 /// <summary>
+
+typedef int (__cdecl* WinnerHisHq_GetKDataDelegate)(char* Zqdm, PeriodType type, int date_begin, int date_end
+                                                           , T_KDataCallBack *call_back_para, FqType fq_type, bool is_index);
+
+
+
 
 #endif // WINNER_API_SDF32DF_H_

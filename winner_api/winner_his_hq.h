@@ -15,4 +15,7 @@ extern "C" DLLIMEXPORT void __cdecl WinnerHisHq_Disconnect();
 
 extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_GetHisFenbiData(char* Zqdm, int Date, T_FenbiCallBack *call_back_para, char* ErrInfo);
 extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_GetHisFenbiDataBatch(char* Zqdm, int date_begin, int date_end, T_FenbiCallBack *call_back_para, char* ErrInfo);
+
+extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_GetKData(char* Zqdm, PeriodType type, int date_begin, int date_end
+                                                           , T_KDataCallBack *call_back_para, FqType fq_type, bool is_index);
 #endif // WINNER_HIS_HQ_SDF23DFSD_H_

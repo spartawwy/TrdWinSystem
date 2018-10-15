@@ -59,15 +59,21 @@ private:
 	void HandleUserLogin(const UserRequest& req, const std::shared_ptr<communication::Connection>& pconn);
 
     void HandleQuotationRequest(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn);
+    void _HandleQuotatoinFenbi(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn);
+    void _HandleQuotatoinKbar(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn);
 
 	void SendRequestAck(int user_id, int req_id, RequestType type, const std::shared_ptr<TSystem::communication::Connection>& pconn);
 
     // date_beg : yyyyMMdd 
     std::vector<std::string> GetFenbi2File(const std::string &code, int date_beg, int date_end);
+    // ret file names 
+    std::vector<std::string> GetKbars2File(const std::string &code, QuotationReqType type, int date_beg, int date_end
+                        ,  QuotationFqType fq_type=QuotationFqType::FQ_BEFORE, bool is_index=false);
 
 private:
 
     void *PyFuncGetAllFill2File;
+    void *PyFuncGetKbar2File;
     std::string stk_data_dir_;
     // ------------
     typedef std::unordered_map<int, std::shared_ptr<TaskStrand> > TConnidMapStrand;
