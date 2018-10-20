@@ -67,13 +67,13 @@ private:
     // date_beg : yyyyMMdd 
     std::vector<std::string> GetFenbi2File(const std::string &code, int date_beg, int date_end);
     // ret file names 
-    std::vector<std::string> GetKbars2File(const std::string &code, QuotationReqType type, int date_beg, int date_end
+    std::vector<std::string> GetDayKbars2File(const std::string &code, int date_beg, int date_end
                         ,  QuotationFqType fq_type=QuotationFqType::FQ_BEFORE, bool is_index=false);
 
 private:
 
     void *PyFuncGetAllFill2File;
-    void *PyFuncGetKbar2File;
+    void *PyFuncGetDayKbar2File;
     std::string stk_data_dir_;
     // ------------
     typedef std::unordered_map<int, std::shared_ptr<TaskStrand> > TConnidMapStrand;

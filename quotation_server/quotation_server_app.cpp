@@ -29,7 +29,7 @@
 #define  GET_LONGDATE_MONTH(a) (assert(a > 10000000), (a%10000)/100)
 #define  GET_LONGDATE_DAY(a) (assert(a > 10000000), (a%100))
 
-#define  HIS_DATA_ALREAD
+#define  FENBI_DATA_ALREAD
 
 static bool IsLongDate(int date);
 static bool IsStockCode(const std::string &code);
@@ -42,7 +42,7 @@ static int DaysOneMonth(int year, int month);
 QuotationServerApp::QuotationServerApp(const std::string &name, const std::string &version)
 	: ServerAppBase("quotation_server", name, version)
     , PyFuncGetAllFill2File(nullptr)
-    , PyFuncGetKbar2File(nullptr)
+    , PyFuncGetDayKbar2File(nullptr)
     , stk_data_dir_()
     , conn_strands_(256) 
     , code_fenbi_container_(5000)
@@ -52,9 +52,7 @@ QuotationServerApp::QuotationServerApp(const std::string &name, const std::strin
 
 QuotationServerApp::~QuotationServerApp()
 {
-#ifndef HIS_DATA_ALREAD
 	Py_Finalize();
-#endif
 }
 
 void QuotationServerApp::Initiate()
@@ -66,9 +64,9 @@ void QuotationServerApp::Initiate()
 
     for( int i = 0; i < 2; ++i )
         task_pool_.AddWorker();
-#ifndef HIS_DATA_ALREAD
+ 
 	InitPython();
-#endif
+
     char stk_data_dir[256] = {0};
 	unsigned int ret_env_size = sizeof(stk_data_dir);
 	getenv_s(&ret_env_size, stk_data_dir, ret_env_size, "STK_DATA_DIR");
@@ -188,10 +186,10 @@ void QuotationServerApp::InitPython()
 		throw ""; // todo: throw exception
     }
 
-    PyFuncGetKbar2File = PyObject_GetAttrString(p_kline_obj, "getDayKline");
-    if( !PyFuncGetKbar2File )
+    PyFuncGetDayKbar2File = PyObject_GetAttrString(p_kline_obj, "getDayKBarData");
+    if( !PyFuncGetDayKbar2File )
     {
-        std::cout << "QuotationServerApp::InitPython get func getDayKline fail " << std::endl;
+        std::cout << "QuotationServerApp::InitPython get func getDayKBarData fail " << std::endl;
 		throw ""; // todo: throw exception
     }
 }
@@ -309,12 +307,6 @@ void QuotationServerApp::_HandleQuotatoinFenbi(std::shared_ptr<QuotationRequest>
 {
    assert(req);
    assert(pconn); 
-  /* static auto TimeToLongday = [](const Time& t_m) ->int
-   {
-        auto tm_point = TSystem::MakeTimePoint((time_t)t_m.time_value(), t_m.frac_sec());
-        TimePoint t_p(tm_point);
-        return ToLongdate(t_p.year(), t_p.month(), t_p.day());
-   };*/
  
    static auto bar_daystr_to_longday = [](const std::string &day_str)->int
    { 
@@ -347,19 +339,11 @@ void QuotationServerApp::_HandleQuotatoinFenbi(std::shared_ptr<QuotationRequest>
          std::string year_mon_sub = year_mon + (IsShStock(code) ? "SH" : "SZ");
          return stk_data_dir + year_mon + "/" + year_mon_sub + "/" + date_format_str + "/" + code + "_" + date_format_str + ".csv";
     };
-   /* static auto is_sh_stock = [](const std::string& code)->bool
-   {
-       if( code.length() == 6 && code.at(0) == '6' )
-           return true;
-       else 
-           return false;
-   };*/
-     
-   
+  
     static auto fetch_data_send 
         = [this](std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn, int begin_date, int end_date, TDayFenbi &days_fenbi)
     { 
-#ifndef HIS_DATA_ALREAD 
+#ifndef FENBI_DATA_ALREAD 
         auto ret_date_str_vector = GetFenbi2File(req->code(), begin_date, end_date);
         std::for_each( std::begin(ret_date_str_vector), std::end(ret_date_str_vector), [&req, &pconn, this](const std::string &entry)
         { 
@@ -417,7 +401,7 @@ void QuotationServerApp::_HandleQuotatoinFenbi(std::shared_ptr<QuotationRequest>
             std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d{2}):(\\d{2}):(\\d{2}),(\\d+\\.\\d+),(\\d+)(.*)$"; 
             std::regex regex_obj(partten_string); 
             
-#ifdef HIS_DATA_ALREAD
+#ifdef FENBI_DATA_ALREAD
              
              char buf[256] = {0};
              std::fstream in(full_path);
@@ -617,7 +601,27 @@ void QuotationServerApp::_HandleQuotatoinFenbi(std::shared_ptr<QuotationRequest>
 
 void QuotationServerApp::_HandleQuotatoinKbar(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn)
 {
+    auto tm_point = TSystem::MakeTimePoint((time_t)req->beg_time().time_value(), req->beg_time().frac_sec());
+    auto tm_point_end = TSystem::MakeTimePoint((time_t)req->end_time().time_value(), req->end_time().frac_sec());
 
+    TimePoint t_p(tm_point);
+    int longday_beg = ToLongdate(t_p.year(), t_p.month(), t_p.day());
+
+    TimePoint t_p_end(tm_point_end);
+    int longday_end = ToLongdate(t_p_end.year(), t_p_end.month(), t_p_end.day());
+
+    if( req->req_type() == QuotationReqType::DAY )
+    {
+        std::vector<std::string> ret_date_str_vector = GetDayKbars2File(req->code(), longday_beg, longday_end, req->fq_type(), req->is_index());
+         
+        std::for_each( std::begin(ret_date_str_vector), std::end(ret_date_str_vector), [&req, &pconn, this](const std::string &entry)
+        { 
+            std::string full_path = this->stk_data_dir_ + req->code() + "/kline/" + entry;
+            QuotationMessage quotation_msg;
+            quotation_msg.set_code(req->code());
+        });
+        //PyFuncGetDayKbar2File()
+    }
 }
 
 void QuotationServerApp::SendRequestAck(int user_id, int req_id, RequestType type, const std::shared_ptr<TSystem::communication::Connection>& pconn)
@@ -631,7 +635,7 @@ void QuotationServerApp::SendRequestAck(int user_id, int req_id, RequestType typ
 
 std::vector<std::string> QuotationServerApp::GetFenbi2File(const std::string &code, int date_beg, int date_end)
 {
-#ifdef HIS_DATA_ALREAD
+#ifdef FENBI_DATA_ALREAD
     return std::vector<std::string>();
 
 #else
@@ -682,10 +686,10 @@ std::vector<std::string> QuotationServerApp::GetFenbi2File(const std::string &co
 #endif
 }
 
-std::vector<std::string> QuotationServerApp::GetKbars2File(const std::string &code, QuotationReqType type, int date_beg, int date_end
+std::vector<std::string> QuotationServerApp::GetDayKbars2File(const std::string &code, int date_beg, int date_end
                         ,  QuotationFqType fq_type, bool is_index)
 {
-     assert(PyFuncGetAllFill2File);
+    assert(PyFuncGetDayKbar2File);
 
     if( !IsLongDate(date_beg) || !IsLongDate(date_end) || !IsStockCode(code) )
         return std::vector<std::string>();
@@ -705,11 +709,11 @@ std::vector<std::string> QuotationServerApp::GetKbars2File(const std::string &co
     char *result;
     try
     {
-    auto pRet = PyEval_CallObject((PyObject*)PyFuncGetAllFill2File, pArg);
+    auto pRet = PyEval_CallObject((PyObject*)PyFuncGetDayKbar2File, pArg);
     if( !pRet )
     {
-        std::cout << " GetFenbi2File  PyFuncGetAllFill2File ret null! beg_date:" << beg_date << " end_date:" << end_date << std::endl;
-        local_logger().LogLocal(utility::FormatStr("GetFenbi2File  PyFuncGetAllFill2File ret null! beg_date:%d end_date:%d", beg_date, end_date));
+        std::cout << " GetDayKbars2File  PyFuncGetDayKbar2File ret null! beg_date:" << beg_date << " end_date:" << end_date << std::endl;
+        local_logger().LogLocal(utility::FormatStr("GetDayKbars2File  PyFuncGetDayKbar2File ret null! beg_date:%d end_date:%d", beg_date, end_date));
         return ret_vector;
     }
     PyArg_Parse(pRet, "s", &result);

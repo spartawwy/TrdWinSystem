@@ -23,6 +23,8 @@ public:
 
     bool RequestFenbiHisData(char* Zqdm, int Date, T_FenbiCallBack *call_back_para, char* ErrInfo);
     bool RequestFenbiHisDataBatch(char* Zqdm, int date_begin, int date_end, T_FenbiCallBack *call_back_para, char* ErrInfo);
+    bool RequestKData(char* Zqdm, PeriodType type, int date_begin, int date_end
+                    , T_KDataCallBack *call_back_para, bool is_index, char* ErrInfo);
 
 private:
 
@@ -54,5 +56,6 @@ private:
     bool is_connected_;
     
     T_FenbiCallBack *call_back_para_; 
+    T_KDataCallBack *kdata_call_back_para_;
 };
 #endif // WINNER_CLIENT_SDF3SDFSDF_H_

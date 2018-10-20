@@ -23,6 +23,7 @@ WinnerClient::WinnerClient()
     , strand_(task_pool())
     , is_connected_(false)
     , call_back_para_(nullptr)
+    , kdata_call_back_para_(nullptr)
 {
     try
     {
@@ -266,6 +267,53 @@ bool WinnerClient::RequestFenbiHisDataBatch(char* Zqdm, int date_begin, int date
 
     pconn_->AsyncSend( Encode(quotation_req, msg_system_, Message::HeaderType(0, pid(), 0)));
     return true; 
+}
+
+bool WinnerClient::RequestKData(char* Zqdm, PeriodType type, int date_begin, int date_end
+                  , T_KDataCallBack *call_back_para, bool is_index, char* ErrInfo)
+{
+    if( !is_connected_ || !pconn_ )
+    {
+        if( ErrInfo ) strcpy(ErrInfo, "server is not connected!");
+        return false;
+    }
+    try
+    {
+        std::stoi(Zqdm);
+    }catch(...)
+    {
+        if( ErrInfo ) sprintf(ErrInfo, "code:%d is illegal ", Zqdm);
+        return false;
+    }
+    if( !IsLongDate(date_begin) || !IsLongDate(date_end) )
+    {
+        if( ErrInfo ) sprintf(ErrInfo, "date:%d or %d is illegal ", date_begin, date_end);
+        return false;
+    }
+    kdata_call_back_para_ = call_back_para;
+
+    // request fenbi data from quotation server
+    QuotationRequest quotation_req;
+    quotation_req.set_code(Zqdm);
+
+    auto date_begin_comm = FromLongdate(date_begin);
+    auto date_end_comm = FromLongdate(date_end);
+    FillTime(TimePoint(MakeTimePoint(std::get<0>(date_begin_comm), std::get<1>(date_begin_comm), std::get<2>(date_begin_comm))), *quotation_req.mutable_beg_time());
+    FillTime(TimePoint(MakeTimePoint(std::get<0>(date_end_comm), std::get<1>(date_end_comm), std::get<2>(date_end_comm))), *quotation_req.mutable_end_time());
+    quotation_req.set_req_type(QuotationReqType::DAY);
+
+    QuotationFqType fq = QuotationFqType::FQ_BEFORE;
+    /* switch (fq_type)
+    {
+    case FqType::FQ_BEFORE: fq = QuotationFqType::FQ_BEFORE;break;
+    case FqType::FQ_AFTER:  fq = QuotationFqType::FQ_AFTER; break;
+    case FqType::FQ_NO:     fq = QuotationFqType::FQ_NO;    break;
+    }*/
+    quotation_req.set_fq_type(fq);
+    quotation_req.set_is_index(is_index);
+
+    pconn_->AsyncSend( Encode(quotation_req, msg_system_, Message::HeaderType(0, pid(), 0)));
+    return true;
 }
 
 bool IsLongDate(int date)

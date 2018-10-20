@@ -24,7 +24,8 @@ using namespace TSystem;
 #endif
 
 void FenbiCallBackFun(T_QuoteAtomData *quote_data, bool is_end, void *para);
- 
+void KDataCallBackFun(T_K_Data *k_data, bool is_end, void *para);
+
 void testFenbiStrMatch()
 {
     std::string id;
@@ -37,7 +38,7 @@ void testFenbiStrMatch()
     std::string amount; 
 
     char buf[1024] = {0};
-    strcpy(buf, "13908 14:59:41 38.65 -0.01 14 54110\n13909 14:59:45 38.65 0.0 10 38650\n");
+    strcpy_s(buf, sizeof(buf), "13908 14:59:41 38.65 -0.01 14 54110\n13909 14:59:45 38.65 0.0 10 38650\n");
 
     char *p0 = buf;
     char *p1 = p0;
@@ -194,9 +195,11 @@ int main()
         std::cout << " GetProcAddress WinnerHisHq_GetHisFenbiData fail " << std::endl;
         return 1;
     }
+    WinnerHisHq_GetKDataDelegate  WinnerHisHq_GetKData
+        = (WinnerHisHq_GetKDataDelegate)GetProcAddress(api_handle, "WinnerHisHq_GetKData"); 
     char result[1024] = {0};
     char error[1024] = {0};
-#if 0
+#if 1
     auto ret = WinnerHisHq_Connect("192.168.1.5", 50010, result, error);
 #else
     auto ret = WinnerHisHq_Connect("128.1.1.3", 50010, result, error);
@@ -210,6 +213,8 @@ int main()
 		std::getline(std::cin, cmd);
 		std::cout << cmd << std::endl;
         
+        TSystem::utility::replace_all(cmd, "  ", " ");
+        TSystem::utility::replace_all(cmd, "  ", " ");
 		args = TSystem::utility::split(cmd);
         if( args.size() <= 0 )
             continue;
@@ -241,15 +246,37 @@ int main()
             auto val_ret = WinnerHisHq_GetHisFenbiData(const_cast<char*>(args[1].c_str()), date, &callbk_obj_vector[0], error);
             if( val_ret != 0 )
                 std::cout << " WinnerHisHq_GetHisFenbiData fail: " << error << std::endl;
-        }else if( args[0] == "HISDATA" ) // HISDATA  stock period_type(1:30m, 2:hour, 3:day,4:week,5:mon) start_date end_date  --yyyymmdd
+        }else if( args[0] == "KDATA" ) // KDATA  stock period_type(2:5m, 3:15m, 4:30m, 5:1hour ,6:day,7:week,8:mon) start_date end_date is_index --yyyymmdd
         {
-            if( args.size() < 5 )
+            if( args.size() < 6 )
             {
                 printf("command not corrent!\n");
                 continue;
+            } 
+            PeriodType  period_type; 
+            int start_date = 0;
+            int end_date = 0;
+            bool is_index = false;
+            try
+            { 
+                period_type = (PeriodType)std::stoi(args[2]);
+                start_date = std::stoi(args[3]);
+                end_date = std::stoi(args[4]);
+                is_index = (bool)std::stoi(args[5]);
+            }catch(...)
+            {
+                continue;
             }
+            static std::vector<T_KDataCallBack> kdata_callbk_obj_vector;
+            kdata_callbk_obj_vector.clear();
+            T_KDataCallBack  call_back_obj;
+            kdata_callbk_obj_vector.push_back(call_back_obj);
 
-            // todo: Get_K_Data(
+            kdata_callbk_obj_vector[0].call_back_func = KDataCallBackFun;
+   auto val_ret = WinnerHisHq_GetKData(const_cast<char*>(args[1].c_str()), period_type, start_date, end_date, &kdata_callbk_obj_vector[0], is_index, error);
+            if( val_ret != 0 )
+                std::cout << " WinnerHisHq_GetKData fail: " << error << std::endl;
+             
         }else 
         {
              printf("Can't recognize this command!\n");
@@ -288,8 +315,7 @@ void Test_GetFenbi(const std::string &start, const std::string &end, const std::
         printf(buffer);
         printf("\n");
     }
-#endif
-     char buf[256] = {0};
+#endif 
      //std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d{2}:\\d{2}:\\d{2}),(\\d+\\.\\d+),(\\d+)(.*)$"; 
      std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d{2}:\\d{2}:\\d{2}),(\\d+\\.\\d+),(\\d+)(.*)"; 
      std::regex regex_obj(partten_string); 
@@ -315,8 +341,8 @@ void Test_GetFenbi(const std::string &start, const std::string &end, const std::
      {
          int date = bar_daystr_to_longday(date_str);
 	     auto date_com = TSystem::FromLongdate(date);
-         std::string date_format_str = utility::FormatStr("%d%02d%02d", std::get<0>(date_com), std::get<1>(date_com), std::get<2>(date_com));
-	     std::string year_mon = utility::FormatStr("%d%02d", std::get<0>(date_com), std::get<1>(date_com));
+         std::string date_format_str = TSystem::utility::FormatStr("%d%02d%02d", std::get<0>(date_com), std::get<1>(date_com), std::get<2>(date_com));
+	     std::string year_mon = TSystem::utility::FormatStr("%d%02d", std::get<0>(date_com), std::get<1>(date_com));
          std::string year_mon_sub = year_mon + (is_sh_stock(code) ? "SH" : "SZ");
          return stk_data_dir + year_mon + "/" + year_mon_sub + "/" + date_format_str + "/" + code + "_" + date_format_str + ".csv";
      };
@@ -368,12 +394,20 @@ void FenbiCallBackFun(T_QuoteAtomData *quote_data, bool is_end, void *para)
     if( quote_data )
     {
         //printf("%s %d:%d %.2f %.2f %d\n", quote_data->code, quote_data->date, quote_data->time, quote_data->price, quote_data->price_change, quote_data->vol);
-        
     }
     if( is_end )
         is_end = is_end;
 }
 
+void KDataCallBackFun(T_K_Data *k_data, bool is_end, void *para)
+{
+    if( k_data )
+    {
+        //printf("%s %d:%d %.2f %.2f %d\n", quote_data->code, quote_data->date, quote_data->time, quote_data->price, quote_data->price_change, quote_data->vol);
+    }
+    if( is_end )
+        is_end = is_end;
+}
 
 int bar_daystr_to_longday(const std::string &day_str)
 { 
@@ -395,7 +429,7 @@ int bar_daystr_to_longday(const std::string &day_str)
         std::cout << result[1] << " " << result[2] << " " << result[3] << " " << result[4] << std::endl;
     }
 
-    return ToLongdate(year, mon, day);
+    return TSystem::ToLongdate(year, mon, day);
 }
 
 bool is_sh_stock(const std::string& code)

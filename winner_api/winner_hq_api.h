@@ -119,7 +119,7 @@ enum class FqType : unsigned char
 /// <summary>
 
 typedef int (__cdecl* WinnerHisHq_GetKDataDelegate)(char* Zqdm, PeriodType type, int date_begin, int date_end
-                                                           , T_KDataCallBack *call_back_para, FqType fq_type, bool is_index);
+                                                           , T_KDataCallBack *call_back_para, bool is_index, char *ErrInfo);
 
 
 

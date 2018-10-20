@@ -29,7 +29,7 @@ extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_GetHisFenbiData(char* Zqdm, int D
     return val ? 0 : -2;
 }
 
-extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_GetHisFenbiDataBatch(char* Zqdm, int date_begin, int date_end, T_FenbiCallBack *call_back_para, char* ErrInfo)
+extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_GetHisFenbiDataBatch(char* Zqdm, int date_begin, int date_end, T_FenbiCallBack *call_back_para, char *ErrInfo)
 {
     if( !GetInstance()->is_connected() )
         return -1;
@@ -38,11 +38,12 @@ extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_GetHisFenbiDataBatch(char* Zqdm, 
 }
 
 extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_GetKData(char* Zqdm, PeriodType type, int date_begin, int date_end
-                                                           , T_KDataCallBack *call_back_para, FqType fq_type, bool is_index)
+                                                           , T_KDataCallBack *call_back_para, bool is_index, char *ErrInfo)
 {
     if( !GetInstance()->is_connected() )
         return -1;
-    // todo:
+    auto val = GetInstance()->RequestKData(Zqdm, type, date_begin, date_end, call_back_para, is_index, ErrInfo);
+    return val ? 0 : -2;
 }
 
 static WinnerClient* GetInstance(bool is_del)
