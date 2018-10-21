@@ -91,6 +91,7 @@ bool QuotationFqType_IsValid(int value) {
 // ===================================================================
 
 #ifndef _MSC_VER
+const int QuotationRequest::kReqIdFieldNumber;
 const int QuotationRequest::kReqTypeFieldNumber;
 const int QuotationRequest::kCodeFieldNumber;
 const int QuotationRequest::kBegTimeFieldNumber;
@@ -127,6 +128,7 @@ QuotationRequest::QuotationRequest(const QuotationRequest& from)
 
 void QuotationRequest::SharedCtor() {
   _cached_size_ = 0;
+  req_id_ = 0u;
   req_type_ = 0;
   code_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   beg_time_ = NULL;
@@ -176,6 +178,7 @@ QuotationRequest* QuotationRequest::New() const {
 
 void QuotationRequest::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    req_id_ = 0u;
     req_type_ = 0;
     if (has_code()) {
       if (code_ != &::google::protobuf::internal::kEmptyString) {
@@ -200,10 +203,26 @@ bool QuotationRequest::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required .QuotationReqType req_type = 1;
+      // optional uint32 req_id = 1 [default = 0];
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &req_id_)));
+          set_has_req_id();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(16)) goto parse_req_type;
+        break;
+      }
+
+      // required .QuotationReqType req_type = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_req_type:
           int value;
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
@@ -214,12 +233,12 @@ bool QuotationRequest::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(18)) goto parse_code;
+        if (input->ExpectTag(26)) goto parse_code;
         break;
       }
 
-      // required string code = 2;
-      case 2: {
+      // required string code = 3;
+      case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_code:
@@ -228,12 +247,12 @@ bool QuotationRequest::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(26)) goto parse_beg_time;
+        if (input->ExpectTag(34)) goto parse_beg_time;
         break;
       }
 
-      // required .Time beg_time = 3;
-      case 3: {
+      // required .Time beg_time = 4;
+      case 4: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_beg_time:
@@ -242,12 +261,12 @@ bool QuotationRequest::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(34)) goto parse_end_time;
+        if (input->ExpectTag(42)) goto parse_end_time;
         break;
       }
 
-      // required .Time end_time = 4;
-      case 4: {
+      // required .Time end_time = 5;
+      case 5: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_end_time:
@@ -256,12 +275,12 @@ bool QuotationRequest::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(40)) goto parse_is_index;
+        if (input->ExpectTag(48)) goto parse_is_index;
         break;
       }
 
-      // optional bool is_index = 5 [default = true];
-      case 5: {
+      // optional bool is_index = 6 [default = true];
+      case 6: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
          parse_is_index:
@@ -272,12 +291,12 @@ bool QuotationRequest::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(48)) goto parse_fq_type;
+        if (input->ExpectTag(56)) goto parse_fq_type;
         break;
       }
 
-      // optional .QuotationFqType fq_type = 6 [default = FQ_BEFORE];
-      case 6: {
+      // optional .QuotationFqType fq_type = 7 [default = FQ_BEFORE];
+      case 7: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
          parse_fq_type:
@@ -312,39 +331,44 @@ bool QuotationRequest::MergePartialFromCodedStream(
 
 void QuotationRequest::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // required .QuotationReqType req_type = 1;
+  // optional uint32 req_id = 1 [default = 0];
+  if (has_req_id()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->req_id(), output);
+  }
+
+  // required .QuotationReqType req_type = 2;
   if (has_req_type()) {
     ::google::protobuf::internal::WireFormatLite::WriteEnum(
-      1, this->req_type(), output);
+      2, this->req_type(), output);
   }
 
-  // required string code = 2;
+  // required string code = 3;
   if (has_code()) {
     ::google::protobuf::internal::WireFormatLite::WriteString(
-      2, this->code(), output);
+      3, this->code(), output);
   }
 
-  // required .Time beg_time = 3;
+  // required .Time beg_time = 4;
   if (has_beg_time()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessage(
-      3, this->beg_time(), output);
+      4, this->beg_time(), output);
   }
 
-  // required .Time end_time = 4;
+  // required .Time end_time = 5;
   if (has_end_time()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessage(
-      4, this->end_time(), output);
+      5, this->end_time(), output);
   }
 
-  // optional bool is_index = 5 [default = true];
+  // optional bool is_index = 6 [default = true];
   if (has_is_index()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBool(5, this->is_index(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteBool(6, this->is_index(), output);
   }
 
-  // optional .QuotationFqType fq_type = 6 [default = FQ_BEFORE];
+  // optional .QuotationFqType fq_type = 7 [default = FQ_BEFORE];
   if (has_fq_type()) {
     ::google::protobuf::internal::WireFormatLite::WriteEnum(
-      6, this->fq_type(), output);
+      7, this->fq_type(), output);
   }
 
 }
@@ -353,39 +377,46 @@ int QuotationRequest::ByteSize() const {
   int total_size = 0;
 
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required .QuotationReqType req_type = 1;
+    // optional uint32 req_id = 1 [default = 0];
+    if (has_req_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->req_id());
+    }
+
+    // required .QuotationReqType req_type = 2;
     if (has_req_type()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::EnumSize(this->req_type());
     }
 
-    // required string code = 2;
+    // required string code = 3;
     if (has_code()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->code());
     }
 
-    // required .Time beg_time = 3;
+    // required .Time beg_time = 4;
     if (has_beg_time()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->beg_time());
     }
 
-    // required .Time end_time = 4;
+    // required .Time end_time = 5;
     if (has_end_time()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->end_time());
     }
 
-    // optional bool is_index = 5 [default = true];
+    // optional bool is_index = 6 [default = true];
     if (has_is_index()) {
       total_size += 1 + 1;
     }
 
-    // optional .QuotationFqType fq_type = 6 [default = FQ_BEFORE];
+    // optional .QuotationFqType fq_type = 7 [default = FQ_BEFORE];
     if (has_fq_type()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::EnumSize(this->fq_type());
@@ -406,6 +437,9 @@ void QuotationRequest::CheckTypeAndMergeFrom(
 void QuotationRequest::MergeFrom(const QuotationRequest& from) {
   GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_req_id()) {
+      set_req_id(from.req_id());
+    }
     if (from.has_req_type()) {
       set_req_type(from.req_type());
     }
@@ -434,13 +468,14 @@ void QuotationRequest::CopyFrom(const QuotationRequest& from) {
 }
 
 bool QuotationRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x0000000f) != 0x0000000f) return false;
+  if ((_has_bits_[0] & 0x0000001e) != 0x0000001e) return false;
 
   return true;
 }
 
 void QuotationRequest::Swap(QuotationRequest* other) {
   if (other != this) {
+    std::swap(req_id_, other->req_id_);
     std::swap(req_type_, other->req_type_);
     std::swap(code_, other->code_);
     std::swap(beg_time_, other->beg_time_);
@@ -846,7 +881,7 @@ QuotationMessage_QuotationKbarMessage::QuotationMessage_QuotationKbarMessage(con
 void QuotationMessage_QuotationKbarMessage::SharedCtor() {
   _cached_size_ = 0;
   yyyymmdd_ = 0u;
-  hhmmdd_ = 0u;
+  hhmmdd_ = 153000u;
   open_ = NULL;
   close_ = NULL;
   high_ = NULL;
@@ -895,7 +930,7 @@ QuotationMessage_QuotationKbarMessage* QuotationMessage_QuotationKbarMessage::Ne
 void QuotationMessage_QuotationKbarMessage::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     yyyymmdd_ = 0u;
-    hhmmdd_ = 0u;
+    hhmmdd_ = 153000u;
     if (has_open()) {
       if (open_ != NULL) open_->::RationalNumber::Clear();
     }
@@ -934,7 +969,7 @@ bool QuotationMessage_QuotationKbarMessage::MergePartialFromCodedStream(
         break;
       }
 
-      // optional uint32 hhmmdd = 2;
+      // optional uint32 hhmmdd = 2 [default = 153000];
       case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
@@ -1044,7 +1079,7 @@ void QuotationMessage_QuotationKbarMessage::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->yyyymmdd(), output);
   }
 
-  // optional uint32 hhmmdd = 2;
+  // optional uint32 hhmmdd = 2 [default = 153000];
   if (has_hhmmdd()) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->hhmmdd(), output);
   }
@@ -1091,7 +1126,7 @@ int QuotationMessage_QuotationKbarMessage::ByteSize() const {
           this->yyyymmdd());
     }
 
-    // optional uint32 hhmmdd = 2;
+    // optional uint32 hhmmdd = 2 [default = 153000];
     if (has_hhmmdd()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt32Size(
@@ -1218,6 +1253,7 @@ void QuotationMessage_QuotationKbarMessage::Swap(QuotationMessage_QuotationKbarM
 // -------------------------------------------------------------------
 
 #ifndef _MSC_VER
+const int QuotationMessage::kReqIdFieldNumber;
 const int QuotationMessage::kCodeFieldNumber;
 const int QuotationMessage::kQuoteFillMsgsFieldNumber;
 const int QuotationMessage::kKbarMsgsFieldNumber;
@@ -1239,6 +1275,7 @@ QuotationMessage::QuotationMessage(const QuotationMessage& from)
 
 void QuotationMessage::SharedCtor() {
   _cached_size_ = 0;
+  req_id_ = 0u;
   code_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -1281,6 +1318,7 @@ QuotationMessage* QuotationMessage::New() const {
 
 void QuotationMessage::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    req_id_ = 0u;
     if (has_code()) {
       if (code_ != &::google::protobuf::internal::kEmptyString) {
         code_->clear();
@@ -1298,21 +1336,37 @@ bool QuotationMessage::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required string code = 1;
+      // optional uint32 req_id = 1 [default = 0];
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &req_id_)));
+          set_has_req_id();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(18)) goto parse_code;
+        break;
+      }
+
+      // required string code = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_code:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_code()));
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(18)) goto parse_quote_fill_msgs;
+        if (input->ExpectTag(26)) goto parse_quote_fill_msgs;
         break;
       }
 
-      // repeated .QuotationMessage.QuotationFillMessage quote_fill_msgs = 2;
-      case 2: {
+      // repeated .QuotationMessage.QuotationFillMessage quote_fill_msgs = 3;
+      case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_quote_fill_msgs:
@@ -1321,13 +1375,13 @@ bool QuotationMessage::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(18)) goto parse_quote_fill_msgs;
-        if (input->ExpectTag(26)) goto parse_kbar_msgs;
+        if (input->ExpectTag(26)) goto parse_quote_fill_msgs;
+        if (input->ExpectTag(34)) goto parse_kbar_msgs;
         break;
       }
 
-      // repeated .QuotationMessage.QuotationKbarMessage kbar_msgs = 3;
-      case 3: {
+      // repeated .QuotationMessage.QuotationKbarMessage kbar_msgs = 4;
+      case 4: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_kbar_msgs:
@@ -1336,7 +1390,7 @@ bool QuotationMessage::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(26)) goto parse_kbar_msgs;
+        if (input->ExpectTag(34)) goto parse_kbar_msgs;
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -1358,22 +1412,27 @@ bool QuotationMessage::MergePartialFromCodedStream(
 
 void QuotationMessage::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // required string code = 1;
+  // optional uint32 req_id = 1 [default = 0];
+  if (has_req_id()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->req_id(), output);
+  }
+
+  // required string code = 2;
   if (has_code()) {
     ::google::protobuf::internal::WireFormatLite::WriteString(
-      1, this->code(), output);
+      2, this->code(), output);
   }
 
-  // repeated .QuotationMessage.QuotationFillMessage quote_fill_msgs = 2;
+  // repeated .QuotationMessage.QuotationFillMessage quote_fill_msgs = 3;
   for (int i = 0; i < this->quote_fill_msgs_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessage(
-      2, this->quote_fill_msgs(i), output);
+      3, this->quote_fill_msgs(i), output);
   }
 
-  // repeated .QuotationMessage.QuotationKbarMessage kbar_msgs = 3;
+  // repeated .QuotationMessage.QuotationKbarMessage kbar_msgs = 4;
   for (int i = 0; i < this->kbar_msgs_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessage(
-      3, this->kbar_msgs(i), output);
+      4, this->kbar_msgs(i), output);
   }
 
 }
@@ -1382,7 +1441,14 @@ int QuotationMessage::ByteSize() const {
   int total_size = 0;
 
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required string code = 1;
+    // optional uint32 req_id = 1 [default = 0];
+    if (has_req_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->req_id());
+    }
+
+    // required string code = 2;
     if (has_code()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -1390,7 +1456,7 @@ int QuotationMessage::ByteSize() const {
     }
 
   }
-  // repeated .QuotationMessage.QuotationFillMessage quote_fill_msgs = 2;
+  // repeated .QuotationMessage.QuotationFillMessage quote_fill_msgs = 3;
   total_size += 1 * this->quote_fill_msgs_size();
   for (int i = 0; i < this->quote_fill_msgs_size(); i++) {
     total_size +=
@@ -1398,7 +1464,7 @@ int QuotationMessage::ByteSize() const {
         this->quote_fill_msgs(i));
   }
 
-  // repeated .QuotationMessage.QuotationKbarMessage kbar_msgs = 3;
+  // repeated .QuotationMessage.QuotationKbarMessage kbar_msgs = 4;
   total_size += 1 * this->kbar_msgs_size();
   for (int i = 0; i < this->kbar_msgs_size(); i++) {
     total_size +=
@@ -1422,6 +1488,9 @@ void QuotationMessage::MergeFrom(const QuotationMessage& from) {
   quote_fill_msgs_.MergeFrom(from.quote_fill_msgs_);
   kbar_msgs_.MergeFrom(from.kbar_msgs_);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_req_id()) {
+      set_req_id(from.req_id());
+    }
     if (from.has_code()) {
       set_code(from.code());
     }
@@ -1435,7 +1504,7 @@ void QuotationMessage::CopyFrom(const QuotationMessage& from) {
 }
 
 bool QuotationMessage::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
+  if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
 
   for (int i = 0; i < quote_fill_msgs_size(); i++) {
     if (!this->quote_fill_msgs(i).IsInitialized()) return false;
@@ -1448,6 +1517,7 @@ bool QuotationMessage::IsInitialized() const {
 
 void QuotationMessage::Swap(QuotationMessage* other) {
   if (other != this) {
+    std::swap(req_id_, other->req_id_);
     std::swap(code_, other->code_);
     quote_fill_msgs_.Swap(&other->quote_fill_msgs_);
     kbar_msgs_.Swap(&other->kbar_msgs_);

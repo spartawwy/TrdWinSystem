@@ -119,17 +119,24 @@ class QuotationRequest : public ::google::protobuf::MessageLite {
 
   // accessors -------------------------------------------------------
 
-  // required .QuotationReqType req_type = 1;
+  // optional uint32 req_id = 1 [default = 0];
+  inline bool has_req_id() const;
+  inline void clear_req_id();
+  static const int kReqIdFieldNumber = 1;
+  inline ::google::protobuf::uint32 req_id() const;
+  inline void set_req_id(::google::protobuf::uint32 value);
+
+  // required .QuotationReqType req_type = 2;
   inline bool has_req_type() const;
   inline void clear_req_type();
-  static const int kReqTypeFieldNumber = 1;
+  static const int kReqTypeFieldNumber = 2;
   inline ::QuotationReqType req_type() const;
   inline void set_req_type(::QuotationReqType value);
 
-  // required string code = 2;
+  // required string code = 3;
   inline bool has_code() const;
   inline void clear_code();
-  static const int kCodeFieldNumber = 2;
+  static const int kCodeFieldNumber = 3;
   inline const ::std::string& code() const;
   inline void set_code(const ::std::string& value);
   inline void set_code(const char* value);
@@ -138,40 +145,42 @@ class QuotationRequest : public ::google::protobuf::MessageLite {
   inline ::std::string* release_code();
   inline void set_allocated_code(::std::string* code);
 
-  // required .Time beg_time = 3;
+  // required .Time beg_time = 4;
   inline bool has_beg_time() const;
   inline void clear_beg_time();
-  static const int kBegTimeFieldNumber = 3;
+  static const int kBegTimeFieldNumber = 4;
   inline const ::Time& beg_time() const;
   inline ::Time* mutable_beg_time();
   inline ::Time* release_beg_time();
   inline void set_allocated_beg_time(::Time* beg_time);
 
-  // required .Time end_time = 4;
+  // required .Time end_time = 5;
   inline bool has_end_time() const;
   inline void clear_end_time();
-  static const int kEndTimeFieldNumber = 4;
+  static const int kEndTimeFieldNumber = 5;
   inline const ::Time& end_time() const;
   inline ::Time* mutable_end_time();
   inline ::Time* release_end_time();
   inline void set_allocated_end_time(::Time* end_time);
 
-  // optional bool is_index = 5 [default = true];
+  // optional bool is_index = 6 [default = true];
   inline bool has_is_index() const;
   inline void clear_is_index();
-  static const int kIsIndexFieldNumber = 5;
+  static const int kIsIndexFieldNumber = 6;
   inline bool is_index() const;
   inline void set_is_index(bool value);
 
-  // optional .QuotationFqType fq_type = 6 [default = FQ_BEFORE];
+  // optional .QuotationFqType fq_type = 7 [default = FQ_BEFORE];
   inline bool has_fq_type() const;
   inline void clear_fq_type();
-  static const int kFqTypeFieldNumber = 6;
+  static const int kFqTypeFieldNumber = 7;
   inline ::QuotationFqType fq_type() const;
   inline void set_fq_type(::QuotationFqType value);
 
   // @@protoc_insertion_point(class_scope:QuotationRequest)
  private:
+  inline void set_has_req_id();
+  inline void clear_has_req_id();
   inline void set_has_req_type();
   inline void clear_has_req_type();
   inline void set_has_code();
@@ -185,15 +194,16 @@ class QuotationRequest : public ::google::protobuf::MessageLite {
   inline void set_has_fq_type();
   inline void clear_has_fq_type();
 
+  ::google::protobuf::uint32 req_id_;
+  int req_type_;
   ::std::string* code_;
   ::Time* beg_time_;
-  int req_type_;
-  bool is_index_;
   ::Time* end_time_;
+  bool is_index_;
   int fq_type_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(6 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(7 + 31) / 32];
 
   #ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
   friend void  protobuf_AddDesc_WINNERLib_2fquotation_5fmsg_2eproto_impl();
@@ -397,7 +407,7 @@ class QuotationMessage_QuotationKbarMessage : public ::google::protobuf::Message
   inline ::google::protobuf::uint32 yyyymmdd() const;
   inline void set_yyyymmdd(::google::protobuf::uint32 value);
 
-  // optional uint32 hhmmdd = 2;
+  // optional uint32 hhmmdd = 2 [default = 153000];
   inline bool has_hhmmdd() const;
   inline void clear_hhmmdd();
   static const int kHhmmddFieldNumber = 2;
@@ -544,10 +554,17 @@ class QuotationMessage : public ::google::protobuf::MessageLite {
 
   // accessors -------------------------------------------------------
 
-  // required string code = 1;
+  // optional uint32 req_id = 1 [default = 0];
+  inline bool has_req_id() const;
+  inline void clear_req_id();
+  static const int kReqIdFieldNumber = 1;
+  inline ::google::protobuf::uint32 req_id() const;
+  inline void set_req_id(::google::protobuf::uint32 value);
+
+  // required string code = 2;
   inline bool has_code() const;
   inline void clear_code();
-  static const int kCodeFieldNumber = 1;
+  static const int kCodeFieldNumber = 2;
   inline const ::std::string& code() const;
   inline void set_code(const ::std::string& value);
   inline void set_code(const char* value);
@@ -556,10 +573,10 @@ class QuotationMessage : public ::google::protobuf::MessageLite {
   inline ::std::string* release_code();
   inline void set_allocated_code(::std::string* code);
 
-  // repeated .QuotationMessage.QuotationFillMessage quote_fill_msgs = 2;
+  // repeated .QuotationMessage.QuotationFillMessage quote_fill_msgs = 3;
   inline int quote_fill_msgs_size() const;
   inline void clear_quote_fill_msgs();
-  static const int kQuoteFillMsgsFieldNumber = 2;
+  static const int kQuoteFillMsgsFieldNumber = 3;
   inline const ::QuotationMessage_QuotationFillMessage& quote_fill_msgs(int index) const;
   inline ::QuotationMessage_QuotationFillMessage* mutable_quote_fill_msgs(int index);
   inline ::QuotationMessage_QuotationFillMessage* add_quote_fill_msgs();
@@ -568,10 +585,10 @@ class QuotationMessage : public ::google::protobuf::MessageLite {
   inline ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationFillMessage >*
       mutable_quote_fill_msgs();
 
-  // repeated .QuotationMessage.QuotationKbarMessage kbar_msgs = 3;
+  // repeated .QuotationMessage.QuotationKbarMessage kbar_msgs = 4;
   inline int kbar_msgs_size() const;
   inline void clear_kbar_msgs();
-  static const int kKbarMsgsFieldNumber = 3;
+  static const int kKbarMsgsFieldNumber = 4;
   inline const ::QuotationMessage_QuotationKbarMessage& kbar_msgs(int index) const;
   inline ::QuotationMessage_QuotationKbarMessage* mutable_kbar_msgs(int index);
   inline ::QuotationMessage_QuotationKbarMessage* add_kbar_msgs();
@@ -582,15 +599,18 @@ class QuotationMessage : public ::google::protobuf::MessageLite {
 
   // @@protoc_insertion_point(class_scope:QuotationMessage)
  private:
+  inline void set_has_req_id();
+  inline void clear_has_req_id();
   inline void set_has_code();
   inline void clear_has_code();
 
   ::std::string* code_;
   ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationFillMessage > quote_fill_msgs_;
   ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationKbarMessage > kbar_msgs_;
+  ::google::protobuf::uint32 req_id_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(4 + 31) / 32];
 
   #ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
   friend void  protobuf_AddDesc_WINNERLib_2fquotation_5fmsg_2eproto_impl();
@@ -610,15 +630,37 @@ class QuotationMessage : public ::google::protobuf::MessageLite {
 
 // QuotationRequest
 
-// required .QuotationReqType req_type = 1;
-inline bool QuotationRequest::has_req_type() const {
+// optional uint32 req_id = 1 [default = 0];
+inline bool QuotationRequest::has_req_id() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void QuotationRequest::set_has_req_type() {
+inline void QuotationRequest::set_has_req_id() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void QuotationRequest::clear_has_req_type() {
+inline void QuotationRequest::clear_has_req_id() {
   _has_bits_[0] &= ~0x00000001u;
+}
+inline void QuotationRequest::clear_req_id() {
+  req_id_ = 0u;
+  clear_has_req_id();
+}
+inline ::google::protobuf::uint32 QuotationRequest::req_id() const {
+  return req_id_;
+}
+inline void QuotationRequest::set_req_id(::google::protobuf::uint32 value) {
+  set_has_req_id();
+  req_id_ = value;
+}
+
+// required .QuotationReqType req_type = 2;
+inline bool QuotationRequest::has_req_type() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void QuotationRequest::set_has_req_type() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void QuotationRequest::clear_has_req_type() {
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void QuotationRequest::clear_req_type() {
   req_type_ = 0;
@@ -633,15 +675,15 @@ inline void QuotationRequest::set_req_type(::QuotationReqType value) {
   req_type_ = value;
 }
 
-// required string code = 2;
+// required string code = 3;
 inline bool QuotationRequest::has_code() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
+  return (_has_bits_[0] & 0x00000004u) != 0;
 }
 inline void QuotationRequest::set_has_code() {
-  _has_bits_[0] |= 0x00000002u;
+  _has_bits_[0] |= 0x00000004u;
 }
 inline void QuotationRequest::clear_has_code() {
-  _has_bits_[0] &= ~0x00000002u;
+  _has_bits_[0] &= ~0x00000004u;
 }
 inline void QuotationRequest::clear_code() {
   if (code_ != &::google::protobuf::internal::kEmptyString) {
@@ -703,15 +745,15 @@ inline void QuotationRequest::set_allocated_code(::std::string* code) {
   }
 }
 
-// required .Time beg_time = 3;
+// required .Time beg_time = 4;
 inline bool QuotationRequest::has_beg_time() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000008u) != 0;
 }
 inline void QuotationRequest::set_has_beg_time() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000008u;
 }
 inline void QuotationRequest::clear_has_beg_time() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000008u;
 }
 inline void QuotationRequest::clear_beg_time() {
   if (beg_time_ != NULL) beg_time_->::Time::Clear();
@@ -745,15 +787,15 @@ inline void QuotationRequest::set_allocated_beg_time(::Time* beg_time) {
   }
 }
 
-// required .Time end_time = 4;
+// required .Time end_time = 5;
 inline bool QuotationRequest::has_end_time() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
+  return (_has_bits_[0] & 0x00000010u) != 0;
 }
 inline void QuotationRequest::set_has_end_time() {
-  _has_bits_[0] |= 0x00000008u;
+  _has_bits_[0] |= 0x00000010u;
 }
 inline void QuotationRequest::clear_has_end_time() {
-  _has_bits_[0] &= ~0x00000008u;
+  _has_bits_[0] &= ~0x00000010u;
 }
 inline void QuotationRequest::clear_end_time() {
   if (end_time_ != NULL) end_time_->::Time::Clear();
@@ -787,15 +829,15 @@ inline void QuotationRequest::set_allocated_end_time(::Time* end_time) {
   }
 }
 
-// optional bool is_index = 5 [default = true];
+// optional bool is_index = 6 [default = true];
 inline bool QuotationRequest::has_is_index() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
+  return (_has_bits_[0] & 0x00000020u) != 0;
 }
 inline void QuotationRequest::set_has_is_index() {
-  _has_bits_[0] |= 0x00000010u;
+  _has_bits_[0] |= 0x00000020u;
 }
 inline void QuotationRequest::clear_has_is_index() {
-  _has_bits_[0] &= ~0x00000010u;
+  _has_bits_[0] &= ~0x00000020u;
 }
 inline void QuotationRequest::clear_is_index() {
   is_index_ = true;
@@ -809,15 +851,15 @@ inline void QuotationRequest::set_is_index(bool value) {
   is_index_ = value;
 }
 
-// optional .QuotationFqType fq_type = 6 [default = FQ_BEFORE];
+// optional .QuotationFqType fq_type = 7 [default = FQ_BEFORE];
 inline bool QuotationRequest::has_fq_type() const {
-  return (_has_bits_[0] & 0x00000020u) != 0;
+  return (_has_bits_[0] & 0x00000040u) != 0;
 }
 inline void QuotationRequest::set_has_fq_type() {
-  _has_bits_[0] |= 0x00000020u;
+  _has_bits_[0] |= 0x00000040u;
 }
 inline void QuotationRequest::clear_has_fq_type() {
-  _has_bits_[0] &= ~0x00000020u;
+  _has_bits_[0] &= ~0x00000040u;
 }
 inline void QuotationRequest::clear_fq_type() {
   fq_type_ = 1;
@@ -1032,7 +1074,7 @@ inline void QuotationMessage_QuotationKbarMessage::set_yyyymmdd(::google::protob
   yyyymmdd_ = value;
 }
 
-// optional uint32 hhmmdd = 2;
+// optional uint32 hhmmdd = 2 [default = 153000];
 inline bool QuotationMessage_QuotationKbarMessage::has_hhmmdd() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -1043,7 +1085,7 @@ inline void QuotationMessage_QuotationKbarMessage::clear_has_hhmmdd() {
   _has_bits_[0] &= ~0x00000002u;
 }
 inline void QuotationMessage_QuotationKbarMessage::clear_hhmmdd() {
-  hhmmdd_ = 0u;
+  hhmmdd_ = 153000u;
   clear_has_hhmmdd();
 }
 inline ::google::protobuf::uint32 QuotationMessage_QuotationKbarMessage::hhmmdd() const {
@@ -1248,15 +1290,37 @@ inline void QuotationMessage_QuotationKbarMessage::set_vol(::google::protobuf::u
 
 // QuotationMessage
 
-// required string code = 1;
-inline bool QuotationMessage::has_code() const {
+// optional uint32 req_id = 1 [default = 0];
+inline bool QuotationMessage::has_req_id() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void QuotationMessage::set_has_code() {
+inline void QuotationMessage::set_has_req_id() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void QuotationMessage::clear_has_code() {
+inline void QuotationMessage::clear_has_req_id() {
   _has_bits_[0] &= ~0x00000001u;
+}
+inline void QuotationMessage::clear_req_id() {
+  req_id_ = 0u;
+  clear_has_req_id();
+}
+inline ::google::protobuf::uint32 QuotationMessage::req_id() const {
+  return req_id_;
+}
+inline void QuotationMessage::set_req_id(::google::protobuf::uint32 value) {
+  set_has_req_id();
+  req_id_ = value;
+}
+
+// required string code = 2;
+inline bool QuotationMessage::has_code() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void QuotationMessage::set_has_code() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void QuotationMessage::clear_has_code() {
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void QuotationMessage::clear_code() {
   if (code_ != &::google::protobuf::internal::kEmptyString) {
@@ -1318,7 +1382,7 @@ inline void QuotationMessage::set_allocated_code(::std::string* code) {
   }
 }
 
-// repeated .QuotationMessage.QuotationFillMessage quote_fill_msgs = 2;
+// repeated .QuotationMessage.QuotationFillMessage quote_fill_msgs = 3;
 inline int QuotationMessage::quote_fill_msgs_size() const {
   return quote_fill_msgs_.size();
 }
@@ -1343,7 +1407,7 @@ QuotationMessage::mutable_quote_fill_msgs() {
   return &quote_fill_msgs_;
 }
 
-// repeated .QuotationMessage.QuotationKbarMessage kbar_msgs = 3;
+// repeated .QuotationMessage.QuotationKbarMessage kbar_msgs = 4;
 inline int QuotationMessage::kbar_msgs_size() const {
   return kbar_msgs_.size();
 }

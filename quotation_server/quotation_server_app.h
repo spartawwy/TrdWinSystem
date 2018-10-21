@@ -15,6 +15,8 @@
 #define  GET_MINUTE(a) ((a)%10000/100)
 #define  GET_SECOND(a) ((a)%100)
 
+int bar_daystr_to_longday(const std::string &day_str);
+
 using namespace TSystem;
 
 class T_Fenbi
@@ -61,6 +63,7 @@ private:
     void HandleQuotationRequest(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn);
     void _HandleQuotatoinFenbi(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn);
     void _HandleQuotatoinKbar(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn);
+    void _HandleQuotatoinKBarDay(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection> &pconn, const std::string &code, int beg_date, int end_date, QuotationFqType fqtye, bool is_index);
 
 	void SendRequestAck(int user_id, int req_id, RequestType type, const std::shared_ptr<TSystem::communication::Connection>& pconn);
 

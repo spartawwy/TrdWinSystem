@@ -307,28 +307,6 @@ void QuotationServerApp::_HandleQuotatoinFenbi(std::shared_ptr<QuotationRequest>
 {
    assert(req);
    assert(pconn); 
- 
-   static auto bar_daystr_to_longday = [](const std::string &day_str)->int
-   { 
-       int year, mon, day;
-       std::string partten_string = "^(\\d{4})-(\\d{1,2})-(\\d{1,2})$"; 
-       std::regex regex_obj(partten_string); 
-       std::smatch result; 
-       if( std::regex_match(day_str.cbegin(), day_str.cend(), result, regex_obj) )
-       {
-           try
-           {
-               year = boost::lexical_cast<int>(result[1]);
-               mon = boost::lexical_cast<int>(result[2]);
-               day = boost::lexical_cast<int>(result[3]);
-           }catch(boost::exception&)
-           {
-                return 0;
-           }
-           std::cout << result[1] << " " << result[2] << " " << result[3] << " " << result[4] << std::endl;
-       }
-       return ToLongdate(year, mon, day);
-   };
       
     static auto create_file_path = [](const std::string& stk_data_dir, const std::string& date_str, const std::string& code)
     {
@@ -612,15 +590,89 @@ void QuotationServerApp::_HandleQuotatoinKbar(std::shared_ptr<QuotationRequest>&
 
     if( req->req_type() == QuotationReqType::DAY )
     {
-        std::vector<std::string> ret_date_str_vector = GetDayKbars2File(req->code(), longday_beg, longday_end, req->fq_type(), req->is_index());
-         
-        std::for_each( std::begin(ret_date_str_vector), std::end(ret_date_str_vector), [&req, &pconn, this](const std::string &entry)
-        { 
-            std::string full_path = this->stk_data_dir_ + req->code() + "/kline/" + entry;
-            QuotationMessage quotation_msg;
-            quotation_msg.set_code(req->code());
-        });
-        //PyFuncGetDayKbar2File()
+        _HandleQuotatoinKBarDay(req, pconn, req->code(), longday_beg, longday_end, req->fq_type(), req->is_index());
+    }
+}
+
+void QuotationServerApp::_HandleQuotatoinKBarDay(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection> &pconn, const std::string &code, int beg_date, int end_date, QuotationFqType fqtye, bool is_index)
+{
+    std::vector<std::string> ret_date_str_vector = GetDayKbars2File(code, beg_date, end_date, fqtye, is_index);
+    QuotationMessage quotation_msg;
+    quotation_msg.set_req_id(req->req_id());
+    quotation_msg.set_code(code);
+    //std::for_each( std::begin(ret_date_str_vector), std::end(ret_date_str_vector), [&req, &code, beg_date, end_date, &pconn, this](const std::string &entry)
+    for( auto entry = ret_date_str_vector.begin(); entry < ret_date_str_vector.end(); ++entry )
+    { 
+        std::string full_path = this->stk_data_dir_ + code + "/kline/" + *entry;
+
+        std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+)(.*)$"; 
+        std::regex regex_obj(partten_string); 
+        char buf[256] = {0};
+        std::fstream in(full_path);
+        if( !in.is_open() )
+        {
+            printf("open file fail");
+            continue;
+        }
+        while( !in.eof() )
+        {
+            in.getline(buf, sizeof(buf));
+            int len = strlen(buf);
+            if( len < 1 )
+                continue;
+            char *p0 = buf;
+            char *p1 = &buf[len-1];
+            std::string src(p0, p1);
+            std::smatch result; 
+            if( std::regex_match(src.cbegin(), src.cend(), result, regex_obj) )
+            {  //std::cout << result[1] << " " << result[2] << " " << result[3] << " " << result[4] << std::endl;
+                std::string date_str = result[1];
+
+                std::string open_str = result[2];
+                std::string close_str = result[3];
+                std::string high_str = result[4];
+                std::string low_str = result[5];
+                std::string vol_str = result[6];
+                int date_val = bar_daystr_to_longday(date_str);
+                if( date_val < beg_date )
+                    continue;
+                if( date_val > end_date )
+                    goto END_PROC;
+                try
+                {
+                    QuotationMessage::QuotationKbarMessage * p_kbar_msg = quotation_msg.add_kbar_msgs();
+                    p_kbar_msg->set_yyyymmdd(date_val);
+                    TSystem::FillRational(open_str, *p_kbar_msg->mutable_open()); 
+                    TSystem::FillRational(close_str, *p_kbar_msg->mutable_close());
+                    TSystem::FillRational(high_str, *p_kbar_msg->mutable_high());
+                    TSystem::FillRational(low_str, *p_kbar_msg->mutable_low());
+                    p_kbar_msg->set_vol(std::stoi(vol_str)); 
+                }catch(std::exception &e)
+                {
+                    printf("exception:%s", e.what());
+                    continue;
+                }catch(...)
+                {
+                    continue;
+                }
+            }
+            //--------------------
+            if( *p1 == '\0' ) break; 
+            if( int(*p1) == 0x0A ) // filter 0x0A
+                ++p1;
+        } // while
+    }// for each file
+
+END_PROC:
+    if( quotation_msg.kbar_msgs().size() > 0 )
+    {
+        printf("pconn->AsyncSend\n");
+        pconn->AsyncSend( Encode(quotation_msg, msg_system(), Message::HeaderType(0, pid(), 0)) ); 
+    }else
+    { 
+        RequestAck ack;
+        FillRequestAck(req->req_id(), 2, "no related data", ack);
+        pconn->AsyncSend( Encode(ack, msg_system(), Message::HeaderType(0, pid(), 0)));
     }
 }
 
@@ -869,6 +921,29 @@ std::vector<int> GetSpanTradeDates(int date_begin, int date_end)
         }
     }
     return ret_days;
+}
+
+
+int bar_daystr_to_longday(const std::string &day_str)
+{ 
+    int year, mon, day;
+    std::string partten_string = "^(\\d{4})-(\\d{1,2})-(\\d{1,2})$"; 
+    std::regex regex_obj(partten_string); 
+    std::smatch result; 
+    if( std::regex_match(day_str.cbegin(), day_str.cend(), result, regex_obj) )
+    {
+        try
+        {
+            year = boost::lexical_cast<int>(result[1]);
+            mon = boost::lexical_cast<int>(result[2]);
+            day = boost::lexical_cast<int>(result[3]);
+        }catch(boost::exception&)
+        {
+            return 0;
+        }
+        std::cout << result[1] << " " << result[2] << " " << result[3] << " " << result[4] << std::endl;
+    }
+    return ToLongdate(year, mon, day);
 }
 
 void Delay(unsigned short mseconds)
