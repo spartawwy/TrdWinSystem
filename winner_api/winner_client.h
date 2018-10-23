@@ -2,8 +2,11 @@
 #define WINNER_CLIENT_SDF3SDFSDF_H_
 
 #include <memory>
+#include <atomic>
+#include <unordered_map>
 
 #include <TLib/tool/tsystem_server_client_appbase.h>
+#include "boost_mutex.h"
 
 #include "winner_his_hq.h"
 //using namespace TSystem;
@@ -55,7 +58,17 @@ private:
     std::string server_addr;
     bool is_connected_;
     
-    T_FenbiCallBack *call_back_para_; 
-    T_KDataCallBack *kdata_call_back_para_;
+    //T_FenbiCallBack *call_back_para_; 
+    //T_KDataCallBack *kdata_call_back_para_;
+
+    std::atomic_uint request_id_;
+    enum class ReqType :  unsigned char
+    {
+        FILL_FENBI,
+        KDATA,
+    };
+    // (req_id, call back para)
+    std::unordered_map<int, std::tuple<ReqType, void*> >  request_holder_;
+    //BoostReadWriteMutex request_holder_mutex_;
 };
 #endif // WINNER_CLIENT_SDF3SDFSDF_H_

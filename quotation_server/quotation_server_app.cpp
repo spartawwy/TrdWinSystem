@@ -328,6 +328,7 @@ void QuotationServerApp::_HandleQuotatoinFenbi(std::shared_ptr<QuotationRequest>
             std::string full_path = this->stk_data_dir_ + req->code() + "/" + entry + "/fenbi/" + req->code() + ".fenbi";
             QuotationMessage quotation_msg;
             quotation_msg.set_code(req->code());
+            quotation_msg.set_req_id(req->req_id);
 #else 
         auto date_vector = GetSpanTradeDates(begin_date, end_date);
         std::for_each( std::begin(date_vector), std::end(date_vector), [&req, &pconn, &days_fenbi, this](const int date)
@@ -336,7 +337,7 @@ void QuotationServerApp::_HandleQuotatoinFenbi(std::shared_ptr<QuotationRequest>
                 return;
             QuotationMessage quotation_msg;
             quotation_msg.set_code(req->code());
-
+            quotation_msg.set_req_id(req->req_id());
             auto day_iter = days_fenbi.find(date);
             if( day_iter != days_fenbi.end() )
             { 

@@ -94,6 +94,7 @@ copy  $(OutDir)$(TargetName)$(TargetExt)  $(SolutionDir)..\mock_proj\Build\$(Pla
     <ClCompile Include="winner_his_hq.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="boost_mutex.h" />
     <ClInclude Include="winner_client.h" />
     <ClInclude Include="winner_his_hq.h" />
     <ClInclude Include="winner_hq_api.h" />

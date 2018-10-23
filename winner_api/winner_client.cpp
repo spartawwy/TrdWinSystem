@@ -22,9 +22,11 @@ WinnerClient::WinnerClient()
     , pconn_(nullptr)
     , strand_(task_pool())
     , is_connected_(false)
-    , call_back_para_(nullptr)
-    , kdata_call_back_para_(nullptr)
+   /* , call_back_para_(nullptr)
+    , kdata_call_back_para_(nullptr)*/
+    , request_holder_(1024)
 {
+    request_id_ = 0;
     try
     {
         Initiate();
@@ -91,13 +93,25 @@ void WinnerClient::SetupMsgHandlers()
     {
         this->local_logger().LogLocal( utility::FormatStr("receive QuotationMessage from connection: %d", p->connid()));
         auto quotation_message = std::make_shared<QuotationMessage>();
-        if( Decode(msg, *quotation_message, this->msg_system_) )
-        {
-            strand_.PostTask([quotation_message, this]()
-            {  
-            for(int i = 0; i < quotation_message->quote_fill_msgs().size(); ++i )
+        if( !Decode(msg, *quotation_message, this->msg_system_) )
+            return;
+        strand_.PostTask([quotation_message, this]()
+        {  
+            //auto read_locker = request_holder_mutex_.ReadLock();
+            auto req_iter = request_holder_.find(quotation_message->req_id());
+            if( req_iter == request_holder_.end() )
+            {   // log error
+                    return;
+            }
+            void *call_back_para = nullptr;
+            void *tmp_ptc = nullptr;
+            if( std::get<0>(req_iter->second) == ReqType::FILL_FENBI )
             {
-                if( call_back_para_ && call_back_para_->call_back_func )
+                call_back_para = static_cast<T_FenbiCallBack *>(std::get<1>(req_iter->second));
+                tmp_ptc = ((T_FenbiCallBack*)call_back_para)->call_back_func;
+                if( !call_back_para || !tmp_ptc )
+                    return;
+                for(int i = 0; i < quotation_message->quote_fill_msgs().size(); ++i )
                 {
                     T_QuoteAtomData quote_atom_data = {0};
                      
@@ -111,12 +125,45 @@ void WinnerClient::SetupMsgHandlers()
                     quote_atom_data.price_change = RationalDouble(msg_fill->price_change()) * (msg_fill->is_change_positive() ? 1 : -1);
                     
                     quote_atom_data.vol = msg_fill->vol();
-                    call_back_para_->call_back_func(&quote_atom_data, i == quotation_message->quote_fill_msgs().size() - 1, call_back_para_);
+                      
+                    ((T_FenbiCallBack*)call_back_para)->call_back_func(&quote_atom_data, i == quotation_message->quote_fill_msgs().size() - 1, call_back_para);
+                    if( i == quotation_message->quote_fill_msgs().size() - 1 )
+                    {
+                        request_holder_.erase(req_iter);
+                        return;
+                    }
+                }
+
+            }else if( std::get<0>(req_iter->second) == ReqType::KDATA )
+            {
+                call_back_para = static_cast<T_KDataCallBack *>(std::get<1>(req_iter->second));
+                tmp_ptc = ((T_KDataCallBack*)call_back_para)->call_back_func;
+                if( !call_back_para || !tmp_ptc )
+                    return;
+                for(int i = 0; i < quotation_message->kbar_msgs().size(); ++i )
+                {
+                    T_K_Data quote_atom_data = {0};
+                     
+                    QuotationMessage::QuotationKbarMessage *msg_kbar = quotation_message->mutable_kbar_msgs()->Mutable(i);
+ 
+                    //strcpy_s(quote_atom_data.code, quotation_message->code().c_str());
+                    quote_atom_data.open = RationalDouble(msg_kbar->open());
+                    quote_atom_data.close = RationalDouble(msg_kbar->close());
+                    quote_atom_data.high = RationalDouble(msg_kbar->high());
+                    quote_atom_data.low = RationalDouble(msg_kbar->low());
+                    quote_atom_data.vol = msg_kbar->vol();
+                    ((T_KDataCallBack*)call_back_para)->call_back_func(&quote_atom_data, i == quotation_message->kbar_msgs().size() - 1, call_back_para);
+                    if( i == quotation_message->kbar_msgs().size() - 1 )
+                    {
+                        request_holder_.erase(req_iter);
+                        return;
+                    }
                 }
             }
-            });
-        }
-    });
+                
+        }); // strand_
+
+    }); 
 }
 
 
@@ -218,7 +265,7 @@ bool WinnerClient::RequestFenbiHisData(char* Zqdm, int Date, T_FenbiCallBack *ca
         if( ErrInfo ) sprintf(ErrInfo, "date:%d is illegal ", Date);
         return false;
     }
-    call_back_para_ = call_back_para;
+    //call_back_para_ = call_back_para;
 
     // request fenbi data from quotation server
     QuotationRequest quotation_req;
@@ -228,7 +275,11 @@ bool WinnerClient::RequestFenbiHisData(char* Zqdm, int Date, T_FenbiCallBack *ca
     FillTime(TimePoint(MakeTimePoint(std::get<0>(date_com), std::get<1>(date_com), std::get<2>(date_com))), *quotation_req.mutable_beg_time());
     FillTime(TimePoint(MakeTimePoint(std::get<0>(date_com), std::get<1>(date_com), std::get<2>(date_com))), *quotation_req.mutable_end_time());
     quotation_req.set_req_type(QuotationReqType::FENBI);
-
+    quotation_req.set_req_id(++request_id_);
+    strand_.PostTask([call_back_para, this]()
+    {
+         this->request_holder_.insert(std::make_pair(request_id_, std::make_tuple(ReqType::FILL_FENBI, call_back_para)));
+    });
     pconn_->AsyncSend( Encode(quotation_req, msg_system_, Message::HeaderType(0, pid(), 0)));
     return true; 
 }
@@ -253,7 +304,7 @@ bool WinnerClient::RequestFenbiHisDataBatch(char* Zqdm, int date_begin, int date
         if( ErrInfo ) sprintf(ErrInfo, "date:%d or %d is illegal ", date_begin, date_end);
         return false;
     }
-    call_back_para_ = call_back_para;
+    //call_back_para_ = call_back_para;
 
     // request fenbi data from quotation server
     QuotationRequest quotation_req;
@@ -264,7 +315,11 @@ bool WinnerClient::RequestFenbiHisDataBatch(char* Zqdm, int date_begin, int date
     FillTime(TimePoint(MakeTimePoint(std::get<0>(date_begin_comm), std::get<1>(date_begin_comm), std::get<2>(date_begin_comm))), *quotation_req.mutable_beg_time());
     FillTime(TimePoint(MakeTimePoint(std::get<0>(date_end_comm), std::get<1>(date_end_comm), std::get<2>(date_end_comm))), *quotation_req.mutable_end_time());
     quotation_req.set_req_type(QuotationReqType::FENBI);
-
+    quotation_req.set_req_id(++request_id_);
+    strand_.PostTask([call_back_para, this]()
+    {
+         this->request_holder_.insert(std::make_pair(request_id_, std::make_tuple(ReqType::FILL_FENBI, call_back_para)));
+    });
     pconn_->AsyncSend( Encode(quotation_req, msg_system_, Message::HeaderType(0, pid(), 0)));
     return true; 
 }
@@ -290,7 +345,7 @@ bool WinnerClient::RequestKData(char* Zqdm, PeriodType type, int date_begin, int
         if( ErrInfo ) sprintf(ErrInfo, "date:%d or %d is illegal ", date_begin, date_end);
         return false;
     }
-    kdata_call_back_para_ = call_back_para;
+    //T_KDataCallBack * kdata_callback = call_back_para;
 
     // request fenbi data from quotation server
     QuotationRequest quotation_req;
@@ -311,8 +366,14 @@ bool WinnerClient::RequestKData(char* Zqdm, PeriodType type, int date_begin, int
     }*/
     quotation_req.set_fq_type(fq);
     quotation_req.set_is_index(is_index);
-
+    quotation_req.set_req_id(++request_id_);
+     
+    strand_.PostTask([call_back_para, this]()
+    {
+         this->request_holder_.insert(std::make_pair(request_id_, std::make_tuple(ReqType::KDATA, call_back_para)));
+    });
     pconn_->AsyncSend( Encode(quotation_req, msg_system_, Message::HeaderType(0, pid(), 0)));
+
     return true;
 }
 

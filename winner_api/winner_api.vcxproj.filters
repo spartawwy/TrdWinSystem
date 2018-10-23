@@ -32,5 +32,8 @@
     <ClInclude Include="winner_client.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="boost_mutex.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
