@@ -647,7 +647,7 @@ void QuotationServerApp::_HandleQuotatoinKBarDay(std::shared_ptr<QuotationReques
                     TSystem::FillRational(close_str, *p_kbar_msg->mutable_close());
                     TSystem::FillRational(high_str, *p_kbar_msg->mutable_high());
                     TSystem::FillRational(low_str, *p_kbar_msg->mutable_low());
-                    p_kbar_msg->set_vol(std::stoi(vol_str)); 
+                    TSystem::FillRational(vol_str, *p_kbar_msg->mutable_vol());
                 }catch(std::exception &e)
                 {
                     printf("exception:%s", e.what());

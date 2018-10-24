@@ -40,7 +40,7 @@ typedef struct _t_k_data
     double close;
     double high;
     double low;
-    int vol;
+    double vol;
 }T_K_Data;
 
 typedef void (*FenbiCallBack)(T_QuoteAtomData *quote_data, bool is_end, void *para);

@@ -450,12 +450,14 @@ class QuotationMessage_QuotationKbarMessage : public ::google::protobuf::Message
   inline ::RationalNumber* release_low();
   inline void set_allocated_low(::RationalNumber* low);
 
-  // required uint32 vol = 7;
+  // required .RationalNumber vol = 7;
   inline bool has_vol() const;
   inline void clear_vol();
   static const int kVolFieldNumber = 7;
-  inline ::google::protobuf::uint32 vol() const;
-  inline void set_vol(::google::protobuf::uint32 value);
+  inline const ::RationalNumber& vol() const;
+  inline ::RationalNumber* mutable_vol();
+  inline ::RationalNumber* release_vol();
+  inline void set_allocated_vol(::RationalNumber* vol);
 
   // @@protoc_insertion_point(class_scope:QuotationMessage.QuotationKbarMessage)
  private:
@@ -480,7 +482,7 @@ class QuotationMessage_QuotationKbarMessage : public ::google::protobuf::Message
   ::RationalNumber* close_;
   ::RationalNumber* high_;
   ::RationalNumber* low_;
-  ::google::protobuf::uint32 vol_;
+  ::RationalNumber* vol_;
 
   mutable int _cached_size_;
   ::google::protobuf::uint32 _has_bits_[(7 + 31) / 32];
@@ -1264,7 +1266,7 @@ inline void QuotationMessage_QuotationKbarMessage::set_allocated_low(::RationalN
   }
 }
 
-// required uint32 vol = 7;
+// required .RationalNumber vol = 7;
 inline bool QuotationMessage_QuotationKbarMessage::has_vol() const {
   return (_has_bits_[0] & 0x00000040u) != 0;
 }
@@ -1275,15 +1277,35 @@ inline void QuotationMessage_QuotationKbarMessage::clear_has_vol() {
   _has_bits_[0] &= ~0x00000040u;
 }
 inline void QuotationMessage_QuotationKbarMessage::clear_vol() {
-  vol_ = 0u;
+  if (vol_ != NULL) vol_->::RationalNumber::Clear();
   clear_has_vol();
 }
-inline ::google::protobuf::uint32 QuotationMessage_QuotationKbarMessage::vol() const {
+inline const ::RationalNumber& QuotationMessage_QuotationKbarMessage::vol() const {
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  return vol_ != NULL ? *vol_ : *default_instance().vol_;
+#else
+  return vol_ != NULL ? *vol_ : *default_instance_->vol_;
+#endif
+}
+inline ::RationalNumber* QuotationMessage_QuotationKbarMessage::mutable_vol() {
+  set_has_vol();
+  if (vol_ == NULL) vol_ = new ::RationalNumber;
   return vol_;
 }
-inline void QuotationMessage_QuotationKbarMessage::set_vol(::google::protobuf::uint32 value) {
-  set_has_vol();
-  vol_ = value;
+inline ::RationalNumber* QuotationMessage_QuotationKbarMessage::release_vol() {
+  clear_has_vol();
+  ::RationalNumber* temp = vol_;
+  vol_ = NULL;
+  return temp;
+}
+inline void QuotationMessage_QuotationKbarMessage::set_allocated_vol(::RationalNumber* vol) {
+  delete vol_;
+  vol_ = vol;
+  if (vol) {
+    set_has_vol();
+  } else {
+    clear_has_vol();
+  }
 }
 
 // -------------------------------------------------------------------

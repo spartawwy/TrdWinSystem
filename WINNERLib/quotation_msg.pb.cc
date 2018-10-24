@@ -870,6 +870,12 @@ void QuotationMessage_QuotationKbarMessage::InitAsDefaultInstance() {
 #else
   low_ = const_cast< ::RationalNumber*>(&::RationalNumber::default_instance());
 #endif
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  vol_ = const_cast< ::RationalNumber*>(
+      ::RationalNumber::internal_default_instance());
+#else
+  vol_ = const_cast< ::RationalNumber*>(&::RationalNumber::default_instance());
+#endif
 }
 
 QuotationMessage_QuotationKbarMessage::QuotationMessage_QuotationKbarMessage(const QuotationMessage_QuotationKbarMessage& from)
@@ -886,7 +892,7 @@ void QuotationMessage_QuotationKbarMessage::SharedCtor() {
   close_ = NULL;
   high_ = NULL;
   low_ = NULL;
-  vol_ = 0u;
+  vol_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -904,6 +910,7 @@ void QuotationMessage_QuotationKbarMessage::SharedDtor() {
     delete close_;
     delete high_;
     delete low_;
+    delete vol_;
   }
 }
 
@@ -943,7 +950,9 @@ void QuotationMessage_QuotationKbarMessage::Clear() {
     if (has_low()) {
       if (low_ != NULL) low_->::RationalNumber::Clear();
     }
-    vol_ = 0u;
+    if (has_vol()) {
+      if (vol_ != NULL) vol_->::RationalNumber::Clear();
+    }
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -1037,19 +1046,17 @@ bool QuotationMessage_QuotationKbarMessage::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(56)) goto parse_vol;
+        if (input->ExpectTag(58)) goto parse_vol;
         break;
       }
 
-      // required uint32 vol = 7;
+      // required .RationalNumber vol = 7;
       case 7: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_vol:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &vol_)));
-          set_has_vol();
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_vol()));
         } else {
           goto handle_uninterpreted;
         }
@@ -1108,9 +1115,10 @@ void QuotationMessage_QuotationKbarMessage::SerializeWithCachedSizes(
       6, this->low(), output);
   }
 
-  // required uint32 vol = 7;
+  // required .RationalNumber vol = 7;
   if (has_vol()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(7, this->vol(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteMessage(
+      7, this->vol(), output);
   }
 
 }
@@ -1161,10 +1169,10 @@ int QuotationMessage_QuotationKbarMessage::ByteSize() const {
           this->low());
     }
 
-    // required uint32 vol = 7;
+    // required .RationalNumber vol = 7;
     if (has_vol()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->vol());
     }
 
@@ -1202,7 +1210,7 @@ void QuotationMessage_QuotationKbarMessage::MergeFrom(const QuotationMessage_Quo
       mutable_low()->::RationalNumber::MergeFrom(from.low());
     }
     if (from.has_vol()) {
-      set_vol(from.vol());
+      mutable_vol()->::RationalNumber::MergeFrom(from.vol());
     }
   }
 }
@@ -1227,6 +1235,9 @@ bool QuotationMessage_QuotationKbarMessage::IsInitialized() const {
   }
   if (has_low()) {
     if (!this->low().IsInitialized()) return false;
+  }
+  if (has_vol()) {
+    if (!this->vol().IsInitialized()) return false;
   }
   return true;
 }

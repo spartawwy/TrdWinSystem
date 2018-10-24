@@ -57,7 +57,7 @@ message QuotationMessage
         required RationalNumber close               =4;
         required RationalNumber high                =5;
         required RationalNumber low                 =6;
-        required uint32         vol                 =7;
+        required RationalNumber vol                 =7;
       }
       optional  uint32                req_id           = 1[default=0];
 	  required  string                code             = 2;

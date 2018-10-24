@@ -147,11 +147,12 @@ void WinnerClient::SetupMsgHandlers()
                     QuotationMessage::QuotationKbarMessage *msg_kbar = quotation_message->mutable_kbar_msgs()->Mutable(i);
  
                     //strcpy_s(quote_atom_data.code, quotation_message->code().c_str());
+                    quote_atom_data.yyyymmdd = msg_kbar->yyyymmdd();
                     quote_atom_data.open = RationalDouble(msg_kbar->open());
                     quote_atom_data.close = RationalDouble(msg_kbar->close());
                     quote_atom_data.high = RationalDouble(msg_kbar->high());
                     quote_atom_data.low = RationalDouble(msg_kbar->low());
-                    quote_atom_data.vol = msg_kbar->vol();
+                    quote_atom_data.vol = RationalDouble(msg_kbar->vol());
                     ((T_KDataCallBack*)call_back_para)->call_back_func(&quote_atom_data, i == quotation_message->kbar_msgs().size() - 1, call_back_para);
                     if( i == quotation_message->kbar_msgs().size() - 1 )
                     {
