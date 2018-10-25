@@ -16,6 +16,7 @@
 #include <TLib/tool/tsystem_rational_number.h>
  
 #include "WINNERLib/winner_message_system.h"
+#include "WINNERLib/winner_msg_utility.h"
 
 #include "file_mapping.h"
 #include "quota_svr_common.h"
@@ -282,6 +283,7 @@ void QuotationServerApp::HandleUserLogin(const UserRequest& req, const std::shar
 
 void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn)
 {
+     printf("\nconn:%d HandleQuotationRequest: %s\n", pconn->connid(), WINNERSystem::QuotationRequest2Str(*req).c_str());
      switch( req->req_type() )
      {
      case QuotationReqType::FENBI:
@@ -601,10 +603,13 @@ void QuotationServerApp::_HandleQuotatoinKBarDay(std::shared_ptr<QuotationReques
     QuotationMessage quotation_msg;
     quotation_msg.set_req_id(req->req_id());
     quotation_msg.set_code(code);
+    std::string temp_code = code;
+    if( is_index && code == "000001" )
+        temp_code = "999999";
     //std::for_each( std::begin(ret_date_str_vector), std::end(ret_date_str_vector), [&req, &code, beg_date, end_date, &pconn, this](const std::string &entry)
     for( auto entry = ret_date_str_vector.begin(); entry < ret_date_str_vector.end(); ++entry )
     { 
-        std::string full_path = this->stk_data_dir_ + code + "/kline/" + *entry;
+        std::string full_path = this->stk_data_dir_ + temp_code + "/kline/" + *entry;
 
         std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+)(.*)$"; 
         std::regex regex_obj(partten_string); 
@@ -749,7 +754,7 @@ std::vector<std::string> QuotationServerApp::GetDayKbars2File(const std::string 
     int beg_date = (date_beg > date_end) ? date_end : date_beg;
     int end_date = (date_beg > date_end) ? date_beg : date_end;
      
-    auto pArg = PyTuple_New(3);
+    auto pArg = PyTuple_New(4);
     PyTuple_SetItem(pArg, 0, Py_BuildValue("s", code.c_str()));
     char beg_date_str[32] = {0};
     sprintf_s(beg_date_str, "%d-%02d-%02d\0", GET_LONGDATE_YEAR(beg_date), GET_LONGDATE_MONTH(beg_date), GET_LONGDATE_DAY(beg_date));
@@ -757,7 +762,9 @@ std::vector<std::string> QuotationServerApp::GetDayKbars2File(const std::string 
     char end_date_str[32] = {0};
     sprintf_s(end_date_str, "%d-%02d-%02d\0", GET_LONGDATE_YEAR(end_date), GET_LONGDATE_MONTH(end_date), GET_LONGDATE_DAY(end_date));
     PyTuple_SetItem(pArg, 2, Py_BuildValue("s", end_date_str));
-    
+
+    PyTuple_SetItem(pArg, 3, Py_BuildValue("b", is_index));
+
     std::vector<std::string> ret_vector;
     char *result;
     try
@@ -942,7 +949,7 @@ int bar_daystr_to_longday(const std::string &day_str)
         {
             return 0;
         }
-        std::cout << result[1] << " " << result[2] << " " << result[3] << " " << result[4] << std::endl;
+        //std::cout << result[1] << " " << result[2] << " " << result[3] << " " << result[4] << std::endl;
     }
     return ToLongdate(year, mon, day);
 }

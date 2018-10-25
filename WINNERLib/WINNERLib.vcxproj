@@ -95,12 +95,14 @@
     <ClInclude Include="winner_error.h" />
     <ClInclude Include="winner_message_classid.h" />
     <ClInclude Include="winner_message_system.h" />
+    <ClInclude Include="winner_msg_utility.h" />
     <ClInclude Include="winner_user_msg.pb.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="quotation_msg.pb.cc" />
     <ClCompile Include="winner_error.cpp" />
     <ClCompile Include="winner_message_system.cpp" />
+    <ClCompile Include="winner_msg_utility.cpp" />
     <ClCompile Include="winner_user_msg.pb.cc" />
   </ItemGroup>
   <ItemGroup>
