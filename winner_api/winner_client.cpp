@@ -126,8 +126,8 @@ void WinnerClient::SetupMsgHandlers()
                     
                     quote_atom_data.vol = msg_fill->vol();
                       
-                    ((T_FenbiCallBack*)call_back_para)->call_back_func(&quote_atom_data, i == quotation_message->quote_fill_msgs().size() - 1, call_back_para);
-                    if( i == quotation_message->quote_fill_msgs().size() - 1 )
+                    ((T_FenbiCallBack*)call_back_para)->call_back_func(&quote_atom_data, quotation_message->is_last(), call_back_para);
+                    if( quotation_message->is_last() )
                     {
                         request_holder_.erase(req_iter);
                         return;

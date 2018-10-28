@@ -563,10 +563,17 @@ class QuotationMessage : public ::google::protobuf::MessageLite {
   inline ::google::protobuf::uint32 req_id() const;
   inline void set_req_id(::google::protobuf::uint32 value);
 
-  // required string code = 2;
+  // optional bool is_last = 2 [default = false];
+  inline bool has_is_last() const;
+  inline void clear_is_last();
+  static const int kIsLastFieldNumber = 2;
+  inline bool is_last() const;
+  inline void set_is_last(bool value);
+
+  // required string code = 3;
   inline bool has_code() const;
   inline void clear_code();
-  static const int kCodeFieldNumber = 2;
+  static const int kCodeFieldNumber = 3;
   inline const ::std::string& code() const;
   inline void set_code(const ::std::string& value);
   inline void set_code(const char* value);
@@ -575,10 +582,10 @@ class QuotationMessage : public ::google::protobuf::MessageLite {
   inline ::std::string* release_code();
   inline void set_allocated_code(::std::string* code);
 
-  // repeated .QuotationMessage.QuotationFillMessage quote_fill_msgs = 3;
+  // repeated .QuotationMessage.QuotationFillMessage quote_fill_msgs = 4;
   inline int quote_fill_msgs_size() const;
   inline void clear_quote_fill_msgs();
-  static const int kQuoteFillMsgsFieldNumber = 3;
+  static const int kQuoteFillMsgsFieldNumber = 4;
   inline const ::QuotationMessage_QuotationFillMessage& quote_fill_msgs(int index) const;
   inline ::QuotationMessage_QuotationFillMessage* mutable_quote_fill_msgs(int index);
   inline ::QuotationMessage_QuotationFillMessage* add_quote_fill_msgs();
@@ -587,10 +594,10 @@ class QuotationMessage : public ::google::protobuf::MessageLite {
   inline ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationFillMessage >*
       mutable_quote_fill_msgs();
 
-  // repeated .QuotationMessage.QuotationKbarMessage kbar_msgs = 4;
+  // repeated .QuotationMessage.QuotationKbarMessage kbar_msgs = 5;
   inline int kbar_msgs_size() const;
   inline void clear_kbar_msgs();
-  static const int kKbarMsgsFieldNumber = 4;
+  static const int kKbarMsgsFieldNumber = 5;
   inline const ::QuotationMessage_QuotationKbarMessage& kbar_msgs(int index) const;
   inline ::QuotationMessage_QuotationKbarMessage* mutable_kbar_msgs(int index);
   inline ::QuotationMessage_QuotationKbarMessage* add_kbar_msgs();
@@ -603,16 +610,19 @@ class QuotationMessage : public ::google::protobuf::MessageLite {
  private:
   inline void set_has_req_id();
   inline void clear_has_req_id();
+  inline void set_has_is_last();
+  inline void clear_has_is_last();
   inline void set_has_code();
   inline void clear_has_code();
 
+  ::google::protobuf::uint32 req_id_;
+  bool is_last_;
   ::std::string* code_;
   ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationFillMessage > quote_fill_msgs_;
   ::google::protobuf::RepeatedPtrField< ::QuotationMessage_QuotationKbarMessage > kbar_msgs_;
-  ::google::protobuf::uint32 req_id_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(4 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
 
   #ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
   friend void  protobuf_AddDesc_WINNERLib_2fquotation_5fmsg_2eproto_impl();
@@ -1334,15 +1344,37 @@ inline void QuotationMessage::set_req_id(::google::protobuf::uint32 value) {
   req_id_ = value;
 }
 
-// required string code = 2;
-inline bool QuotationMessage::has_code() const {
+// optional bool is_last = 2 [default = false];
+inline bool QuotationMessage::has_is_last() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void QuotationMessage::set_has_code() {
+inline void QuotationMessage::set_has_is_last() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void QuotationMessage::clear_has_code() {
+inline void QuotationMessage::clear_has_is_last() {
   _has_bits_[0] &= ~0x00000002u;
+}
+inline void QuotationMessage::clear_is_last() {
+  is_last_ = false;
+  clear_has_is_last();
+}
+inline bool QuotationMessage::is_last() const {
+  return is_last_;
+}
+inline void QuotationMessage::set_is_last(bool value) {
+  set_has_is_last();
+  is_last_ = value;
+}
+
+// required string code = 3;
+inline bool QuotationMessage::has_code() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void QuotationMessage::set_has_code() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void QuotationMessage::clear_has_code() {
+  _has_bits_[0] &= ~0x00000004u;
 }
 inline void QuotationMessage::clear_code() {
   if (code_ != &::google::protobuf::internal::kEmptyString) {
@@ -1404,7 +1436,7 @@ inline void QuotationMessage::set_allocated_code(::std::string* code) {
   }
 }
 
-// repeated .QuotationMessage.QuotationFillMessage quote_fill_msgs = 3;
+// repeated .QuotationMessage.QuotationFillMessage quote_fill_msgs = 4;
 inline int QuotationMessage::quote_fill_msgs_size() const {
   return quote_fill_msgs_.size();
 }
@@ -1429,7 +1461,7 @@ QuotationMessage::mutable_quote_fill_msgs() {
   return &quote_fill_msgs_;
 }
 
-// repeated .QuotationMessage.QuotationKbarMessage kbar_msgs = 4;
+// repeated .QuotationMessage.QuotationKbarMessage kbar_msgs = 5;
 inline int QuotationMessage::kbar_msgs_size() const {
   return kbar_msgs_.size();
 }

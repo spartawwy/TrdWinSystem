@@ -321,7 +321,7 @@ void QuotationServerApp::_HandleQuotatoinFenbi(std::shared_ptr<QuotationRequest>
     };
   
     static auto fetch_data_send 
-        = [this](std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn, int begin_date, int end_date, TDayFenbi &days_fenbi)
+        = [this](std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn, int begin_date, int end_date, TDayFenbi &days_fenbi, bool is_last)
     { 
 #ifndef FENBI_DATA_ALREAD 
         auto ret_date_str_vector = GetFenbi2File(req->code(), begin_date, end_date);
@@ -333,13 +333,15 @@ void QuotationServerApp::_HandleQuotatoinFenbi(std::shared_ptr<QuotationRequest>
             quotation_msg.set_req_id(req->req_id);
 #else 
         auto date_vector = GetSpanTradeDates(begin_date, end_date);
-        std::for_each( std::begin(date_vector), std::end(date_vector), [&req, &pconn, &days_fenbi, this](const int date)
+        std::for_each( std::begin(date_vector), std::end(date_vector), [&req, &pconn, &days_fenbi, is_last, this](const int date)
         { 
             if( !this->exchange_calendar_.IsTradeDate(date) )
                 return;
             QuotationMessage quotation_msg;
             quotation_msg.set_code(req->code());
             quotation_msg.set_req_id(req->req_id());
+            if( is_last )
+                quotation_msg.set_is_last(is_last);
             auto day_iter = days_fenbi.find(date);
             if( day_iter != days_fenbi.end() )
             { 
@@ -565,7 +567,7 @@ void QuotationServerApp::_HandleQuotatoinFenbi(std::shared_ptr<QuotationRequest>
     unsigned int i = 0;
     for( ; i < date_vector.size() / span_len; ++i )
     { 
-       fetch_data_send(req, pconn, date_vector[i*span_len], date_vector[(i + 1)*span_len - 1], days_fenbi);
+       fetch_data_send(req, pconn, date_vector[i*span_len], date_vector[(i + 1)*span_len - 1], days_fenbi, i==date_vector.size()-1);
        if( i < 10 )
            Delay(20);
        else if(i < 20 )
@@ -576,7 +578,7 @@ void QuotationServerApp::_HandleQuotatoinFenbi(std::shared_ptr<QuotationRequest>
      
     if( date_vector.size() % span_len  )
     {
-        fetch_data_send(req, pconn, date_vector[i*span_len], date_vector[date_vector.size() - 1], days_fenbi);
+        fetch_data_send(req, pconn, date_vector[i*span_len], date_vector[date_vector.size() - 1], days_fenbi, true);
     }
 }
 
@@ -602,6 +604,7 @@ void QuotationServerApp::_HandleQuotatoinKBarDay(std::shared_ptr<QuotationReques
     std::vector<std::string> ret_date_str_vector = GetDayKbars2File(code, beg_date, end_date, fqtye, is_index);
     QuotationMessage quotation_msg;
     quotation_msg.set_req_id(req->req_id());
+    quotation_msg.set_is_last(true);
     quotation_msg.set_code(code);
     std::string temp_code = code;
     if( is_index && code == "000001" )
@@ -671,7 +674,7 @@ void QuotationServerApp::_HandleQuotatoinKBarDay(std::shared_ptr<QuotationReques
 
 END_PROC:
     if( quotation_msg.kbar_msgs().size() > 0 )
-    {
+    { 
         printf("pconn->AsyncSend\n");
         pconn->AsyncSend( Encode(quotation_msg, msg_system(), Message::HeaderType(0, pid(), 0)) ); 
     }else
