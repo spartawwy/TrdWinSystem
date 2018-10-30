@@ -72,11 +72,14 @@ private:
     // ret file names 
     std::vector<std::string> GetDayKbars2File(const std::string &code, int date_beg, int date_end
                         ,  QuotationFqType fq_type=QuotationFqType::FQ_BEFORE, bool is_index=false);
+    // cur; pre_close;open;high;low;amount
+    std::string GetRealTimeK(const std::string &code, bool is_index=false);
 
 private:
 
     void *PyFuncGetAllFill2File;
     void *PyFuncGetDayKbar2File;
+    void *PyFuncGetRealTimeKbar;
     std::string stk_data_dir_;
     // ------------
     typedef std::unordered_map<int, std::shared_ptr<TaskStrand> > TConnidMapStrand;

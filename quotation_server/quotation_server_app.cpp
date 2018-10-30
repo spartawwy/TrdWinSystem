@@ -44,6 +44,7 @@ QuotationServerApp::QuotationServerApp(const std::string &name, const std::strin
 	: ServerAppBase("quotation_server", name, version)
     , PyFuncGetAllFill2File(nullptr)
     , PyFuncGetDayKbar2File(nullptr)
+    , PyFuncGetRealTimeKbar(nullptr)
     , stk_data_dir_()
     , conn_strands_(256) 
     , code_fenbi_container_(5000)
@@ -191,6 +192,13 @@ void QuotationServerApp::InitPython()
     if( !PyFuncGetDayKbar2File )
     {
         std::cout << "QuotationServerApp::InitPython get func getDayKBarData fail " << std::endl;
+		throw ""; // todo: throw exception
+    }
+
+    PyFuncGetRealTimeKbar = PyObject_GetAttrString(p_kline_obj, "get_realtime_k_data");
+    if( !PyFuncGetRealTimeKbar )
+    {
+        std::cout << "QuotationServerApp::InitPython get func get_realtime_k_data fail " << std::endl;
 		throw ""; // todo: throw exception
     }
 }
@@ -671,6 +679,11 @@ void QuotationServerApp::_HandleQuotatoinKBarDay(std::shared_ptr<QuotationReques
                 ++p1;
         } // while
     }// for each file
+    if( end_date >= TSystem::Today() )
+    {
+        std::string cur_k_str = GetRealTimeK(code, is_index);
+        
+    }
 
 END_PROC:
     if( quotation_msg.kbar_msgs().size() > 0 )
@@ -796,6 +809,44 @@ std::vector<std::string> QuotationServerApp::GetDayKbars2File(const std::string 
     } 
     //-------------------
     return ret_vector; 
+}
+
+std::string QuotationServerApp::GetRealTimeK(const std::string &code, bool is_index)
+{
+    assert(PyFuncGetRealTimeKbar);
+      
+    auto pArg = PyTuple_New(2);
+    PyTuple_SetItem(pArg, 0, Py_BuildValue("s", code.c_str()));
+    PyTuple_SetItem(pArg, 1, Py_BuildValue("b", is_index));
+
+    //std::vector<std::string> ret_vector;
+    char *result;
+    try
+    {
+    auto pRet = PyEval_CallObject((PyObject*)PyFuncGetRealTimeKbar, pArg);
+    if( !pRet )
+    {
+        std::cout << " GetRealTimeK  PyFuncGetRealTimeKbar " << code << " ret null! " << std::endl;
+        local_logger().LogLocal(utility::FormatStr("GetRealTimeK  PyFuncGetRealTimeKbar %s ret null! ", code.c_str()));
+        return "";
+    }
+    PyArg_Parse(pRet, "s", &result);
+    
+    if( result && strlen(result) > 0 )
+    {
+        /*if( strstr(result, ";") )
+        {
+            ret_vector = utility::split(result, ";"); 
+        }else
+            ret_vector.push_back(result);*/
+        Py_XDECREF(result);
+    } 
+    }catch(...)
+    {
+        Py_XDECREF(result);
+    } 
+    //-------------------
+    return result; 
 }
 
 bool IsLeapYear(int year)
