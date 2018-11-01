@@ -73,7 +73,7 @@ private:
     std::vector<std::string> GetDayKbars2File(const std::string &code, int date_beg, int date_end
                         ,  QuotationFqType fq_type=QuotationFqType::FQ_BEFORE, bool is_index=false);
     // cur; pre_close;open;high;low;amount
-    std::string GetRealTimeK(const std::string &code, bool is_index=false);
+    bool GetRealTimeK(const std::string &code, QuotationMessage::QuotationKbarMessage &kbar_msg, bool is_index=false);
 
 private:
 

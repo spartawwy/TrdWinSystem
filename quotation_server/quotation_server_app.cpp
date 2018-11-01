@@ -681,8 +681,8 @@ void QuotationServerApp::_HandleQuotatoinKBarDay(std::shared_ptr<QuotationReques
     }// for each file
     if( end_date >= TSystem::Today() )
     {
-        std::string cur_k_str = GetRealTimeK(code, is_index);
-        
+        QuotationMessage::QuotationKbarMessage * p_kbar_msg = quotation_msg.add_kbar_msgs();
+        GetRealTimeK(code, *p_kbar_msg, is_index);
     }
 
 END_PROC:
@@ -811,7 +811,7 @@ std::vector<std::string> QuotationServerApp::GetDayKbars2File(const std::string 
     return ret_vector; 
 }
 
-std::string QuotationServerApp::GetRealTimeK(const std::string &code, bool is_index)
+bool QuotationServerApp::GetRealTimeK(const std::string &code, QuotationMessage::QuotationKbarMessage &kbar_msg, bool is_index)
 {
     assert(PyFuncGetRealTimeKbar);
       
@@ -828,17 +828,40 @@ std::string QuotationServerApp::GetRealTimeK(const std::string &code, bool is_in
     {
         std::cout << " GetRealTimeK  PyFuncGetRealTimeKbar " << code << " ret null! " << std::endl;
         local_logger().LogLocal(utility::FormatStr("GetRealTimeK  PyFuncGetRealTimeKbar %s ret null! ", code.c_str()));
-        return "";
+        return false;
     }
     PyArg_Parse(pRet, "s", &result);
     
     if( result && strlen(result) > 0 )
     {
-        /*if( strstr(result, ";") )
+        if( strstr(result, ";") )
         {
-            ret_vector = utility::split(result, ";"); 
-        }else
-            ret_vector.push_back(result);*/
+            auto ret_vector = utility::split(result, ";"); 
+            if( ret_vector.size() != 6 )
+               return false;
+            std::string open_str = ret_vector[2];
+            std::string close_str = ret_vector[0]; // cur_price 
+            std::string high_str = ret_vector[3];
+            std::string low_str = ret_vector[4];
+            std::string vol_str = ret_vector[5];
+                 
+            try
+            { 
+                kbar_msg.set_yyyymmdd(TSystem::Today());
+                TSystem::FillRational(open_str, *kbar_msg.mutable_open()); 
+                TSystem::FillRational(close_str, *kbar_msg.mutable_close());
+                TSystem::FillRational(high_str, *kbar_msg.mutable_high());
+                TSystem::FillRational(low_str, *kbar_msg.mutable_low());
+                TSystem::FillRational(vol_str, *kbar_msg.mutable_vol());
+            }catch(std::exception &e)
+            {
+                printf("exception:%s", e.what());
+                return false;
+            }catch(...)
+            {
+                return false;
+            }
+        }
         Py_XDECREF(result);
     } 
     }catch(...)
@@ -848,6 +871,7 @@ std::string QuotationServerApp::GetRealTimeK(const std::string &code, bool is_in
     //-------------------
     return result; 
 }
+
 
 bool IsLeapYear(int year)
 {
