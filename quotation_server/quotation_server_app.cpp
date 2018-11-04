@@ -44,6 +44,7 @@ QuotationServerApp::QuotationServerApp(const std::string &name, const std::strin
 	: ServerAppBase("quotation_server", name, version)
     , PyFuncGetAllFill2File(nullptr)
     , PyFuncGetDayKbar2File(nullptr)
+    , PyFuncGetWeekKbar2File(nullptr)
     , PyFuncGetRealTimeKbar(nullptr)
     , stk_data_dir_()
     , conn_strands_(256) 
@@ -194,7 +195,12 @@ void QuotationServerApp::InitPython()
         std::cout << "QuotationServerApp::InitPython get func getDayKBarData fail " << std::endl;
 		throw ""; // todo: throw exception
     }
-
+    PyFuncGetWeekKbar2File = PyObject_GetAttrString(p_kline_obj, "getWeekKBarData");
+    if( !PyFuncGetWeekKbar2File )
+    {
+        std::cout << "QuotationServerApp::InitPython get func getWeekKBarData fail " << std::endl;
+        throw ""; // todo: throw exception
+    } 
     PyFuncGetRealTimeKbar = PyObject_GetAttrString(p_kline_obj, "get_realtime_k_data");
     if( !PyFuncGetRealTimeKbar )
     {
@@ -601,9 +607,18 @@ void QuotationServerApp::_HandleQuotatoinKbar(std::shared_ptr<QuotationRequest>&
     TimePoint t_p_end(tm_point_end);
     int longday_end = ToLongdate(t_p_end.year(), t_p_end.month(), t_p_end.day());
 
-    if( req->req_type() == QuotationReqType::DAY )
+    switch( req->req_type() )
+    {
+     case QuotationReqType::DAY:
     {
         _HandleQuotatoinKBarDay(req, pconn, req->code(), longday_beg, longday_end, req->fq_type(), req->is_index());
+        break;
+    }
+     case QuotationReqType::WEEK:
+     {
+         _HandleQuotatoinKBarWeek(req, pconn, req->code(), longday_beg, longday_end, req->fq_type(), req->is_index());
+         break;
+     } 
     }
 }
 
@@ -696,6 +711,18 @@ END_PROC:
         FillRequestAck(req->req_id(), 2, "no related data", ack);
         pconn->AsyncSend( Encode(ack, msg_system(), Message::HeaderType(0, pid(), 0)));
     }
+}
+
+void QuotationServerApp::_HandleQuotatoinKBarWeek(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection> &pconn, const std::string &code, int beg_date, int end_date, QuotationFqType fqtye, bool is_index)
+{
+    std::vector<std::string> ret_date_str_vector = GetWeekKbars2File(code, beg_date, end_date, fqtye, is_index);
+    QuotationMessage quotation_msg;
+    quotation_msg.set_req_id(req->req_id());
+    quotation_msg.set_is_last(true);
+    quotation_msg.set_code(code);
+    std::string temp_code = code;
+    if( is_index && code == "000001" )
+        temp_code = "999999";
 }
 
 void QuotationServerApp::SendRequestAck(int user_id, int req_id, RequestType type, const std::shared_ptr<TSystem::communication::Connection>& pconn)
@@ -803,6 +830,57 @@ std::vector<std::string> QuotationServerApp::GetDayKbars2File(const std::string 
             ret_vector.push_back(result);
         Py_XDECREF(result);
     } 
+    }catch(...)
+    {
+        Py_XDECREF(result);
+    } 
+    //-------------------
+    return ret_vector; 
+}
+
+std::vector<std::string> QuotationServerApp::GetWeekKbars2File(const std::string &code, int date_beg, int date_end
+                                           ,  QuotationFqType fq_type, bool is_index)
+{
+    assert(PyFuncGetWeekKbar2File);
+
+    if( !IsLongDate(date_beg) || !IsLongDate(date_end) || !IsStockCode(code) )
+        return std::vector<std::string>();
+    int beg_date = (date_beg > date_end) ? date_end : date_beg;
+    int end_date = (date_beg > date_end) ? date_beg : date_end;
+
+    auto pArg = PyTuple_New(4);
+    PyTuple_SetItem(pArg, 0, Py_BuildValue("s", code.c_str()));
+    char beg_date_str[32] = {0};
+    sprintf_s(beg_date_str, "%d-%02d-%02d\0", GET_LONGDATE_YEAR(beg_date), GET_LONGDATE_MONTH(beg_date), GET_LONGDATE_DAY(beg_date));
+    PyTuple_SetItem(pArg, 1, Py_BuildValue("s", beg_date_str));
+    char end_date_str[32] = {0};
+    sprintf_s(end_date_str, "%d-%02d-%02d\0", GET_LONGDATE_YEAR(end_date), GET_LONGDATE_MONTH(end_date), GET_LONGDATE_DAY(end_date));
+    PyTuple_SetItem(pArg, 2, Py_BuildValue("s", end_date_str));
+
+    PyTuple_SetItem(pArg, 3, Py_BuildValue("b", is_index));
+
+    std::vector<std::string> ret_vector;
+    char *result;
+    try
+    {
+        auto pRet = PyEval_CallObject((PyObject*)PyFuncGetWeekKbar2File, pArg);
+        if( !pRet )
+        {
+            std::cout << " PyFuncGetWeekKbar2File  ret null! beg_date:" << beg_date << " end_date:" << end_date << std::endl;
+            local_logger().LogLocal(utility::FormatStr("PyFuncGetWeekKbar2File   ret null! beg_date:%d end_date:%d", beg_date, end_date));
+            return ret_vector;
+        }
+        PyArg_Parse(pRet, "s", &result);
+
+        if( result && strlen(result) > 0 )
+        {
+            if( strstr(result, ";") )
+            {
+                ret_vector = utility::split(result, ";"); 
+            }else
+                ret_vector.push_back(result);
+            Py_XDECREF(result);
+        } 
     }catch(...)
     {
         Py_XDECREF(result);

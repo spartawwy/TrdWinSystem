@@ -64,6 +64,7 @@ private:
     void _HandleQuotatoinFenbi(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn);
     void _HandleQuotatoinKbar(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn);
     void _HandleQuotatoinKBarDay(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection> &pconn, const std::string &code, int beg_date, int end_date, QuotationFqType fqtye, bool is_index);
+    void _HandleQuotatoinKBarWeek(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection> &pconn, const std::string &code, int beg_date, int end_date, QuotationFqType fqtye, bool is_index);
 
 	void SendRequestAck(int user_id, int req_id, RequestType type, const std::shared_ptr<TSystem::communication::Connection>& pconn);
 
@@ -72,6 +73,10 @@ private:
     // ret file names 
     std::vector<std::string> GetDayKbars2File(const std::string &code, int date_beg, int date_end
                         ,  QuotationFqType fq_type=QuotationFqType::FQ_BEFORE, bool is_index=false);
+     
+    std::vector<std::string> GetWeekKbars2File(const std::string &code, int date_beg, int date_end
+                        ,  QuotationFqType fq_type=QuotationFqType::FQ_BEFORE, bool is_index=false);
+
     // cur; pre_close;open;high;low;amount
     bool GetRealTimeK(const std::string &code, QuotationMessage::QuotationKbarMessage &kbar_msg, bool is_index=false);
 
@@ -79,6 +84,7 @@ private:
 
     void *PyFuncGetAllFill2File;
     void *PyFuncGetDayKbar2File;
+    void *PyFuncGetWeekKbar2File;
     void *PyFuncGetRealTimeKbar;
     std::string stk_data_dir_;
     // ------------

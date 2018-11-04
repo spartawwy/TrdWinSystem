@@ -356,7 +356,17 @@ bool WinnerClient::RequestKData(char* Zqdm, PeriodType type, int date_begin, int
     auto date_end_comm = FromLongdate(date_end);
     FillTime(TimePoint(MakeTimePoint(std::get<0>(date_begin_comm), std::get<1>(date_begin_comm), std::get<2>(date_begin_comm))), *quotation_req.mutable_beg_time());
     FillTime(TimePoint(MakeTimePoint(std::get<0>(date_end_comm), std::get<1>(date_end_comm), std::get<2>(date_end_comm))), *quotation_req.mutable_end_time());
-    quotation_req.set_req_type(QuotationReqType::DAY);
+    switch(type)
+    {
+    case PeriodType::PERIOD_DAY:
+        quotation_req.set_req_type(QuotationReqType::DAY);
+        break;
+    case PeriodType::PERIOD_WEEK:
+        quotation_req.set_req_type(QuotationReqType::WEEK);
+        break;
+    default:
+        return false;
+    }
 
     QuotationFqType fq = QuotationFqType::FQ_BEFORE;
     /* switch (fq_type)
