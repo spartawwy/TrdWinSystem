@@ -222,6 +222,7 @@ void QuotationServerApp::HandleInboundHandShake(TSystem::communication::Connecti
 			auto pconn = p->shared_this();
 
 			p->hand_shaked(true);
+            printf("authorized connection %d, sending heat beat and handshake: %d(%s)\n", pconn->connid(), res.pid, res.name.c_str());
 			SetupInboundConnection(pconn, res);
 
 			// add connection for forward module
@@ -236,6 +237,7 @@ void QuotationServerApp::HandleInboundHandShake(TSystem::communication::Connecti
 void QuotationServerApp::HandleInboundDisconnect(std::shared_ptr<TSystem::communication::Connection>& pconn, const TSystem::TError& te) 
 {
     WriteLock locker(conn_strands_wr_mutex_);
+    printf("HandleInboundDisconnect connid:%d disconnect\n", pconn->connid());
     this->local_logger().LogLocal(utility::FormatStr("HandleInboundDisconnect connid:%d disconnect", pconn->connid()));
     auto iter = conn_strands_.find(pconn->connid());
     if( iter != conn_strands_.end() )
