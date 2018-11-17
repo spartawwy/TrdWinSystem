@@ -10,6 +10,7 @@
 #include "WINNERLib/quotation_msg.pb.h"
 #include "data_base.h"
 #include "exchange_calendar.h"
+#include "quota_svr_common.h"
 
 #define  GET_HOUR(a) ((a)/10000)
 #define  GET_MINUTE(a) ((a)%10000/100)
@@ -76,6 +77,7 @@ private:
      
     std::vector<std::string> GetWeekKbars2File(const std::string &code, int date_beg, int date_end
                         ,  QuotationFqType fq_type=QuotationFqType::FQ_BEFORE, bool is_index=false);
+    void ReadQuoteMessage(const std::vector<std::string> &ret_date_str_vector, const std::string &code, KLINE_TYPE k_type, int beg_date, int end_date, QuotationMessage &quotation_msg);
 
     // cur; pre_close;open;high;low;amount
     bool GetRealTimeK(const std::string &code, QuotationMessage::QuotationKbarMessage &kbar_msg, bool is_index=false);

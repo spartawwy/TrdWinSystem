@@ -19,7 +19,7 @@
 #include "WINNERLib/winner_msg_utility.h"
 
 #include "file_mapping.h"
-#include "quota_svr_common.h"
+
 
 #ifdef _DEBUG
 #undef Py_XDECREF
@@ -634,6 +634,9 @@ void QuotationServerApp::_HandleQuotatoinKBarDay(std::shared_ptr<QuotationReques
     std::string temp_code = code;
     if( is_index && code == "000001" )
         temp_code = "999999";
+#if 1
+    ReadQuoteMessage(ret_date_str_vector, temp_code, KLINE_TYPE::KTYPE_DAY, beg_date, end_date, quotation_msg);
+#else
     //std::for_each( std::begin(ret_date_str_vector), std::end(ret_date_str_vector), [&req, &code, beg_date, end_date, &pconn, this](const std::string &entry)
     for( auto entry = ret_date_str_vector.begin(); entry < ret_date_str_vector.end(); ++entry )
     { 
@@ -696,10 +699,21 @@ void QuotationServerApp::_HandleQuotatoinKBarDay(std::shared_ptr<QuotationReques
                 ++p1;
         } // while
     }// for each file
+#endif
     if( end_date >= TSystem::Today() )
     {
-        QuotationMessage::QuotationKbarMessage * p_kbar_msg = quotation_msg.add_kbar_msgs();
-        GetRealTimeK(code, *p_kbar_msg, is_index);
+        QuotationMessage::QuotationKbarMessage kbar_msg;
+        GetRealTimeK(code, kbar_msg, is_index);
+        if( quotation_msg.kbar_msgs_size() > 0 )
+        {
+            auto lastst = quotation_msg.mutable_kbar_msgs()->Mutable(quotation_msg.kbar_msgs_size()-1);
+            if( RationalDouble(kbar_msg.high()) > RationalDouble(lastst->high()) )
+                *lastst->mutable_high() = kbar_msg.high();
+            if( RationalDouble(kbar_msg.low()) < RationalDouble(lastst->low()) )
+                *lastst->mutable_low() = kbar_msg.low();
+            *lastst->mutable_close() = kbar_msg.close();
+            // todo:vol
+        }
     }
 
 END_PROC:
@@ -725,7 +739,110 @@ void QuotationServerApp::_HandleQuotatoinKBarWeek(std::shared_ptr<QuotationReque
     std::string temp_code = code;
     if( is_index && code == "000001" )
         temp_code = "999999";
+    ReadQuoteMessage(ret_date_str_vector, temp_code, KLINE_TYPE::KTYPE_WEEK, beg_date, end_date, quotation_msg);
+    if( IsSameWeek(end_date, Today()) )
+    {
+        QuotationMessage::QuotationKbarMessage kbar_msg;
+        GetRealTimeK(code, kbar_msg, is_index);
+        if( quotation_msg.kbar_msgs_size() > 0 )
+        {
+            auto lastst = quotation_msg.mutable_kbar_msgs()->Mutable(quotation_msg.kbar_msgs_size()-1);
+            if( RationalDouble(kbar_msg.high()) > RationalDouble(lastst->high()) )
+                *lastst->mutable_high() = kbar_msg.high();
+            if( RationalDouble(kbar_msg.low()) < RationalDouble(lastst->low()) )
+                *lastst->mutable_low() = kbar_msg.low();
+            *lastst->mutable_close() = kbar_msg.close();
+            // todo:vol
+        }
+    }
+
+    if( quotation_msg.kbar_msgs().size() > 0 )
+    { 
+        printf("pconn->AsyncSend\n");
+        pconn->AsyncSend( Encode(quotation_msg, msg_system(), Message::HeaderType(0, pid(), 0)) ); 
+    }else
+    { 
+        RequestAck ack;
+        FillRequestAck(req->req_id(), 2, "no related data", ack);
+        pconn->AsyncSend( Encode(ack, msg_system(), Message::HeaderType(0, pid(), 0)));
+    }
 }
+
+
+void QuotationServerApp::ReadQuoteMessage(const std::vector<std::string> &ret_date_str_vector, const std::string &code, KLINE_TYPE k_type, int beg_date, int end_date, QuotationMessage &quotation_msg)
+{
+    for( auto entry = ret_date_str_vector.begin(); entry < ret_date_str_vector.end(); ++entry )
+    { 
+        std::string full_path = this->stk_data_dir_ + code + "/kline/" + *entry;
+
+        std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+)(.*)$"; 
+        std::regex regex_obj(partten_string); 
+        char buf[256] = {0};
+        std::fstream in(full_path);
+        if( !in.is_open() )
+        {
+            printf("ReadQuoteMessage open file fail");
+            continue;
+        }
+        while( !in.eof() )
+        {
+            in.getline(buf, sizeof(buf));
+            int len = strlen(buf);
+            if( len < 1 )
+                continue;
+            char *p0 = buf;
+            char *p1 = &buf[len-1];
+            std::string src(p0, p1);
+            std::smatch result; 
+            if( std::regex_match(src.cbegin(), src.cend(), result, regex_obj) )
+            {  //std::cout << result[1] << " " << result[2] << " " << result[3] << " " << result[4] << std::endl;
+                std::string date_str = result[1];
+
+                std::string open_str = result[2];
+                std::string close_str = result[3];
+                std::string high_str = result[4];
+                std::string low_str = result[5];
+                std::string vol_str = result[6];
+                int date_val = bar_daystr_to_longday(date_str);
+                if( date_val < beg_date )
+                    continue;
+                if( date_val > end_date )
+                {
+                    if( k_type == KLINE_TYPE::KTYPE_DAY )
+                    { 
+                        return;
+                    }else if( k_type == KLINE_TYPE::KTYPE_WEEK )
+                    {
+                        if( !IsSameWeek(date_val, end_date) )
+                            return;
+                    }
+                }
+                try
+                {
+                    QuotationMessage::QuotationKbarMessage * p_kbar_msg = quotation_msg.add_kbar_msgs();
+                    p_kbar_msg->set_yyyymmdd(date_val);
+                    TSystem::FillRational(open_str, *p_kbar_msg->mutable_open()); 
+                    TSystem::FillRational(close_str, *p_kbar_msg->mutable_close());
+                    TSystem::FillRational(high_str, *p_kbar_msg->mutable_high());
+                    TSystem::FillRational(low_str, *p_kbar_msg->mutable_low());
+                    TSystem::FillRational(vol_str, *p_kbar_msg->mutable_vol());
+                }catch(std::exception &e)
+                {
+                    printf("exception:%s", e.what());
+                    continue;
+                }catch(...)
+                {
+                    continue;
+                }
+            }
+            //--------------------
+            if( *p1 == '\0' ) break; 
+            if( int(*p1) == 0x0A ) // filter 0x0A
+                ++p1;
+        } // while
+    }// for each file
+}
+
 
 void QuotationServerApp::SendRequestAck(int user_id, int req_id, RequestType type, const std::shared_ptr<TSystem::communication::Connection>& pconn)
 {
@@ -943,13 +1060,14 @@ bool QuotationServerApp::GetRealTimeK(const std::string &code, QuotationMessage:
             }
         }
         Py_XDECREF(result);
+        return true;
     } 
     }catch(...)
     {
         Py_XDECREF(result);
     } 
     //-------------------
-    return result; 
+    return false; 
 }
 
 
