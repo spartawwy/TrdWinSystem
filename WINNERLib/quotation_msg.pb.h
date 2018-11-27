@@ -312,6 +312,96 @@ class QuotationMessage_QuotationFillMessage : public ::google::protobuf::Message
   inline bool is_change_positive() const;
   inline void set_is_change_positive(bool value);
 
+  // optional .RationalNumber b_1 = 6;
+  inline bool has_b_1() const;
+  inline void clear_b_1();
+  static const int kB1FieldNumber = 6;
+  inline const ::RationalNumber& b_1() const;
+  inline ::RationalNumber* mutable_b_1();
+  inline ::RationalNumber* release_b_1();
+  inline void set_allocated_b_1(::RationalNumber* b_1);
+
+  // optional .RationalNumber b_2 = 7;
+  inline bool has_b_2() const;
+  inline void clear_b_2();
+  static const int kB2FieldNumber = 7;
+  inline const ::RationalNumber& b_2() const;
+  inline ::RationalNumber* mutable_b_2();
+  inline ::RationalNumber* release_b_2();
+  inline void set_allocated_b_2(::RationalNumber* b_2);
+
+  // optional .RationalNumber b_3 = 8;
+  inline bool has_b_3() const;
+  inline void clear_b_3();
+  static const int kB3FieldNumber = 8;
+  inline const ::RationalNumber& b_3() const;
+  inline ::RationalNumber* mutable_b_3();
+  inline ::RationalNumber* release_b_3();
+  inline void set_allocated_b_3(::RationalNumber* b_3);
+
+  // optional .RationalNumber b_4 = 9;
+  inline bool has_b_4() const;
+  inline void clear_b_4();
+  static const int kB4FieldNumber = 9;
+  inline const ::RationalNumber& b_4() const;
+  inline ::RationalNumber* mutable_b_4();
+  inline ::RationalNumber* release_b_4();
+  inline void set_allocated_b_4(::RationalNumber* b_4);
+
+  // optional .RationalNumber b_5 = 10;
+  inline bool has_b_5() const;
+  inline void clear_b_5();
+  static const int kB5FieldNumber = 10;
+  inline const ::RationalNumber& b_5() const;
+  inline ::RationalNumber* mutable_b_5();
+  inline ::RationalNumber* release_b_5();
+  inline void set_allocated_b_5(::RationalNumber* b_5);
+
+  // optional .RationalNumber s_1 = 11;
+  inline bool has_s_1() const;
+  inline void clear_s_1();
+  static const int kS1FieldNumber = 11;
+  inline const ::RationalNumber& s_1() const;
+  inline ::RationalNumber* mutable_s_1();
+  inline ::RationalNumber* release_s_1();
+  inline void set_allocated_s_1(::RationalNumber* s_1);
+
+  // optional .RationalNumber s_2 = 12;
+  inline bool has_s_2() const;
+  inline void clear_s_2();
+  static const int kS2FieldNumber = 12;
+  inline const ::RationalNumber& s_2() const;
+  inline ::RationalNumber* mutable_s_2();
+  inline ::RationalNumber* release_s_2();
+  inline void set_allocated_s_2(::RationalNumber* s_2);
+
+  // optional .RationalNumber s_3 = 13;
+  inline bool has_s_3() const;
+  inline void clear_s_3();
+  static const int kS3FieldNumber = 13;
+  inline const ::RationalNumber& s_3() const;
+  inline ::RationalNumber* mutable_s_3();
+  inline ::RationalNumber* release_s_3();
+  inline void set_allocated_s_3(::RationalNumber* s_3);
+
+  // optional .RationalNumber s_4 = 14;
+  inline bool has_s_4() const;
+  inline void clear_s_4();
+  static const int kS4FieldNumber = 14;
+  inline const ::RationalNumber& s_4() const;
+  inline ::RationalNumber* mutable_s_4();
+  inline ::RationalNumber* release_s_4();
+  inline void set_allocated_s_4(::RationalNumber* s_4);
+
+  // optional .RationalNumber s_5 = 15;
+  inline bool has_s_5() const;
+  inline void clear_s_5();
+  static const int kS5FieldNumber = 15;
+  inline const ::RationalNumber& s_5() const;
+  inline ::RationalNumber* mutable_s_5();
+  inline ::RationalNumber* release_s_5();
+  inline void set_allocated_s_5(::RationalNumber* s_5);
+
   // @@protoc_insertion_point(class_scope:QuotationMessage.QuotationFillMessage)
  private:
   inline void set_has_time();
@@ -324,15 +414,45 @@ class QuotationMessage_QuotationFillMessage : public ::google::protobuf::Message
   inline void clear_has_price_change();
   inline void set_has_is_change_positive();
   inline void clear_has_is_change_positive();
+  inline void set_has_b_1();
+  inline void clear_has_b_1();
+  inline void set_has_b_2();
+  inline void clear_has_b_2();
+  inline void set_has_b_3();
+  inline void clear_has_b_3();
+  inline void set_has_b_4();
+  inline void clear_has_b_4();
+  inline void set_has_b_5();
+  inline void clear_has_b_5();
+  inline void set_has_s_1();
+  inline void clear_has_s_1();
+  inline void set_has_s_2();
+  inline void clear_has_s_2();
+  inline void set_has_s_3();
+  inline void clear_has_s_3();
+  inline void set_has_s_4();
+  inline void clear_has_s_4();
+  inline void set_has_s_5();
+  inline void clear_has_s_5();
 
   ::Time* time_;
   ::RationalNumber* price_;
   ::RationalNumber* price_change_;
   ::google::protobuf::uint32 vol_;
   bool is_change_positive_;
+  ::RationalNumber* b_1_;
+  ::RationalNumber* b_2_;
+  ::RationalNumber* b_3_;
+  ::RationalNumber* b_4_;
+  ::RationalNumber* b_5_;
+  ::RationalNumber* s_1_;
+  ::RationalNumber* s_2_;
+  ::RationalNumber* s_3_;
+  ::RationalNumber* s_4_;
+  ::RationalNumber* s_5_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(15 + 31) / 32];
 
   #ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
   friend void  protobuf_AddDesc_WINNERLib_2fquotation_5fmsg_2eproto_impl();
@@ -1058,6 +1178,426 @@ inline bool QuotationMessage_QuotationFillMessage::is_change_positive() const {
 inline void QuotationMessage_QuotationFillMessage::set_is_change_positive(bool value) {
   set_has_is_change_positive();
   is_change_positive_ = value;
+}
+
+// optional .RationalNumber b_1 = 6;
+inline bool QuotationMessage_QuotationFillMessage::has_b_1() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+inline void QuotationMessage_QuotationFillMessage::set_has_b_1() {
+  _has_bits_[0] |= 0x00000020u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_has_b_1() {
+  _has_bits_[0] &= ~0x00000020u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_b_1() {
+  if (b_1_ != NULL) b_1_->::RationalNumber::Clear();
+  clear_has_b_1();
+}
+inline const ::RationalNumber& QuotationMessage_QuotationFillMessage::b_1() const {
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  return b_1_ != NULL ? *b_1_ : *default_instance().b_1_;
+#else
+  return b_1_ != NULL ? *b_1_ : *default_instance_->b_1_;
+#endif
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::mutable_b_1() {
+  set_has_b_1();
+  if (b_1_ == NULL) b_1_ = new ::RationalNumber;
+  return b_1_;
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::release_b_1() {
+  clear_has_b_1();
+  ::RationalNumber* temp = b_1_;
+  b_1_ = NULL;
+  return temp;
+}
+inline void QuotationMessage_QuotationFillMessage::set_allocated_b_1(::RationalNumber* b_1) {
+  delete b_1_;
+  b_1_ = b_1;
+  if (b_1) {
+    set_has_b_1();
+  } else {
+    clear_has_b_1();
+  }
+}
+
+// optional .RationalNumber b_2 = 7;
+inline bool QuotationMessage_QuotationFillMessage::has_b_2() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
+}
+inline void QuotationMessage_QuotationFillMessage::set_has_b_2() {
+  _has_bits_[0] |= 0x00000040u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_has_b_2() {
+  _has_bits_[0] &= ~0x00000040u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_b_2() {
+  if (b_2_ != NULL) b_2_->::RationalNumber::Clear();
+  clear_has_b_2();
+}
+inline const ::RationalNumber& QuotationMessage_QuotationFillMessage::b_2() const {
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  return b_2_ != NULL ? *b_2_ : *default_instance().b_2_;
+#else
+  return b_2_ != NULL ? *b_2_ : *default_instance_->b_2_;
+#endif
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::mutable_b_2() {
+  set_has_b_2();
+  if (b_2_ == NULL) b_2_ = new ::RationalNumber;
+  return b_2_;
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::release_b_2() {
+  clear_has_b_2();
+  ::RationalNumber* temp = b_2_;
+  b_2_ = NULL;
+  return temp;
+}
+inline void QuotationMessage_QuotationFillMessage::set_allocated_b_2(::RationalNumber* b_2) {
+  delete b_2_;
+  b_2_ = b_2;
+  if (b_2) {
+    set_has_b_2();
+  } else {
+    clear_has_b_2();
+  }
+}
+
+// optional .RationalNumber b_3 = 8;
+inline bool QuotationMessage_QuotationFillMessage::has_b_3() const {
+  return (_has_bits_[0] & 0x00000080u) != 0;
+}
+inline void QuotationMessage_QuotationFillMessage::set_has_b_3() {
+  _has_bits_[0] |= 0x00000080u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_has_b_3() {
+  _has_bits_[0] &= ~0x00000080u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_b_3() {
+  if (b_3_ != NULL) b_3_->::RationalNumber::Clear();
+  clear_has_b_3();
+}
+inline const ::RationalNumber& QuotationMessage_QuotationFillMessage::b_3() const {
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  return b_3_ != NULL ? *b_3_ : *default_instance().b_3_;
+#else
+  return b_3_ != NULL ? *b_3_ : *default_instance_->b_3_;
+#endif
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::mutable_b_3() {
+  set_has_b_3();
+  if (b_3_ == NULL) b_3_ = new ::RationalNumber;
+  return b_3_;
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::release_b_3() {
+  clear_has_b_3();
+  ::RationalNumber* temp = b_3_;
+  b_3_ = NULL;
+  return temp;
+}
+inline void QuotationMessage_QuotationFillMessage::set_allocated_b_3(::RationalNumber* b_3) {
+  delete b_3_;
+  b_3_ = b_3;
+  if (b_3) {
+    set_has_b_3();
+  } else {
+    clear_has_b_3();
+  }
+}
+
+// optional .RationalNumber b_4 = 9;
+inline bool QuotationMessage_QuotationFillMessage::has_b_4() const {
+  return (_has_bits_[0] & 0x00000100u) != 0;
+}
+inline void QuotationMessage_QuotationFillMessage::set_has_b_4() {
+  _has_bits_[0] |= 0x00000100u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_has_b_4() {
+  _has_bits_[0] &= ~0x00000100u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_b_4() {
+  if (b_4_ != NULL) b_4_->::RationalNumber::Clear();
+  clear_has_b_4();
+}
+inline const ::RationalNumber& QuotationMessage_QuotationFillMessage::b_4() const {
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  return b_4_ != NULL ? *b_4_ : *default_instance().b_4_;
+#else
+  return b_4_ != NULL ? *b_4_ : *default_instance_->b_4_;
+#endif
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::mutable_b_4() {
+  set_has_b_4();
+  if (b_4_ == NULL) b_4_ = new ::RationalNumber;
+  return b_4_;
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::release_b_4() {
+  clear_has_b_4();
+  ::RationalNumber* temp = b_4_;
+  b_4_ = NULL;
+  return temp;
+}
+inline void QuotationMessage_QuotationFillMessage::set_allocated_b_4(::RationalNumber* b_4) {
+  delete b_4_;
+  b_4_ = b_4;
+  if (b_4) {
+    set_has_b_4();
+  } else {
+    clear_has_b_4();
+  }
+}
+
+// optional .RationalNumber b_5 = 10;
+inline bool QuotationMessage_QuotationFillMessage::has_b_5() const {
+  return (_has_bits_[0] & 0x00000200u) != 0;
+}
+inline void QuotationMessage_QuotationFillMessage::set_has_b_5() {
+  _has_bits_[0] |= 0x00000200u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_has_b_5() {
+  _has_bits_[0] &= ~0x00000200u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_b_5() {
+  if (b_5_ != NULL) b_5_->::RationalNumber::Clear();
+  clear_has_b_5();
+}
+inline const ::RationalNumber& QuotationMessage_QuotationFillMessage::b_5() const {
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  return b_5_ != NULL ? *b_5_ : *default_instance().b_5_;
+#else
+  return b_5_ != NULL ? *b_5_ : *default_instance_->b_5_;
+#endif
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::mutable_b_5() {
+  set_has_b_5();
+  if (b_5_ == NULL) b_5_ = new ::RationalNumber;
+  return b_5_;
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::release_b_5() {
+  clear_has_b_5();
+  ::RationalNumber* temp = b_5_;
+  b_5_ = NULL;
+  return temp;
+}
+inline void QuotationMessage_QuotationFillMessage::set_allocated_b_5(::RationalNumber* b_5) {
+  delete b_5_;
+  b_5_ = b_5;
+  if (b_5) {
+    set_has_b_5();
+  } else {
+    clear_has_b_5();
+  }
+}
+
+// optional .RationalNumber s_1 = 11;
+inline bool QuotationMessage_QuotationFillMessage::has_s_1() const {
+  return (_has_bits_[0] & 0x00000400u) != 0;
+}
+inline void QuotationMessage_QuotationFillMessage::set_has_s_1() {
+  _has_bits_[0] |= 0x00000400u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_has_s_1() {
+  _has_bits_[0] &= ~0x00000400u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_s_1() {
+  if (s_1_ != NULL) s_1_->::RationalNumber::Clear();
+  clear_has_s_1();
+}
+inline const ::RationalNumber& QuotationMessage_QuotationFillMessage::s_1() const {
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  return s_1_ != NULL ? *s_1_ : *default_instance().s_1_;
+#else
+  return s_1_ != NULL ? *s_1_ : *default_instance_->s_1_;
+#endif
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::mutable_s_1() {
+  set_has_s_1();
+  if (s_1_ == NULL) s_1_ = new ::RationalNumber;
+  return s_1_;
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::release_s_1() {
+  clear_has_s_1();
+  ::RationalNumber* temp = s_1_;
+  s_1_ = NULL;
+  return temp;
+}
+inline void QuotationMessage_QuotationFillMessage::set_allocated_s_1(::RationalNumber* s_1) {
+  delete s_1_;
+  s_1_ = s_1;
+  if (s_1) {
+    set_has_s_1();
+  } else {
+    clear_has_s_1();
+  }
+}
+
+// optional .RationalNumber s_2 = 12;
+inline bool QuotationMessage_QuotationFillMessage::has_s_2() const {
+  return (_has_bits_[0] & 0x00000800u) != 0;
+}
+inline void QuotationMessage_QuotationFillMessage::set_has_s_2() {
+  _has_bits_[0] |= 0x00000800u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_has_s_2() {
+  _has_bits_[0] &= ~0x00000800u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_s_2() {
+  if (s_2_ != NULL) s_2_->::RationalNumber::Clear();
+  clear_has_s_2();
+}
+inline const ::RationalNumber& QuotationMessage_QuotationFillMessage::s_2() const {
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  return s_2_ != NULL ? *s_2_ : *default_instance().s_2_;
+#else
+  return s_2_ != NULL ? *s_2_ : *default_instance_->s_2_;
+#endif
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::mutable_s_2() {
+  set_has_s_2();
+  if (s_2_ == NULL) s_2_ = new ::RationalNumber;
+  return s_2_;
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::release_s_2() {
+  clear_has_s_2();
+  ::RationalNumber* temp = s_2_;
+  s_2_ = NULL;
+  return temp;
+}
+inline void QuotationMessage_QuotationFillMessage::set_allocated_s_2(::RationalNumber* s_2) {
+  delete s_2_;
+  s_2_ = s_2;
+  if (s_2) {
+    set_has_s_2();
+  } else {
+    clear_has_s_2();
+  }
+}
+
+// optional .RationalNumber s_3 = 13;
+inline bool QuotationMessage_QuotationFillMessage::has_s_3() const {
+  return (_has_bits_[0] & 0x00001000u) != 0;
+}
+inline void QuotationMessage_QuotationFillMessage::set_has_s_3() {
+  _has_bits_[0] |= 0x00001000u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_has_s_3() {
+  _has_bits_[0] &= ~0x00001000u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_s_3() {
+  if (s_3_ != NULL) s_3_->::RationalNumber::Clear();
+  clear_has_s_3();
+}
+inline const ::RationalNumber& QuotationMessage_QuotationFillMessage::s_3() const {
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  return s_3_ != NULL ? *s_3_ : *default_instance().s_3_;
+#else
+  return s_3_ != NULL ? *s_3_ : *default_instance_->s_3_;
+#endif
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::mutable_s_3() {
+  set_has_s_3();
+  if (s_3_ == NULL) s_3_ = new ::RationalNumber;
+  return s_3_;
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::release_s_3() {
+  clear_has_s_3();
+  ::RationalNumber* temp = s_3_;
+  s_3_ = NULL;
+  return temp;
+}
+inline void QuotationMessage_QuotationFillMessage::set_allocated_s_3(::RationalNumber* s_3) {
+  delete s_3_;
+  s_3_ = s_3;
+  if (s_3) {
+    set_has_s_3();
+  } else {
+    clear_has_s_3();
+  }
+}
+
+// optional .RationalNumber s_4 = 14;
+inline bool QuotationMessage_QuotationFillMessage::has_s_4() const {
+  return (_has_bits_[0] & 0x00002000u) != 0;
+}
+inline void QuotationMessage_QuotationFillMessage::set_has_s_4() {
+  _has_bits_[0] |= 0x00002000u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_has_s_4() {
+  _has_bits_[0] &= ~0x00002000u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_s_4() {
+  if (s_4_ != NULL) s_4_->::RationalNumber::Clear();
+  clear_has_s_4();
+}
+inline const ::RationalNumber& QuotationMessage_QuotationFillMessage::s_4() const {
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  return s_4_ != NULL ? *s_4_ : *default_instance().s_4_;
+#else
+  return s_4_ != NULL ? *s_4_ : *default_instance_->s_4_;
+#endif
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::mutable_s_4() {
+  set_has_s_4();
+  if (s_4_ == NULL) s_4_ = new ::RationalNumber;
+  return s_4_;
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::release_s_4() {
+  clear_has_s_4();
+  ::RationalNumber* temp = s_4_;
+  s_4_ = NULL;
+  return temp;
+}
+inline void QuotationMessage_QuotationFillMessage::set_allocated_s_4(::RationalNumber* s_4) {
+  delete s_4_;
+  s_4_ = s_4;
+  if (s_4) {
+    set_has_s_4();
+  } else {
+    clear_has_s_4();
+  }
+}
+
+// optional .RationalNumber s_5 = 15;
+inline bool QuotationMessage_QuotationFillMessage::has_s_5() const {
+  return (_has_bits_[0] & 0x00004000u) != 0;
+}
+inline void QuotationMessage_QuotationFillMessage::set_has_s_5() {
+  _has_bits_[0] |= 0x00004000u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_has_s_5() {
+  _has_bits_[0] &= ~0x00004000u;
+}
+inline void QuotationMessage_QuotationFillMessage::clear_s_5() {
+  if (s_5_ != NULL) s_5_->::RationalNumber::Clear();
+  clear_has_s_5();
+}
+inline const ::RationalNumber& QuotationMessage_QuotationFillMessage::s_5() const {
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  return s_5_ != NULL ? *s_5_ : *default_instance().s_5_;
+#else
+  return s_5_ != NULL ? *s_5_ : *default_instance_->s_5_;
+#endif
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::mutable_s_5() {
+  set_has_s_5();
+  if (s_5_ == NULL) s_5_ = new ::RationalNumber;
+  return s_5_;
+}
+inline ::RationalNumber* QuotationMessage_QuotationFillMessage::release_s_5() {
+  clear_has_s_5();
+  ::RationalNumber* temp = s_5_;
+  s_5_ = NULL;
+  return temp;
+}
+inline void QuotationMessage_QuotationFillMessage::set_allocated_s_5(::RationalNumber* s_5) {
+  delete s_5_;
+  s_5_ = s_5;
+  if (s_5) {
+    set_has_s_5();
+  } else {
+    clear_has_s_5();
+  }
 }
 
 // -------------------------------------------------------------------

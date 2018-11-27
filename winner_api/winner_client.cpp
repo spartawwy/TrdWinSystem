@@ -388,6 +388,45 @@ bool WinnerClient::RequestKData(char* Zqdm, PeriodType type, int date_begin, int
     return true;
 }
 
+
+bool WinnerClient::RequestHisQuote(char* Zqdm, int date, char* ErrInfo)
+{
+    if( !is_connected_ || !pconn_ )
+    {
+        if( ErrInfo ) strcpy(ErrInfo, "server is not connected!");
+        return false;
+    }
+    try
+    {
+        std::stoi(Zqdm);
+    }catch(...)
+    {
+        if( ErrInfo ) sprintf(ErrInfo, "code:%d is illegal ", Zqdm);
+        return false;
+    }
+    if( !IsLongDate(date) )
+    {
+        if( ErrInfo ) sprintf(ErrInfo, "date:%d is illegal ", date);
+        return false;
+    }
+    //call_back_para_ = call_back_para;
+
+    // request fenbi data from quotation server
+    QuotationRequest quotation_req;
+    quotation_req.set_code(Zqdm);
+
+    auto date_begin_comm = FromLongdate(date);
+    FillTime(TimePoint(MakeTimePoint(std::get<0>(date_begin_comm), std::get<1>(date_begin_comm), std::get<2>(date_begin_comm))), *quotation_req.mutable_beg_time()); 
+    quotation_req.set_req_type(QuotationReqType::DAY);
+    quotation_req.set_req_id(++request_id_);
+    strand_.PostTask([this]()
+    {
+        this->request_holder_.insert(std::make_pair(request_id_, std::make_tuple(ReqType::HIS_QUOTE, nullptr)));
+    });
+    pconn_->AsyncSend( Encode(quotation_req, msg_system_, Message::HeaderType(0, pid(), 0)));
+    return true; 
+}
+
 bool IsLongDate(int date)
 {
     /*if( date < 10000000 && date > 30000000 )

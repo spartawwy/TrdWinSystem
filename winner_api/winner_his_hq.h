@@ -18,4 +18,8 @@ extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_GetHisFenbiDataBatch(char* Zqdm, 
 
 extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_GetKData(char* Zqdm, PeriodType type, int date_begin, int date_end
                                                            , T_KDataCallBack *call_back_para, bool is_index, char* ErrInfo);
+
+// sync call; ps: will wait a span, when call a new  zqdm or new date
+extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_GetQuote(char* Zqdm, int Date, int hhmmss, T_QuoteAtomData *ret_quote_data, char* ErrInfo);
+
 #endif // WINNER_HIS_HQ_SDF23DFSD_H_

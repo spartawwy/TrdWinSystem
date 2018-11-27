@@ -48,6 +48,16 @@ message QuotationMessage
         required uint32          vol                = 3;
         optional RationalNumber  price_change       = 4;
         optional bool            is_change_positive = 5[default=true];
+        optional RationalNumber  b_1                = 6;
+        optional RationalNumber  b_2                = 7;
+        optional RationalNumber  b_3                = 8;
+        optional RationalNumber  b_4                = 9;
+        optional RationalNumber  b_5                = 10;
+        optional RationalNumber  s_1                = 11;
+        optional RationalNumber  s_2                = 12;
+        optional RationalNumber  s_3                = 13;
+        optional RationalNumber  s_4                = 14;
+        optional RationalNumber  s_5                = 15;
       }
       message QuotationKbarMessage
       {

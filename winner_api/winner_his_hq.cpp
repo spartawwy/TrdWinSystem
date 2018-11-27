@@ -46,6 +46,14 @@ extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_GetKData(char* Zqdm, PeriodType t
     return val ? 0 : -2;
 }
 
+extern "C" DLLIMEXPORT int  WinnerHisHq_GetQuote(char* Zqdm, int Date, int hhmmss, T_QuoteAtomData *ret_quote_data, char* ErrInfo)
+{
+    if( !GetInstance()->is_connected() )
+        return -1;
+    auto val = GetInstance()->RequestHisQuote(Zqdm, Date, ErrInfo);
+    return val ? 0 : -2;
+}
+
 static WinnerClient* GetInstance(bool is_del)
 {
     static std::string pro_tag = TSystem::utility::ProjectTag("wzf");
@@ -89,3 +97,4 @@ static WinnerClient* GetInstance(bool is_del)
         Sleep(10);
     return winn_client_obj;
 }
+

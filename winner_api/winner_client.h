@@ -28,6 +28,7 @@ public:
     bool RequestFenbiHisDataBatch(char* Zqdm, int date_begin, int date_end, T_FenbiCallBack *call_back_para, char* ErrInfo);
     bool RequestKData(char* Zqdm, PeriodType type, int date_begin, int date_end
                     , T_KDataCallBack *call_back_para, bool is_index, char* ErrInfo);
+    bool RequestHisQuote(char* Zqdm, int date, char* ErrInfo);
 
 private:
 
@@ -66,6 +67,7 @@ private:
     {
         FILL_FENBI,
         KDATA,
+        HIS_QUOTE,
     };
     // (req_id, call back para)
     std::unordered_map<int, std::tuple<ReqType, void*> >  request_holder_;

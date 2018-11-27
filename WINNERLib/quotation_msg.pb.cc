@@ -500,6 +500,16 @@ const int QuotationMessage_QuotationFillMessage::kPriceFieldNumber;
 const int QuotationMessage_QuotationFillMessage::kVolFieldNumber;
 const int QuotationMessage_QuotationFillMessage::kPriceChangeFieldNumber;
 const int QuotationMessage_QuotationFillMessage::kIsChangePositiveFieldNumber;
+const int QuotationMessage_QuotationFillMessage::kB1FieldNumber;
+const int QuotationMessage_QuotationFillMessage::kB2FieldNumber;
+const int QuotationMessage_QuotationFillMessage::kB3FieldNumber;
+const int QuotationMessage_QuotationFillMessage::kB4FieldNumber;
+const int QuotationMessage_QuotationFillMessage::kB5FieldNumber;
+const int QuotationMessage_QuotationFillMessage::kS1FieldNumber;
+const int QuotationMessage_QuotationFillMessage::kS2FieldNumber;
+const int QuotationMessage_QuotationFillMessage::kS3FieldNumber;
+const int QuotationMessage_QuotationFillMessage::kS4FieldNumber;
+const int QuotationMessage_QuotationFillMessage::kS5FieldNumber;
 #endif  // !_MSC_VER
 
 QuotationMessage_QuotationFillMessage::QuotationMessage_QuotationFillMessage()
@@ -526,6 +536,66 @@ void QuotationMessage_QuotationFillMessage::InitAsDefaultInstance() {
 #else
   price_change_ = const_cast< ::RationalNumber*>(&::RationalNumber::default_instance());
 #endif
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  b_1_ = const_cast< ::RationalNumber*>(
+      ::RationalNumber::internal_default_instance());
+#else
+  b_1_ = const_cast< ::RationalNumber*>(&::RationalNumber::default_instance());
+#endif
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  b_2_ = const_cast< ::RationalNumber*>(
+      ::RationalNumber::internal_default_instance());
+#else
+  b_2_ = const_cast< ::RationalNumber*>(&::RationalNumber::default_instance());
+#endif
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  b_3_ = const_cast< ::RationalNumber*>(
+      ::RationalNumber::internal_default_instance());
+#else
+  b_3_ = const_cast< ::RationalNumber*>(&::RationalNumber::default_instance());
+#endif
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  b_4_ = const_cast< ::RationalNumber*>(
+      ::RationalNumber::internal_default_instance());
+#else
+  b_4_ = const_cast< ::RationalNumber*>(&::RationalNumber::default_instance());
+#endif
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  b_5_ = const_cast< ::RationalNumber*>(
+      ::RationalNumber::internal_default_instance());
+#else
+  b_5_ = const_cast< ::RationalNumber*>(&::RationalNumber::default_instance());
+#endif
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  s_1_ = const_cast< ::RationalNumber*>(
+      ::RationalNumber::internal_default_instance());
+#else
+  s_1_ = const_cast< ::RationalNumber*>(&::RationalNumber::default_instance());
+#endif
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  s_2_ = const_cast< ::RationalNumber*>(
+      ::RationalNumber::internal_default_instance());
+#else
+  s_2_ = const_cast< ::RationalNumber*>(&::RationalNumber::default_instance());
+#endif
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  s_3_ = const_cast< ::RationalNumber*>(
+      ::RationalNumber::internal_default_instance());
+#else
+  s_3_ = const_cast< ::RationalNumber*>(&::RationalNumber::default_instance());
+#endif
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  s_4_ = const_cast< ::RationalNumber*>(
+      ::RationalNumber::internal_default_instance());
+#else
+  s_4_ = const_cast< ::RationalNumber*>(&::RationalNumber::default_instance());
+#endif
+#ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  s_5_ = const_cast< ::RationalNumber*>(
+      ::RationalNumber::internal_default_instance());
+#else
+  s_5_ = const_cast< ::RationalNumber*>(&::RationalNumber::default_instance());
+#endif
 }
 
 QuotationMessage_QuotationFillMessage::QuotationMessage_QuotationFillMessage(const QuotationMessage_QuotationFillMessage& from)
@@ -541,6 +611,16 @@ void QuotationMessage_QuotationFillMessage::SharedCtor() {
   vol_ = 0u;
   price_change_ = NULL;
   is_change_positive_ = true;
+  b_1_ = NULL;
+  b_2_ = NULL;
+  b_3_ = NULL;
+  b_4_ = NULL;
+  b_5_ = NULL;
+  s_1_ = NULL;
+  s_2_ = NULL;
+  s_3_ = NULL;
+  s_4_ = NULL;
+  s_5_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -557,6 +637,16 @@ void QuotationMessage_QuotationFillMessage::SharedDtor() {
     delete time_;
     delete price_;
     delete price_change_;
+    delete b_1_;
+    delete b_2_;
+    delete b_3_;
+    delete b_4_;
+    delete b_5_;
+    delete s_1_;
+    delete s_2_;
+    delete s_3_;
+    delete s_4_;
+    delete s_5_;
   }
 }
 
@@ -593,6 +683,38 @@ void QuotationMessage_QuotationFillMessage::Clear() {
       if (price_change_ != NULL) price_change_->::RationalNumber::Clear();
     }
     is_change_positive_ = true;
+    if (has_b_1()) {
+      if (b_1_ != NULL) b_1_->::RationalNumber::Clear();
+    }
+    if (has_b_2()) {
+      if (b_2_ != NULL) b_2_->::RationalNumber::Clear();
+    }
+    if (has_b_3()) {
+      if (b_3_ != NULL) b_3_->::RationalNumber::Clear();
+    }
+  }
+  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    if (has_b_4()) {
+      if (b_4_ != NULL) b_4_->::RationalNumber::Clear();
+    }
+    if (has_b_5()) {
+      if (b_5_ != NULL) b_5_->::RationalNumber::Clear();
+    }
+    if (has_s_1()) {
+      if (s_1_ != NULL) s_1_->::RationalNumber::Clear();
+    }
+    if (has_s_2()) {
+      if (s_2_ != NULL) s_2_->::RationalNumber::Clear();
+    }
+    if (has_s_3()) {
+      if (s_3_ != NULL) s_3_->::RationalNumber::Clear();
+    }
+    if (has_s_4()) {
+      if (s_4_ != NULL) s_4_->::RationalNumber::Clear();
+    }
+    if (has_s_5()) {
+      if (s_5_ != NULL) s_5_->::RationalNumber::Clear();
+    }
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -672,6 +794,146 @@ bool QuotationMessage_QuotationFillMessage::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
+        if (input->ExpectTag(50)) goto parse_b_1;
+        break;
+      }
+
+      // optional .RationalNumber b_1 = 6;
+      case 6: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_b_1:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_b_1()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(58)) goto parse_b_2;
+        break;
+      }
+
+      // optional .RationalNumber b_2 = 7;
+      case 7: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_b_2:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_b_2()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(66)) goto parse_b_3;
+        break;
+      }
+
+      // optional .RationalNumber b_3 = 8;
+      case 8: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_b_3:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_b_3()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(74)) goto parse_b_4;
+        break;
+      }
+
+      // optional .RationalNumber b_4 = 9;
+      case 9: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_b_4:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_b_4()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(82)) goto parse_b_5;
+        break;
+      }
+
+      // optional .RationalNumber b_5 = 10;
+      case 10: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_b_5:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_b_5()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(90)) goto parse_s_1;
+        break;
+      }
+
+      // optional .RationalNumber s_1 = 11;
+      case 11: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_s_1:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_s_1()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(98)) goto parse_s_2;
+        break;
+      }
+
+      // optional .RationalNumber s_2 = 12;
+      case 12: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_s_2:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_s_2()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(106)) goto parse_s_3;
+        break;
+      }
+
+      // optional .RationalNumber s_3 = 13;
+      case 13: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_s_3:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_s_3()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(114)) goto parse_s_4;
+        break;
+      }
+
+      // optional .RationalNumber s_4 = 14;
+      case 14: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_s_4:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_s_4()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(122)) goto parse_s_5;
+        break;
+      }
+
+      // optional .RationalNumber s_5 = 15;
+      case 15: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_s_5:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_s_5()));
+        } else {
+          goto handle_uninterpreted;
+        }
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -721,6 +983,66 @@ void QuotationMessage_QuotationFillMessage::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteBool(5, this->is_change_positive(), output);
   }
 
+  // optional .RationalNumber b_1 = 6;
+  if (has_b_1()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessage(
+      6, this->b_1(), output);
+  }
+
+  // optional .RationalNumber b_2 = 7;
+  if (has_b_2()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessage(
+      7, this->b_2(), output);
+  }
+
+  // optional .RationalNumber b_3 = 8;
+  if (has_b_3()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessage(
+      8, this->b_3(), output);
+  }
+
+  // optional .RationalNumber b_4 = 9;
+  if (has_b_4()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessage(
+      9, this->b_4(), output);
+  }
+
+  // optional .RationalNumber b_5 = 10;
+  if (has_b_5()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessage(
+      10, this->b_5(), output);
+  }
+
+  // optional .RationalNumber s_1 = 11;
+  if (has_s_1()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessage(
+      11, this->s_1(), output);
+  }
+
+  // optional .RationalNumber s_2 = 12;
+  if (has_s_2()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessage(
+      12, this->s_2(), output);
+  }
+
+  // optional .RationalNumber s_3 = 13;
+  if (has_s_3()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessage(
+      13, this->s_3(), output);
+  }
+
+  // optional .RationalNumber s_4 = 14;
+  if (has_s_4()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessage(
+      14, this->s_4(), output);
+  }
+
+  // optional .RationalNumber s_5 = 15;
+  if (has_s_5()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessage(
+      15, this->s_5(), output);
+  }
+
 }
 
 int QuotationMessage_QuotationFillMessage::ByteSize() const {
@@ -760,6 +1082,78 @@ int QuotationMessage_QuotationFillMessage::ByteSize() const {
       total_size += 1 + 1;
     }
 
+    // optional .RationalNumber b_1 = 6;
+    if (has_b_1()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->b_1());
+    }
+
+    // optional .RationalNumber b_2 = 7;
+    if (has_b_2()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->b_2());
+    }
+
+    // optional .RationalNumber b_3 = 8;
+    if (has_b_3()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->b_3());
+    }
+
+  }
+  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    // optional .RationalNumber b_4 = 9;
+    if (has_b_4()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->b_4());
+    }
+
+    // optional .RationalNumber b_5 = 10;
+    if (has_b_5()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->b_5());
+    }
+
+    // optional .RationalNumber s_1 = 11;
+    if (has_s_1()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->s_1());
+    }
+
+    // optional .RationalNumber s_2 = 12;
+    if (has_s_2()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->s_2());
+    }
+
+    // optional .RationalNumber s_3 = 13;
+    if (has_s_3()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->s_3());
+    }
+
+    // optional .RationalNumber s_4 = 14;
+    if (has_s_4()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->s_4());
+    }
+
+    // optional .RationalNumber s_5 = 15;
+    if (has_s_5()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->s_5());
+    }
+
   }
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = total_size;
@@ -790,6 +1184,38 @@ void QuotationMessage_QuotationFillMessage::MergeFrom(const QuotationMessage_Quo
     if (from.has_is_change_positive()) {
       set_is_change_positive(from.is_change_positive());
     }
+    if (from.has_b_1()) {
+      mutable_b_1()->::RationalNumber::MergeFrom(from.b_1());
+    }
+    if (from.has_b_2()) {
+      mutable_b_2()->::RationalNumber::MergeFrom(from.b_2());
+    }
+    if (from.has_b_3()) {
+      mutable_b_3()->::RationalNumber::MergeFrom(from.b_3());
+    }
+  }
+  if (from._has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    if (from.has_b_4()) {
+      mutable_b_4()->::RationalNumber::MergeFrom(from.b_4());
+    }
+    if (from.has_b_5()) {
+      mutable_b_5()->::RationalNumber::MergeFrom(from.b_5());
+    }
+    if (from.has_s_1()) {
+      mutable_s_1()->::RationalNumber::MergeFrom(from.s_1());
+    }
+    if (from.has_s_2()) {
+      mutable_s_2()->::RationalNumber::MergeFrom(from.s_2());
+    }
+    if (from.has_s_3()) {
+      mutable_s_3()->::RationalNumber::MergeFrom(from.s_3());
+    }
+    if (from.has_s_4()) {
+      mutable_s_4()->::RationalNumber::MergeFrom(from.s_4());
+    }
+    if (from.has_s_5()) {
+      mutable_s_5()->::RationalNumber::MergeFrom(from.s_5());
+    }
   }
 }
 
@@ -808,6 +1234,36 @@ bool QuotationMessage_QuotationFillMessage::IsInitialized() const {
   if (has_price_change()) {
     if (!this->price_change().IsInitialized()) return false;
   }
+  if (has_b_1()) {
+    if (!this->b_1().IsInitialized()) return false;
+  }
+  if (has_b_2()) {
+    if (!this->b_2().IsInitialized()) return false;
+  }
+  if (has_b_3()) {
+    if (!this->b_3().IsInitialized()) return false;
+  }
+  if (has_b_4()) {
+    if (!this->b_4().IsInitialized()) return false;
+  }
+  if (has_b_5()) {
+    if (!this->b_5().IsInitialized()) return false;
+  }
+  if (has_s_1()) {
+    if (!this->s_1().IsInitialized()) return false;
+  }
+  if (has_s_2()) {
+    if (!this->s_2().IsInitialized()) return false;
+  }
+  if (has_s_3()) {
+    if (!this->s_3().IsInitialized()) return false;
+  }
+  if (has_s_4()) {
+    if (!this->s_4().IsInitialized()) return false;
+  }
+  if (has_s_5()) {
+    if (!this->s_5().IsInitialized()) return false;
+  }
   return true;
 }
 
@@ -818,6 +1274,16 @@ void QuotationMessage_QuotationFillMessage::Swap(QuotationMessage_QuotationFillM
     std::swap(vol_, other->vol_);
     std::swap(price_change_, other->price_change_);
     std::swap(is_change_positive_, other->is_change_positive_);
+    std::swap(b_1_, other->b_1_);
+    std::swap(b_2_, other->b_2_);
+    std::swap(b_3_, other->b_3_);
+    std::swap(b_4_, other->b_4_);
+    std::swap(b_5_, other->b_5_);
+    std::swap(s_1_, other->s_1_);
+    std::swap(s_2_, other->s_2_);
+    std::swap(s_3_, other->s_3_);
+    std::swap(s_4_, other->s_4_);
+    std::swap(s_5_, other->s_5_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     std::swap(_cached_size_, other->_cached_size_);
   }

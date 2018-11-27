@@ -30,6 +30,16 @@ typedef struct _t_quote_atom_data
     double price_change;
     int  vol;
     unsigned char bid_type; // 0: buy_pan  1 :sell_pan
+    double b_1;
+    double b_2;
+    double b_3;
+    double b_4;
+    double b_5;
+    double s_1;
+    double s_2;
+    double s_3;
+    double s_4;
+    double s_5;
 }T_QuoteAtomData;
 
 typedef struct _t_k_data
@@ -122,6 +132,7 @@ typedef int (__cdecl* WinnerHisHq_GetKDataDelegate)(char* Zqdm, PeriodType type,
                                                            , T_KDataCallBack *call_back_para, bool is_index, char *ErrInfo);
 
 
-
+// sync call; ps: will wait a span, when call a new  zqdm or new date
+typedef int (__cdecl* WinnerHisHq_GetQuoteDelegate)(char* Zqdm, int Date, int hhmmss, T_QuoteAtomData *ret_quote_data);
 
 #endif // WINNER_API_SDF32DF_H_
