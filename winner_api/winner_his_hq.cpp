@@ -1,9 +1,12 @@
+#include <TLib/core/tsystem_time.h>
+
 #include "winner_his_hq.h"
 
 #include <thread>
 #include <windows.h>
 
 #include <TLib/core/tsystem_core_paths.h>
+
 #include "winner_client.h"
  
 static WinnerClient* GetInstance(bool is_del = false);
@@ -47,11 +50,41 @@ extern "C" DLLIMEXPORT int __cdecl WinnerHisHq_GetKData(char* Zqdm, PeriodType t
 }
 
 extern "C" DLLIMEXPORT int  WinnerHisHq_GetQuote(char* Zqdm, int Date, int hhmmss, T_QuoteAtomData *ret_quote_data, char* ErrInfo)
-{
+{ 
+    auto from_quote_data = [&](WinnerClient::TTimeMapQuoteData * p_time_his_quote)->bool
+    {
+        assert(p_time_his_quote);
+        auto time_point = TSystem::MakeTimePoint(Date/10000, Date%10000/100, Date%100, hhmmss/10000, hhmmss%10000/100, hhmmss%100, 0);
+        std::time_t time_val = std::chrono::system_clock::to_time_t(time_point);
+        auto iter = p_time_his_quote->find(time_val);
+        if( iter != p_time_his_quote->end() )
+        {
+            WinnerClient::QuoteAtomData *quote_data = iter->second.get();
+            if( ret_quote_data )
+                memcpy(ret_quote_data, std::addressof(quote_data->data_), sizeof(T_QuoteAtomData));
+            return true;
+        }else
+            return false;
+    };
+
+    WinnerClient::TTimeMapQuoteData * p_time_his_quote = GetInstance()->FindHisQuote(Zqdm, Date);
+
+    if( p_time_his_quote && from_quote_data(p_time_his_quote) )
+        return 0;
+
     if( !GetInstance()->is_connected() )
         return -1;
     auto val = GetInstance()->RequestHisQuote(Zqdm, Date, ErrInfo);
-    return val ? 0 : -2;
+
+    p_time_his_quote = GetInstance()->FindHisQuote(Zqdm, Date);
+    if( p_time_his_quote && from_quote_data(p_time_his_quote) )
+        return 0;
+    else
+    {
+        if( ErrInfo )
+            strcpy(ErrInfo, "no related data");
+        return -2;
+    }
 }
 
 static WinnerClient* GetInstance(bool is_del)

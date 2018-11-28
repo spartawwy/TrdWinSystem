@@ -136,28 +136,59 @@ void WinnerClient::SetupMsgHandlers()
             }else if( std::get<0>(req_iter->second) == ReqType::HIS_QUOTE )
             {
                 // todo:
+                auto his_quote_iter = his_quote_container_.find(quotation_message->code());
+                if( his_quote_iter == his_quote_container_.end() )
+                    his_quote_iter = his_quote_container_.insert(std::make_pair(quotation_message->code(), TIntMapTimeQuoteData())).first;
+                if( quotation_message->quote_fill_msgs().size() <= 0 )
+                {
+                    request_holder_.erase(req_iter);
+                    return;
+                }
+                auto time_val = quotation_message->quote_fill_msgs().Get(0).time().time_value();
+                struct tm timeinfo;
+                localtime_s(&timeinfo, &time_val); 
+                const int long_date = (timeinfo.tm_year + 1900) * 10000 + (timeinfo.tm_mon + 1) * 100 + timeinfo.tm_mday;
+                // already has related data
+                if( his_quote_iter->second.find(long_date) != his_quote_iter->second.end() )
+                    return;
+
+                auto date_quotes = his_quote_iter->second.insert( std::make_pair(long_date, TTimeMapQuoteData()) ).first;
                 for(int i = 0; i < quotation_message->quote_fill_msgs().size(); ++i )
                 {
-                    T_QuoteAtomData quote_atom_data = {0};
-                     
+                    auto p_quote_atom_data = std::make_shared<QuoteAtomData>();
+                    T_QuoteAtomData &quote_atom_data = p_quote_atom_data->data_;
+                    memset(&quote_atom_data, 0, sizeof(quote_atom_data));
+                    //his_quote_iter->second.insert(
                     QuotationMessage::QuotationFillMessage *msg_fill = quotation_message->mutable_quote_fill_msgs()->Mutable(i);
- 
+                    
                     strcpy_s(quote_atom_data.code, quotation_message->code().c_str());
 
                     quote_atom_data.time = msg_fill->time().time_value();
-                        
                     quote_atom_data.price = RationalDouble(msg_fill->price());
                     quote_atom_data.price_change = RationalDouble(msg_fill->price_change()) * (msg_fill->is_change_positive() ? 1 : -1);
-                    
                     quote_atom_data.vol = msg_fill->vol();
-                      
-                    //((T_FenbiCallBack*)call_back_para)->call_back_func(&quote_atom_data, quotation_message->is_last(), call_back_para);
+                    quote_atom_data.b_1 = RationalDouble(msg_fill->b_1());
+                    quote_atom_data.b_2 = RationalDouble(msg_fill->b_2());
+                    quote_atom_data.b_3 = RationalDouble(msg_fill->b_3());
+                    quote_atom_data.b_4 = RationalDouble(msg_fill->b_4());
+                    quote_atom_data.b_5 = RationalDouble(msg_fill->b_5());
+                    quote_atom_data.s_1 = RationalDouble(msg_fill->s_1());
+                    quote_atom_data.s_2 = RationalDouble(msg_fill->s_2());
+                    quote_atom_data.s_3 = RationalDouble(msg_fill->s_3());
+                    quote_atom_data.s_4 = RationalDouble(msg_fill->s_4());
+                    quote_atom_data.s_5 = RationalDouble(msg_fill->s_5());
+                    {
+                        his_quote_container_mutex_.WriteLock();
+                        date_quotes->second.insert( std::make_pair(quotation_message->quote_fill_msgs().Get(0).time().time_value()
+                            , std::move(p_quote_atom_data)) );
+                    }
+                    
                     if( quotation_message->is_last() )
                     {
                         request_holder_.erase(req_iter);
                         return;
                     }
-                }
+                }// for all fills
 
             }else if( std::get<0>(req_iter->second) == ReqType::KDATA )
             {
@@ -413,9 +444,24 @@ bool WinnerClient::RequestKData(char* Zqdm, PeriodType type, int date_begin, int
     return true;
 }
 
+WinnerClient::TTimeMapQuoteData * WinnerClient::FindHisQuote(const std::string &code, int date)
+{
+    //TTimeMapQuoteData * p_time_his_quote = nullptr;
+     
+    his_quote_container_mutex_.ReadLock();
+    auto iter_code_his_quote = his_quote_container_.find(code);
+    if( iter_code_his_quote == his_quote_container_.end() )
+        return nullptr;
+    auto iter_date_code_his = iter_code_his_quote->second.find(date);
+    if( iter_date_code_his == iter_code_his_quote->second.end() )
+        return nullptr;
+    return std::addressof(iter_date_code_his->second);
+}
 
 bool WinnerClient::RequestHisQuote(char* Zqdm, int date, char* ErrInfo)
 {
+    TTimeMapQuoteData * p_time_his_quote = nullptr;
+
     if( !is_connected_ || !pconn_ )
     {
         if( ErrInfo ) strcpy(ErrInfo, "server is not connected!");
@@ -449,6 +495,13 @@ bool WinnerClient::RequestHisQuote(char* Zqdm, int date, char* ErrInfo)
         this->request_holder_.insert(std::make_pair(request_id_, std::make_tuple(ReqType::HIS_QUOTE, nullptr)));
     });
     pconn_->AsyncSend( Encode(quotation_req, msg_system_, Message::HeaderType(0, pid(), 0)));
+      
+    TSystem::WaitFor([Zqdm, date, &p_time_his_quote, this]()->bool
+    {
+        p_time_his_quote = FindHisQuote(Zqdm, date);
+        return p_time_his_quote;
+    }, 5*1000*1000); //microseconds
+
     return true; 
 }
 

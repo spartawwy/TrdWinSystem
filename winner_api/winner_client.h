@@ -14,6 +14,14 @@
 class WinnerClient : public TSystem::ServerClientAppBase
 {
 public:
+    class QuoteAtomData
+    {
+    public:
+        QuoteAtomData() { memset(&data_, 0, sizeof(data_)); }
+        QuoteAtomData(T_QuoteAtomData &data) { memcpy(&data_, &data, sizeof(data)); }
+        QuoteAtomData(QuoteAtomData&& lh): data_(std::move(lh.data_)){ }
+        T_QuoteAtomData data_;
+    };
 
     WinnerClient();
     virtual ~WinnerClient();
@@ -29,6 +37,13 @@ public:
     bool RequestKData(char* Zqdm, PeriodType type, int date_begin, int date_end
                     , T_KDataCallBack *call_back_para, bool is_index, char* ErrInfo);
     bool RequestHisQuote(char* Zqdm, int date, char* ErrInfo);
+
+    typedef std::unordered_map<__int64, std::shared_ptr<QuoteAtomData> > TTimeMapQuoteData;
+    //(day, TTimeMapQuoteData)
+    typedef std::unordered_map<int, TTimeMapQuoteData> TIntMapTimeQuoteData;
+    typedef std::unordered_map<std::string, TIntMapTimeQuoteData> TCodeMapQuoteDatas;
+
+    TTimeMapQuoteData * FindHisQuote(const std::string &code, int date);
 
 private:
 
@@ -47,7 +62,7 @@ private:
     virtual void HandleInboundDisconnect(std::shared_ptr<TSystem::communication::Connection>& pconn, const TSystem::TError& te) override;
 
     virtual void UpdateState() override;*/
-
+     
 private:
 
     TSystem::MessageHandlerGroup	msg_handlers_;
@@ -72,5 +87,8 @@ private:
     // (req_id, call back para)
     std::unordered_map<int, std::tuple<ReqType, void*> >  request_holder_;
     //BoostReadWriteMutex request_holder_mutex_;
+     
+    TCodeMapQuoteDatas  his_quote_container_;
+    BoostReadWriteMutex his_quote_container_mutex_;
 };
 #endif // WINNER_CLIENT_SDF3SDFSDF_H_
