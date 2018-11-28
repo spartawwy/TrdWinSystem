@@ -47,11 +47,12 @@ enum QuotationReqType {
   HOUR = 5,
   DAY = 6,
   WEEK = 7,
-  MONTH = 8
+  MONTH = 8,
+  HIS_QUOTE = 9
 };
 bool QuotationReqType_IsValid(int value);
 const QuotationReqType QuotationReqType_MIN = FENBI;
-const QuotationReqType QuotationReqType_MAX = MONTH;
+const QuotationReqType QuotationReqType_MAX = HIS_QUOTE;
 const int QuotationReqType_ARRAYSIZE = QuotationReqType_MAX + 1;
 
 enum QuotationFqType {

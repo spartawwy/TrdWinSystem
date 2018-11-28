@@ -317,6 +317,9 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
      case QuotationReqType::MONTH:
         _HandleQuotatoinKbar(req, pconn);
          break;
+     case QuotationReqType::HIS_QUOTE:
+         _HandleQuotatoinHisQuote(req, pconn);
+         break;
      }
 
 }
@@ -766,6 +769,146 @@ void QuotationServerApp::_HandleQuotatoinKBarWeek(std::shared_ptr<QuotationReque
         FillRequestAck(req->req_id(), 2, "no related data", ack);
         pconn->AsyncSend( Encode(ack, msg_system(), Message::HeaderType(0, pid(), 0)));
     }
+}
+
+void QuotationServerApp::_HandleQuotatoinHisQuote(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn)
+{
+    assert(req);
+    assert(pconn); 
+
+    auto tm_point = TSystem::MakeTimePoint((time_t)req->beg_time().time_value(), req->beg_time().frac_sec()); 
+    TimePoint t_p(tm_point);
+    int date = ToLongdate(t_p.year(), t_p.month(), t_p.day());
+      
+    static auto create_file_path = [](const std::string& stk_data_dir, const std::string& date_str, const std::string& code)
+    {
+         int date = bar_daystr_to_longday(date_str);
+	     auto date_com = TSystem::FromLongdate(date);
+         std::string date_format_str = utility::FormatStr("%d%02d%02d", std::get<0>(date_com), std::get<1>(date_com), std::get<2>(date_com));
+	     std::string year_mon = utility::FormatStr("%d%02d", std::get<0>(date_com), std::get<1>(date_com));
+         std::string year_mon_sub = year_mon + (IsShStock(code) ? "SH" : "SZ");
+         return stk_data_dir + year_mon + "/" + year_mon_sub + "/" + date_format_str + "/" + code + "_" + date_format_str + ".csv";
+    };
+   
+    if( !this->exchange_calendar_.IsTradeDate(date) )
+        return;
+    QuotationMessage quotation_msg;
+    quotation_msg.set_code(req->code());
+    quotation_msg.set_req_id(req->req_id());
+    quotation_msg.set_is_last(true);
+             
+    auto fenbi_vector = std::make_shared<std::vector<T_Fenbi>>();
+    fenbi_vector->reserve(1024);
+             
+    std::string date_format_str = utility::FormatStr("%d", date);
+	std::string year_mon = utility::FormatStr("%d%02d", (date/10000), date%10000/100);
+    std::string year_mon_sub = year_mon + (IsShStock(req->code()) ? "SH" : "SZ");
+    std::string full_path = this->stk_data_dir_ + year_mon + "/" + year_mon_sub + "/" + date_format_str + "/" + req->code() + "_" + date_format_str + ".csv";
+  
+    std::string hour;
+    std::string minute;
+    std::string second;
+    std::string price;
+    std::string change_price;
+    std::string vol;
+    std::string b_1, b_2, b_3, b_4, b_5;
+    std::string s_1, s_2, s_3, s_4, s_5;
+    //std::string amount; 
+
+    /////////////////////////////////
+    // read quotes from a file
+    /////////////////////////////////
+
+      //std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d{2}):(\\d{2}):(\\d{2}),(\\d+\\.\\d+),(\\d+)(.*)$"; 
+    std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d{2}):(\\d{2}):(\\d{2}),(\\d+\\.\\d+),(\\d+),(\\d+),(\\d+)(\\d+\\.\\d+),(\\d+)(\\d+\\.\\d+),(\\d+)(\\d+\\.\\d+),(\\d+)(\\d+\\.\\d+),(\\d+)(\\d+\\.\\d+),(\\d+)(\\d+\\.\\d+),(\\d+)(\\d+\\.\\d+),(\\d+)(\\d+\\.\\d+),(\\d+)(\\d+\\.\\d+),(\\d+)(\\d+\\.\\d+),(\\d+)(.*)$"; 
+    std::regex regex_obj(partten_string); 
+              
+    char buf[256] = {0};
+    std::fstream in(full_path);
+    if( !in.is_open() )
+    {
+        printf("open file fail");
+        getchar();
+        return;
+    }
+    while( !in.eof() )
+    {
+        in.getline(buf, sizeof(buf));
+        int len = strlen(buf);
+        if( len < 1 )
+            continue;
+        char *p0 = buf;
+        char *p1 = &buf[len-1];
+        std::string src(p0, p1);
+
+        std::smatch result; 
+        if( std::regex_match(src.cbegin(), src.cend(), result, regex_obj) )
+        {  //std::cout << result[1] << " " << result[2] << " " << result[3] << " " << result[4] << std::endl;
+            hour = result[2];
+            minute = result[3];
+            second = result[4];
+            price = result[5];
+            change_price = "0.0";
+            vol =  result[6];
+
+            b_1 = result[9];
+            b_2 = result[11];
+            b_3 = result[13];
+            b_4 = result[15];
+            b_5 = result[17];
+            s_1 = result[19];
+            s_2 = result[21];
+            s_3 = result[23];
+            s_4 = result[25];
+            s_5 = result[27];
+            try
+            {
+                QuotationMessage::QuotationFillMessage * p_fill_msg = quotation_msg.add_quote_fill_msgs();
+                     
+                auto date_comp = TSystem::FromLongdate(date);
+                FillTime( TimePoint(TSystem::MakeTimePoint(std::get<0>(date_comp), std::get<1>(date_comp), std::get<2>(date_comp)
+                    , std::stoi(hour), std::stoi(minute), std::stoi(second)))
+                    , *p_fill_msg->mutable_time() );
+                TSystem::FillRational(price, *p_fill_msg->mutable_price()); 
+                TSystem::FillRational(change_price, *p_fill_msg->mutable_price_change());
+
+                if( std::stod(change_price) < 0.0 )
+                    p_fill_msg->set_is_change_positive(false);
+                p_fill_msg->set_vol(std::stoi(vol)); 
+
+                // push to code_fenbi_container
+                int hhmmss = std::stoi(hour)*10000 + std::stoi(minute)*100 + std::stoi(second);
+                //day_iter->second->push_back(std::move(T_Fenbi(hhmmss, std::stof(price))));
+
+                TSystem::FillRational(b_1, *p_fill_msg->mutable_b_1());
+                TSystem::FillRational(b_2, *p_fill_msg->mutable_b_2());
+                TSystem::FillRational(b_3, *p_fill_msg->mutable_b_3());
+                TSystem::FillRational(b_4, *p_fill_msg->mutable_b_4());
+                TSystem::FillRational(b_5, *p_fill_msg->mutable_b_5());
+                TSystem::FillRational(s_1, *p_fill_msg->mutable_s_1());
+                TSystem::FillRational(s_2, *p_fill_msg->mutable_s_2());
+                TSystem::FillRational(s_3, *p_fill_msg->mutable_s_3());
+                TSystem::FillRational(s_4, *p_fill_msg->mutable_s_4());
+                TSystem::FillRational(s_5, *p_fill_msg->mutable_s_5());
+
+            }catch(std::exception &e)
+            {
+                printf("exception:%s", e.what());
+                continue;
+            }catch(...)
+            {
+                continue;
+            }
+        }
+        //--------------------
+        if( *p1 == '\0' ) break; 
+        if( int(*p1) == 0x0A ) // filter 0x0A
+            ++p1;
+    } // while
+            
+    printf("pconn->AsyncSend\n");
+    pconn->AsyncSend( Encode(quotation_msg, msg_system(), Message::HeaderType(0, pid(), 0)) ); 
+         
 }
 
 

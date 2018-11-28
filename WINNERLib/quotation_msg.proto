@@ -19,7 +19,9 @@ enum QuotationReqType
 	DAY             = 6;
 	WEEK            = 7;
 	MONTH           = 8;
+    HIS_QUOTE       = 9;
 }
+
 enum QuotationFqType
 {
     FQ_NO           = 0;

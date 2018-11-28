@@ -133,6 +133,31 @@ void WinnerClient::SetupMsgHandlers()
                         return;
                     }
                 }
+            }else if( std::get<0>(req_iter->second) == ReqType::HIS_QUOTE )
+            {
+                // todo:
+                for(int i = 0; i < quotation_message->quote_fill_msgs().size(); ++i )
+                {
+                    T_QuoteAtomData quote_atom_data = {0};
+                     
+                    QuotationMessage::QuotationFillMessage *msg_fill = quotation_message->mutable_quote_fill_msgs()->Mutable(i);
+ 
+                    strcpy_s(quote_atom_data.code, quotation_message->code().c_str());
+
+                    quote_atom_data.time = msg_fill->time().time_value();
+                        
+                    quote_atom_data.price = RationalDouble(msg_fill->price());
+                    quote_atom_data.price_change = RationalDouble(msg_fill->price_change()) * (msg_fill->is_change_positive() ? 1 : -1);
+                    
+                    quote_atom_data.vol = msg_fill->vol();
+                      
+                    //((T_FenbiCallBack*)call_back_para)->call_back_func(&quote_atom_data, quotation_message->is_last(), call_back_para);
+                    if( quotation_message->is_last() )
+                    {
+                        request_holder_.erase(req_iter);
+                        return;
+                    }
+                }
 
             }else if( std::get<0>(req_iter->second) == ReqType::KDATA )
             {
