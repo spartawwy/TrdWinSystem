@@ -45,6 +45,7 @@ QuotationServerApp::QuotationServerApp(const std::string &name, const std::strin
     , PyFuncGetAllFill2File(nullptr)
     , PyFuncGetDayKbar2File(nullptr)
     , PyFuncGetWeekKbar2File(nullptr)
+    , PyFuncGetHourKbar2File(nullptr)
     , PyFuncGetRealTimeKbar(nullptr)
     , stk_data_dir_()
     , conn_strands_(256) 
@@ -201,6 +202,12 @@ void QuotationServerApp::InitPython()
         std::cout << "QuotationServerApp::InitPython get func getWeekKBarData fail " << std::endl;
         throw ""; // todo: throw exception
     } 
+    PyFuncGetHourKbar2File = PyObject_GetAttrString(p_kline_obj, "getHourKBarData");
+    if( !PyFuncGetHourKbar2File )
+    {
+        std::cout << "QuotationServerApp::InitPython get func getHourKBarData fail " << std::endl;
+        throw ""; // todo: throw exception
+    } 
     PyFuncGetRealTimeKbar = PyObject_GetAttrString(p_kline_obj, "get_realtime_k_data");
     if( !PyFuncGetRealTimeKbar )
     {
@@ -294,7 +301,7 @@ void QuotationServerApp::HandleUserRequest(std::shared_ptr<UserRequest>& req, st
 
 void QuotationServerApp::HandleUserLogin(const UserRequest& req, const std::shared_ptr<communication::Connection>& pconn)
 {
-	SendRequestAck(req.user_id(), req.request_id(), req.request_type(), pconn);
+	SendUserRequestAck(req.user_id(), req.request_id(), req.request_type(), pconn);
 }
 
 void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn)
@@ -305,8 +312,8 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
      case QuotationReqType::FENBI:
         _HandleQuotatoinFenbi(req, pconn);
          break;
-     case QuotationReqType::ONE_MINUTE:
-         // todo: send ack
+     case QuotationReqType::ONE_MINUTE: 
+         SendRequestAck(req, 2, "no related data", pconn);
          break;
      case QuotationReqType::FIVE_MINUTE: // 5 minute
      case QuotationReqType::FIFTEEN_MINUTE:
@@ -315,7 +322,7 @@ void QuotationServerApp::HandleQuotationRequest(std::shared_ptr<QuotationRequest
      case QuotationReqType::DAY:
      case QuotationReqType::WEEK:
      case QuotationReqType::MONTH:
-        _HandleQuotatoinKbar(req, pconn);
+         _HandleQuotatoinKbar(req, pconn);
          break;
      case QuotationReqType::HIS_QUOTE:
          _HandleQuotatoinHisQuote(req, pconn);
@@ -614,16 +621,21 @@ void QuotationServerApp::_HandleQuotatoinKbar(std::shared_ptr<QuotationRequest>&
 
     switch( req->req_type() )
     {
-     case QuotationReqType::DAY:
-    {
-        _HandleQuotatoinKBarDay(req, pconn, req->code(), longday_beg, longday_end, req->fq_type(), req->is_index());
-        break;
-    }
-     case QuotationReqType::WEEK:
-     {
-         _HandleQuotatoinKBarWeek(req, pconn, req->code(), longday_beg, longday_end, req->fq_type(), req->is_index());
-         break;
-     } 
+    case QuotationReqType::DAY:
+        {
+            _HandleQuotatoinKBarDay(req, pconn, req->code(), longday_beg, longday_end, req->fq_type(), req->is_index());
+            break;
+        }
+    case QuotationReqType::WEEK:
+        {
+            _HandleQuotatoinKBarWeek(req, pconn, req->code(), longday_beg, longday_end, req->fq_type(), req->is_index());
+            break;
+        } 
+    case QuotationReqType::HOUR:
+        {
+            _HandleQuotatoinKBarHour(req, pconn, req->code(), longday_beg, longday_end, req->fq_type(), req->is_index());
+            break;
+        }
     }
 }
 
@@ -637,72 +649,10 @@ void QuotationServerApp::_HandleQuotatoinKBarDay(std::shared_ptr<QuotationReques
     std::string temp_code = code;
     if( is_index && code == "000001" )
         temp_code = "999999";
-#if 1
-    ReadQuoteMessage(ret_date_str_vector, temp_code, KLINE_TYPE::KTYPE_DAY, beg_date, end_date, quotation_msg);
-#else
-    //std::for_each( std::begin(ret_date_str_vector), std::end(ret_date_str_vector), [&req, &code, beg_date, end_date, &pconn, this](const std::string &entry)
-    for( auto entry = ret_date_str_vector.begin(); entry < ret_date_str_vector.end(); ++entry )
-    { 
-        std::string full_path = this->stk_data_dir_ + temp_code + "/kline/" + *entry;
-
-        std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+)(.*)$"; 
-        std::regex regex_obj(partten_string); 
-        char buf[256] = {0};
-        std::fstream in(full_path);
-        if( !in.is_open() )
-        {
-            printf("open file fail");
-            continue;
-        }
-        while( !in.eof() )
-        {
-            in.getline(buf, sizeof(buf));
-            int len = strlen(buf);
-            if( len < 1 )
-                continue;
-            char *p0 = buf;
-            char *p1 = &buf[len-1];
-            std::string src(p0, p1);
-            std::smatch result; 
-            if( std::regex_match(src.cbegin(), src.cend(), result, regex_obj) )
-            {  //std::cout << result[1] << " " << result[2] << " " << result[3] << " " << result[4] << std::endl;
-                std::string date_str = result[1];
-
-                std::string open_str = result[2];
-                std::string close_str = result[3];
-                std::string high_str = result[4];
-                std::string low_str = result[5];
-                std::string vol_str = result[6];
-                int date_val = bar_daystr_to_longday(date_str);
-                if( date_val < beg_date )
-                    continue;
-                if( date_val > end_date )
-                    goto END_PROC;
-                try
-                {
-                    QuotationMessage::QuotationKbarMessage * p_kbar_msg = quotation_msg.add_kbar_msgs();
-                    p_kbar_msg->set_yyyymmdd(date_val);
-                    TSystem::FillRational(open_str, *p_kbar_msg->mutable_open()); 
-                    TSystem::FillRational(close_str, *p_kbar_msg->mutable_close());
-                    TSystem::FillRational(high_str, *p_kbar_msg->mutable_high());
-                    TSystem::FillRational(low_str, *p_kbar_msg->mutable_low());
-                    TSystem::FillRational(vol_str, *p_kbar_msg->mutable_vol());
-                }catch(std::exception &e)
-                {
-                    printf("exception:%s", e.what());
-                    continue;
-                }catch(...)
-                {
-                    continue;
-                }
-            }
-            //--------------------
-            if( *p1 == '\0' ) break; 
-            if( int(*p1) == 0x0A ) // filter 0x0A
-                ++p1;
-        } // while
-    }// for each file
-#endif
+    const std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+)(.*)$"; 
+    ReadQuoteMessage(ret_date_str_vector, temp_code, KLINE_TYPE::KTYPE_DAY, beg_date, end_date, partten_string, quotation_msg);
+ 
+     
     if( end_date >= TSystem::Today() )
     {
         QuotationMessage::QuotationKbarMessage kbar_msg;
@@ -742,7 +692,8 @@ void QuotationServerApp::_HandleQuotatoinKBarWeek(std::shared_ptr<QuotationReque
     std::string temp_code = code;
     if( is_index && code == "000001" )
         temp_code = "999999";
-    ReadQuoteMessage(ret_date_str_vector, temp_code, KLINE_TYPE::KTYPE_WEEK, beg_date, end_date, quotation_msg);
+    const std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+)(.*)$"; 
+    ReadQuoteMessage(ret_date_str_vector, temp_code, KLINE_TYPE::KTYPE_WEEK, beg_date, end_date, partten_string, quotation_msg);
     if( IsSameWeek(end_date, Today()) )
     {
         QuotationMessage::QuotationKbarMessage kbar_msg;
@@ -769,6 +720,29 @@ void QuotationServerApp::_HandleQuotatoinKBarWeek(std::shared_ptr<QuotationReque
         FillRequestAck(req->req_id(), 2, "no related data", ack);
         pconn->AsyncSend( Encode(ack, msg_system(), Message::HeaderType(0, pid(), 0)));
     }
+}
+
+void QuotationServerApp::_HandleQuotatoinKBarHour(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection> &pconn, const std::string &code, int beg_date, int end_date, QuotationFqType fqtye, bool is_index)
+{
+    std::vector<std::string> ret_file_str_vector = GetHourKbars2File(code, beg_date, end_date, fqtye, is_index);
+    QuotationMessage quotation_msg;
+    quotation_msg.set_req_id(req->req_id());
+    quotation_msg.set_is_last(true);
+    quotation_msg.set_code(code);
+    std::string temp_code = code;
+    if( is_index && code == "000001" )
+        temp_code = "999999";
+    const std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}) (\\d{1,2}):(\\d{1,2}),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+)(.*)$"; 
+    ReadQuoteMessage(ret_file_str_vector, temp_code, KLINE_TYPE::KTYPE_HOUR, beg_date, end_date, partten_string, quotation_msg);
+
+    if( quotation_msg.kbar_msgs().size() > 0 )
+    { 
+        printf("pconn->AsyncSend\n");
+        pconn->AsyncSend( Encode(quotation_msg, msg_system(), Message::HeaderType(0, pid(), 0)) ); 
+    }else
+    {  
+        SendRequestAck(req, 2, "no related data", pconn);
+    } 
 }
 
 void QuotationServerApp::_HandleQuotatoinHisQuote(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn)
@@ -912,14 +886,14 @@ void QuotationServerApp::_HandleQuotatoinHisQuote(std::shared_ptr<QuotationReque
 }
 
 
-void QuotationServerApp::ReadQuoteMessage(const std::vector<std::string> &ret_date_str_vector, const std::string &code, KLINE_TYPE k_type, int beg_date, int end_date, QuotationMessage &quotation_msg)
+void QuotationServerApp::ReadQuoteMessage(const std::vector<std::string> &ret_date_str_vector, const std::string &code, KLINE_TYPE k_type, int beg_date, int end_date, const std::string &partten_str, QuotationMessage &quotation_msg)
 {
     for( auto entry = ret_date_str_vector.begin(); entry < ret_date_str_vector.end(); ++entry )
     { 
         std::string full_path = this->stk_data_dir_ + code + "/kline/" + *entry;
 
-        std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+)(.*)$"; 
-        std::regex regex_obj(partten_string); 
+       // std::string partten_string = "^(\\d{4}-\\d{1,2}-\\d{1,2}),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+\\.\\d+),(\\d+)(.*)$"; 
+        std::regex regex_obj(partten_str); 
         char buf[256] = {0};
         std::fstream in(full_path);
         if( !in.is_open() )
@@ -939,16 +913,24 @@ void QuotationServerApp::ReadQuoteMessage(const std::vector<std::string> &ret_da
             std::smatch result; 
             if( std::regex_match(src.cbegin(), src.cend(), result, regex_obj) )
             {  //std::cout << result[1] << " " << result[2] << " " << result[3] << " " << result[4] << std::endl;
-                std::string date_str = result[1];
-
-                std::string open_str = result[2];
-                std::string close_str = result[3];
-                std::string high_str = result[4];
-                std::string low_str = result[5];
-                std::string vol_str = result[6];
+                std::string hour_str;
+                std::string minute_str;
+                int index = 0;
+                std::string date_str = result[++index];
                 int date_val = bar_daystr_to_longday(date_str);
                 if( date_val < beg_date )
                     continue;
+                if( k_type == KLINE_TYPE::KTYPE_HOUR )
+                {
+                    hour_str = result[++index];
+                    minute_str = result[++index]; 
+                }
+                std::string open_str = result[++index];
+                std::string close_str = result[++index];
+                std::string high_str = result[++index];
+                std::string low_str = result[++index];
+                std::string vol_str = result[++index];
+                
                 if( date_val > end_date )
                 {
                     if( k_type == KLINE_TYPE::KTYPE_DAY )
@@ -963,6 +945,11 @@ void QuotationServerApp::ReadQuoteMessage(const std::vector<std::string> &ret_da
                 try
                 {
                     QuotationMessage::QuotationKbarMessage * p_kbar_msg = quotation_msg.add_kbar_msgs();
+                    if( k_type == KLINE_TYPE::KTYPE_HOUR )
+                    {
+                        int hhmmss = boost::lexical_cast<int>(hour_str) * 10000 + boost::lexical_cast<int>(minute_str) * 100;
+                        p_kbar_msg->set_hhmmdd(hhmmss);
+                    }
                     p_kbar_msg->set_yyyymmdd(date_val);
                     TSystem::FillRational(open_str, *p_kbar_msg->mutable_open()); 
                     TSystem::FillRational(close_str, *p_kbar_msg->mutable_close());
@@ -987,13 +974,20 @@ void QuotationServerApp::ReadQuoteMessage(const std::vector<std::string> &ret_da
 }
 
 
-void QuotationServerApp::SendRequestAck(int user_id, int req_id, RequestType type, const std::shared_ptr<TSystem::communication::Connection>& pconn)
+void QuotationServerApp::SendUserRequestAck(int user_id, int req_id, RequestType type, const std::shared_ptr<TSystem::communication::Connection>& pconn)
 {
 	UserRequestAck ack;
 	ack.set_req_type(type);
 	ack.set_user_id(user_id);
 	TSystem::FillRequestAck(req_id, *ack.mutable_req_ack());
 	pconn->AsyncSend( Encode(ack, msg_system(), Message::HeaderType(0, pid(), 0)));
+}
+
+void QuotationServerApp::SendRequestAck(const std::shared_ptr<QuotationRequest>& req, int error_code, const std::string & error_info, const std::shared_ptr<TSystem::communication::Connection>& pconn)
+{
+    RequestAck ack;
+    FillRequestAck(req->req_id(), error_code, error_info, ack);
+    pconn->AsyncSend( Encode(ack, msg_system(), Message::HeaderType(0, pid(), 0)));
 }
 
 std::vector<std::string> QuotationServerApp::GetFenbi2File(const std::string &code, int date_beg, int date_end)
@@ -1130,6 +1124,57 @@ std::vector<std::string> QuotationServerApp::GetWeekKbars2File(const std::string
         {
             std::cout << " PyFuncGetWeekKbar2File  ret null! beg_date:" << beg_date << " end_date:" << end_date << std::endl;
             local_logger().LogLocal(utility::FormatStr("PyFuncGetWeekKbar2File   ret null! beg_date:%d end_date:%d", beg_date, end_date));
+            return ret_vector;
+        }
+        PyArg_Parse(pRet, "s", &result);
+
+        if( result && strlen(result) > 0 )
+        {
+            if( strstr(result, ";") )
+            {
+                ret_vector = utility::split(result, ";"); 
+            }else
+                ret_vector.push_back(result);
+            Py_XDECREF(result);
+        } 
+    }catch(...)
+    {
+        Py_XDECREF(result);
+    } 
+    //-------------------
+    return ret_vector; 
+}
+
+std::vector<std::string> QuotationServerApp::GetHourKbars2File(const std::string &code, int date_beg, int date_end
+                                           ,  QuotationFqType fq_type, bool is_index)
+{ 
+    assert(PyFuncGetHourKbar2File);
+
+    if( !IsLongDate(date_beg) || !IsLongDate(date_end) || !IsStockCode(code) )
+        return std::vector<std::string>();
+    int beg_date = (date_beg > date_end) ? date_end : date_beg;
+    int end_date = (date_beg > date_end) ? date_beg : date_end;
+
+    auto pArg = PyTuple_New(4);
+    PyTuple_SetItem(pArg, 0, Py_BuildValue("s", code.c_str()));
+    char beg_date_str[32] = {0};
+    sprintf_s(beg_date_str, "%d-%02d-%02d\0", GET_LONGDATE_YEAR(beg_date), GET_LONGDATE_MONTH(beg_date), GET_LONGDATE_DAY(beg_date));
+    PyTuple_SetItem(pArg, 1, Py_BuildValue("s", beg_date_str));
+    char end_date_str[32] = {0};
+    sprintf_s(end_date_str, "%d-%02d-%02d\0", GET_LONGDATE_YEAR(end_date), GET_LONGDATE_MONTH(end_date), GET_LONGDATE_DAY(end_date));
+    PyTuple_SetItem(pArg, 2, Py_BuildValue("s", end_date_str));
+
+    PyTuple_SetItem(pArg, 3, Py_BuildValue("b", is_index));
+
+    std::vector<std::string> ret_vector;
+    char *result;
+    try
+    {
+        auto pRet = PyEval_CallObject((PyObject*)PyFuncGetHourKbar2File, pArg);
+        if( !pRet )
+        {
+            std::cout << " PyFuncGetHourKbar2File  ret null! beg_date:" << beg_date << " end_date:" << end_date << std::endl;
+            local_logger().LogLocal(utility::FormatStr("PyFuncGetHourKbar2File   ret null! beg_date:%d end_date:%d", beg_date, end_date));
             return ret_vector;
         }
         PyArg_Parse(pRet, "s", &result);

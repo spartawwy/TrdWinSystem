@@ -66,9 +66,12 @@ private:
     void _HandleQuotatoinKbar(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn);
     void _HandleQuotatoinKBarDay(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection> &pconn, const std::string &code, int beg_date, int end_date, QuotationFqType fqtye, bool is_index);
     void _HandleQuotatoinKBarWeek(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection> &pconn, const std::string &code, int beg_date, int end_date, QuotationFqType fqtye, bool is_index);
+    void _HandleQuotatoinKBarHour(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection> &pconn, const std::string &code, int beg_date, int end_date, QuotationFqType fqtye, bool is_index);
+    
     void _HandleQuotatoinHisQuote(std::shared_ptr<QuotationRequest>& req, std::shared_ptr<communication::Connection>& pconn);
 
-	void SendRequestAck(int user_id, int req_id, RequestType type, const std::shared_ptr<TSystem::communication::Connection>& pconn);
+	void SendUserRequestAck(int user_id, int req_id, RequestType type, const std::shared_ptr<TSystem::communication::Connection>& pconn);
+    void SendRequestAck(const std::shared_ptr<QuotationRequest>& req, int error_code, const std::string & error_info, const std::shared_ptr<TSystem::communication::Connection>& pconn);
 
     // date_beg : yyyyMMdd 
     std::vector<std::string> GetFenbi2File(const std::string &code, int date_beg, int date_end);
@@ -78,7 +81,11 @@ private:
      
     std::vector<std::string> GetWeekKbars2File(const std::string &code, int date_beg, int date_end
                         ,  QuotationFqType fq_type=QuotationFqType::FQ_BEFORE, bool is_index=false);
-    void ReadQuoteMessage(const std::vector<std::string> &ret_date_str_vector, const std::string &code, KLINE_TYPE k_type, int beg_date, int end_date, QuotationMessage &quotation_msg);
+
+    std::vector<std::string> GetHourKbars2File(const std::string &code, int date_beg, int date_end
+                        ,  QuotationFqType fq_type=QuotationFqType::FQ_BEFORE, bool is_index=false);
+
+    void ReadQuoteMessage(const std::vector<std::string> &ret_date_str_vector, const std::string &code, KLINE_TYPE k_type, int beg_date, int end_date, const std::string &partten_str, QuotationMessage &quotation_msg);
 
     // cur; pre_close;open;high;low;amount
     bool GetRealTimeK(const std::string &code, QuotationMessage::QuotationKbarMessage &kbar_msg, bool is_index=false);
@@ -88,7 +95,9 @@ private:
     void *PyFuncGetAllFill2File;
     void *PyFuncGetDayKbar2File;
     void *PyFuncGetWeekKbar2File;
+    void *PyFuncGetHourKbar2File;
     void *PyFuncGetRealTimeKbar;
+
     std::string stk_data_dir_;
     // ------------
     typedef std::unordered_map<int, std::shared_ptr<TaskStrand> > TConnidMapStrand;

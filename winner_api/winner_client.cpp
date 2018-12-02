@@ -204,6 +204,8 @@ void WinnerClient::SetupMsgHandlers()
  
                     //strcpy_s(quote_atom_data.code, quotation_message->code().c_str());
                     quote_atom_data.yyyymmdd = msg_kbar->yyyymmdd();
+                    if( msg_kbar->has_hhmmdd() )
+                        quote_atom_data.hhmmdd = msg_kbar->hhmmdd();
                     quote_atom_data.open = RationalDouble(msg_kbar->open());
                     quote_atom_data.close = RationalDouble(msg_kbar->close());
                     quote_atom_data.high = RationalDouble(msg_kbar->high());
@@ -414,6 +416,15 @@ bool WinnerClient::RequestKData(char* Zqdm, PeriodType type, int date_begin, int
     FillTime(TimePoint(MakeTimePoint(std::get<0>(date_end_comm), std::get<1>(date_end_comm), std::get<2>(date_end_comm))), *quotation_req.mutable_end_time());
     switch(type)
     {
+    case PeriodType::PERIOD_15M:
+        quotation_req.set_req_type(QuotationReqType::FIFTEEN_MINUTE);
+        break;
+    case PeriodType::PERIOD_30M:
+        quotation_req.set_req_type(QuotationReqType::THIRTY_MINUTE);
+        break;
+    case PeriodType::PERIOD_HOUR:
+        quotation_req.set_req_type(QuotationReqType::HOUR);
+        break;
     case PeriodType::PERIOD_DAY:
         quotation_req.set_req_type(QuotationReqType::DAY);
         break;

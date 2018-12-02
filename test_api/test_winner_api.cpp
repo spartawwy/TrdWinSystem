@@ -269,7 +269,7 @@ int main()
             }
             static std::vector<T_KDataCallBack> kdata_callbk_obj_vector;
             kdata_callbk_obj_vector.clear();
-            T_KDataCallBack  call_back_obj;
+            T_KDataCallBack  call_back_obj; 
             kdata_callbk_obj_vector.push_back(call_back_obj);
 
             kdata_callbk_obj_vector[0].call_back_func = KDataCallBackFun;
@@ -403,6 +403,7 @@ void KDataCallBackFun(T_K_Data *k_data, bool is_end, void *para)
 {
     if( k_data )
     {
+        printf(" %d %d %.2f %.2f %.2f %.2f\n", k_data->yyyymmdd, k_data->hhmmdd, k_data->open, k_data->close, k_data->high, k_data->low);
         //printf("%s %d:%d %.2f %.2f %d\n", quote_data->code, quote_data->date, quote_data->time, quote_data->price, quote_data->price_change, quote_data->vol);
     }
     if( is_end )
