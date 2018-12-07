@@ -1328,7 +1328,7 @@ void ConvertTime(const Time& t, int& longdate, std::string * timestamp)
     TimePoint tp( MakeTimePoint(t.time_value(), t.frac_sec()) );
     longdate = ToLongdate( tp.year(), tp.month(), tp.day() );
     if( timestamp )
-        *timestamp = utility::FormatStr("%02d:%02d:%02d.%06d", tp.hour(), tp.min(), tp.sec(), static_cast<int>(tp.frac_sec()*1000000));
+        *timestamp = utility::FormatStr("%02d:%02d:%02d.%06d", tp.hour(), tp.minute(), tp.sec(), static_cast<int>(tp.frac_sec()*1000000));
 };
 
 // ps: make sure date_end >= date_begin
