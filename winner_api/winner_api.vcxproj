@@ -64,7 +64,8 @@
     </Link>
     <CustomBuildStep>
       <Command>copy  $(OutDir)$(TargetName)$(TargetExt)  $(SolutionDir)..\StkForecast\Build\$(Platform)\$(Configuration)\ 
-copy  $(OutDir)$(TargetName)$(TargetExt)  $(SolutionDir)..\mock_proj\Build\$(Platform)\$(Configuration)\ </Command>
+copy  $(OutDir)$(TargetName)$(TargetExt)  $(SolutionDir)..\mock_proj\Build\$(Platform)\$(Configuration)\ 
+copy  $(OutDir)$(TargetName)$(TargetExt)  $(SolutionDir)..\mytrd\Build\$(Platform)\$(Configuration)\ </Command>
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>'copy dll'</Outputs>

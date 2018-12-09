@@ -63,7 +63,8 @@
       <AdditionalLibraryDirectories>z:\lib\win32;$(OutDir);$(PYTHONPATH)\libs</AdditionalLibraryDirectories>
     </Link>
     <CustomBuildStep>
-      <Command>copy $(OutDir)$(TargetName)$(TargetExt)  D:\ProgramFilesBase\StockForcastSetup\  /y</Command>
+      <Command>
+      </Command>
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>'copy file'</Outputs>

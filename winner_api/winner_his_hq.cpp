@@ -57,6 +57,10 @@ extern "C" DLLIMEXPORT int  WinnerHisHq_GetQuote(char* Zqdm, int Date, int hhmms
         auto time_point = TSystem::MakeTimePoint(Date/10000, Date%10000/100, Date%100, hhmmss/10000, hhmmss%10000/100, hhmmss%100, 0);
         std::time_t time_val = std::chrono::system_clock::to_time_t(time_point);
         auto iter = p_time_his_quote->find(time_val);
+        if( iter == p_time_his_quote->end() )
+            iter = p_time_his_quote->find(time_val-1);
+        if( iter == p_time_his_quote->end() )
+            iter = p_time_his_quote->find(time_val-2);
         if( iter != p_time_his_quote->end() )
         {
             WinnerClient::QuoteAtomData *quote_data = iter->second.get();
@@ -69,17 +73,25 @@ extern "C" DLLIMEXPORT int  WinnerHisHq_GetQuote(char* Zqdm, int Date, int hhmms
 
     WinnerClient::TTimeMapQuoteData * p_time_his_quote = GetInstance()->FindHisQuote(Zqdm, Date);
 
-    if( p_time_his_quote && from_quote_data(p_time_his_quote) )
-        return 0;
-
+    if( p_time_his_quote )
+    {
+        if( from_quote_data(p_time_his_quote) )
+            return 0;
+        else
+            return -2;
+    }
     if( !GetInstance()->is_connected() )
         return -1;
     auto val = GetInstance()->RequestHisQuote(Zqdm, Date, ErrInfo);
 
     p_time_his_quote = GetInstance()->FindHisQuote(Zqdm, Date);
-    if( p_time_his_quote && from_quote_data(p_time_his_quote) )
-        return 0;
-    else
+    if( p_time_his_quote )
+    {
+        if( from_quote_data(p_time_his_quote) )
+            return 0;
+        else
+            return -2;
+    }else
     {
         if( ErrInfo )
             strcpy(ErrInfo, "no related data");
