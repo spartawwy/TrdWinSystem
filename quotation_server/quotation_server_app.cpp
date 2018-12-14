@@ -352,12 +352,14 @@ void QuotationServerApp::_HandleQuotatoinFenbi(std::shared_ptr<QuotationRequest>
     { 
 #ifndef FENBI_DATA_ALREAD 
         auto ret_date_str_vector = GetFenbi2File(req->code(), begin_date, end_date);
-        std::for_each( std::begin(ret_date_str_vector), std::end(ret_date_str_vector), [&req, &pconn, this](const std::string &entry)
+        std::for_each( std::begin(ret_date_str_vector), std::end(ret_date_str_vector), [&req, &pconn, is_last, this](const std::string &entry)
         { 
             std::string full_path = this->stk_data_dir_ + req->code() + "/" + entry + "/fenbi/" + req->code() + ".fenbi";
             QuotationMessage quotation_msg;
             quotation_msg.set_code(req->code());
             quotation_msg.set_req_id(req->req_id);
+            if( is_last )
+                quotation_msg.set_is_last(is_last);
 #else 
         auto date_vector = GetSpanTradeDates(begin_date, end_date);
         std::for_each( std::begin(date_vector), std::end(date_vector), [&req, &pconn, &days_fenbi, is_last, this](const int date)
@@ -597,7 +599,7 @@ void QuotationServerApp::_HandleQuotatoinFenbi(std::shared_ptr<QuotationRequest>
     unsigned int i = 0;
     for( ; i < date_vector.size() / span_len; ++i )
     { 
-       fetch_data_send(req, pconn, date_vector[i*span_len], date_vector[(i + 1)*span_len - 1], days_fenbi, i==date_vector.size()-1);
+       fetch_data_send(req, pconn, date_vector[i*span_len], date_vector[(i + 1)*span_len - 1], days_fenbi, (i + 1)*span_len==date_vector.size());
        if( i < 10 )
            Delay(20);
        else if(i < 20 )
