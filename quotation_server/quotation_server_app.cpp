@@ -364,13 +364,18 @@ void QuotationServerApp::_HandleQuotatoinFenbi(std::shared_ptr<QuotationRequest>
         auto date_vector = GetSpanTradeDates(begin_date, end_date);
         std::for_each( std::begin(date_vector), std::end(date_vector), [&req, &pconn, &days_fenbi, is_last, this](const int date)
         { 
-            if( !this->exchange_calendar_.IsTradeDate(date) )
-                return;
+            
             QuotationMessage quotation_msg;
             quotation_msg.set_code(req->code());
             quotation_msg.set_req_id(req->req_id());
             if( is_last )
                 quotation_msg.set_is_last(is_last);
+            if( !this->exchange_calendar_.IsTradeDate(date) )
+            {
+                if( is_last )
+                    pconn->AsyncSend( Encode(quotation_msg, msg_system(), Message::HeaderType(0, pid(), 0)) ); 
+                return;
+            }
             auto day_iter = days_fenbi.find(date);
             if( day_iter != days_fenbi.end() )
             { 
