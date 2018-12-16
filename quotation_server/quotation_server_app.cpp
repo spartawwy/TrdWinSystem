@@ -361,7 +361,8 @@ void QuotationServerApp::_HandleQuotatoinFenbi(std::shared_ptr<QuotationRequest>
             if( is_last )
                 quotation_msg.set_is_last(is_last);
 #else 
-        auto date_vector = GetSpanTradeDates(begin_date, end_date);
+        std::vector<int> date_vector = GetSpanTradeDates(begin_date, end_date);
+       
         std::for_each( std::begin(date_vector), std::end(date_vector), [&req, &pconn, &days_fenbi, is_last, this](const int date)
         { 
             

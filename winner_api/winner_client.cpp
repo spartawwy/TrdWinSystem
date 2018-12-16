@@ -101,7 +101,7 @@ void WinnerClient::SetupMsgHandlers()
             auto req_iter = request_holder_.find(quotation_message->req_id());
             if( req_iter == request_holder_.end() )
             {   // log error
-                    return;
+                return;
             }
             void *call_back_para = nullptr;
             void *tmp_ptc = nullptr;
@@ -111,6 +111,15 @@ void WinnerClient::SetupMsgHandlers()
                 tmp_ptc = ((T_FenbiCallBack*)call_back_para)->call_back_func;
                 if( !call_back_para || !tmp_ptc )
                     return;
+                if( quotation_message->quote_fill_msgs().size() == 0 )
+                {
+                    T_QuoteAtomData quote_atom_data = {0};
+                    strcpy_s(quote_atom_data.code, quotation_message->code().c_str());
+                    ((T_FenbiCallBack*)call_back_para)->call_back_func(&quote_atom_data, quotation_message->is_last(), call_back_para);
+                    if( quotation_message->is_last() )
+                        request_holder_.erase(req_iter);
+                    return;
+                }
                 for(int i = 0; i < quotation_message->quote_fill_msgs().size(); ++i )
                 {
                     T_QuoteAtomData quote_atom_data = {0};
@@ -133,6 +142,7 @@ void WinnerClient::SetupMsgHandlers()
                         return;
                     }
                 }
+
             }else if( std::get<0>(req_iter->second) == ReqType::HIS_QUOTE )
             {
                 // todo:
