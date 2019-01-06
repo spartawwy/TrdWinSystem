@@ -1,0 +1,25 @@
+<UI version="4.0" >
+ <class>auto_forcast_serverClass</class>
+ <widget class="QWidget" name="auto_forcast_serverClass" >
+  <property name="objectName" >
+   <string notr="true">auto_forcast_serverClass</string>
+  </property>
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>400</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>auto_forcast_server</string>
+  </property>
+ </widget>
+ <layoutDefault spacing="6" margin="11" />
+ <pixmapfunction></pixmapfunction>
+ <resources>
+   <include location="auto_forcast_server.qrc"/>
+ </resources>
+ <connections/>
+</UI>
