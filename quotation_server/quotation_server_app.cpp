@@ -776,7 +776,10 @@ void QuotationServerApp::_HandleQuotatoinHisQuote(std::shared_ptr<QuotationReque
     };
    
     if( !this->exchange_calendar_.IsTradeDate(date) )
+    {
+        // todo: send error ack
         return;
+    }
     QuotationMessage quotation_msg;
     quotation_msg.set_code(req->code());
     quotation_msg.set_req_id(req->req_id());
@@ -812,7 +815,8 @@ void QuotationServerApp::_HandleQuotatoinHisQuote(std::shared_ptr<QuotationReque
     if( !in.is_open() )
     {
         printf("open file fail");
-        getchar();
+        //getchar();
+        // todo: send error ack
         return;
     } 
 
