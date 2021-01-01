@@ -95,6 +95,9 @@ void QuotationServerApp::Initiate()
 	StartPort();
 }
 
+/*
+  ps: first, the py file have to be run ok, otherwise PyObject_GetAttrString will return null
+*/
 void QuotationServerApp::InitPython()
 {
 	int r = Py_IsInitialized();  //1为已经初始化了

@@ -18,5 +18,8 @@
     <ClCompile Include="test_winner_api.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="test_quotation_api.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

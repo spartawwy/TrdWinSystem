@@ -1,3 +1,5 @@
+#ifdef TEST_WINNER_API
+
 
 #include <iostream>
 #include <fstream>
@@ -16,8 +18,9 @@
 
 #include "winner_hq_api.h"
 
-#define  TEST_API
+//#define  TEST_WINNER_API
 //#define  TEST_OHTER
+#pragma comment(lib, "WINNERLIB_d.lib")
 
 #ifdef TEST_OHTER
 using namespace TSystem;
@@ -171,7 +174,7 @@ int main()
     ckday = ckday;
 #endif
 
-#ifdef TEST_API
+#ifdef TEST_WINNER_API
     HMODULE api_handle = LoadLibrary("winner_api.dll");
     if( !api_handle )
     {
@@ -290,7 +293,7 @@ int main()
     if( WinnerHisHq_DisConnect )
         WinnerHisHq_DisConnect();
 #endif
-#endif // TEST_API
+#endif // TEST_WINNER_API
 
     getchar();
     return 0;
@@ -440,3 +443,5 @@ bool is_sh_stock(const std::string& code)
     else 
         return false;
 }
+
+#endif

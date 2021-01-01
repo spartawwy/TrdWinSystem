@@ -84,7 +84,7 @@ bool FileMapping::Create(const std::string & file_full_path)
         //ret = TRetCookie::ERROR_OTHER;
         goto EXIT_PRO;
     }
-    mmf_size_ = (file_size_ / 1024) * 1024 + 1024;
+    mmf_size_ = (file_size_ / 1024) * 1024 + (file_size_ % 1024 > 0 ? 1024 : 0);
     view_size_ = mmf_size_;
     DWORD size_high = 0;
     int page_mode = PAGE_READONLY;
